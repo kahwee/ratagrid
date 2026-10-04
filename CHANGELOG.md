@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+These changes are on GitHub main after v0.1.0; they are not in the published 0.1.0 crate or its versioned API docs. The package version remains 0.1.0 until the next release version is chosen.
+
 - Standalone nightly portable SIMD sanitization experiment includes boundary/Unicode adversarial tests and scalar comparison benchmarks; the library retains its stable Rust 1.99 toolchain.
 
 - Opt-in full-value panels for truncated cells, with configurable hover delay, Enter inspection, scrolling and safe dismissal. Enable the playground with `--cell-details`.
@@ -10,6 +12,19 @@
 - Rendering reveals the active row and visible cursor column after viewport resizing, without resetting ordinary wheel scrolling.
 - `Grid::select_row(index)` selects resident insertion indices and reveals sorted/filtered positions across client pages.
 - Adversarial regressions cover unsafe Unicode, separator injection, resize/selection sequences, database query inputs, stale counts and offset overflow.
+- Regenerated bundled rustdoc guides to fix the stale-guide CI failure. Guide freshness, smoke dependency installation, release example builds and terminal smoke tests now appear as separate named Linux CI gates.
+- README, installation guides and the live Pages site use crates.io for the released library and distinguish main-only APIs from published 0.1.0.
+
+### Try the update from main
+
+```sh
+git switch main
+git pull --ff-only
+cargo run --release --locked --example playground -- --cell-details
+cargo run --locked --example database
+```
+
+Run each example separately; quit the playground with Q before starting the database example. Applications enabling cell details must advance the hover timer, redraw on `Action::CellDetailsChanged`, and defer navigation shortcuts while `is_inspecting_cell()` is true. Inspection stays disabled by default. SQLite is an example-only dependency; the library still owns no database connection or event loop.
 
 ## 0.1.0 — 2026-10-04 (UTC)
 

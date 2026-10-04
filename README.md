@@ -72,4 +72,4 @@ For a SQLite adapter with global search, one-based application pages, optional s
 
 For an isolated experiment on the latest nightly compiler, see [portable SIMD sanitization](experiments/nightly-sanitization/README.md). The library continues to build on stable Rust 1.99.
 
-[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
+[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Update notes](CHANGELOG.md#unreleased) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

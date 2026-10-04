@@ -22,12 +22,18 @@ jobs:
         if: runner.os == 'Linux'
         with:
           python-version: '3.12'
-      - if: runner.os == 'Linux'
-        run: |
-          python3 -m pip install pyte==0.8.2
-          python3 scripts/build_rustdoc_guides.py --check
-          cargo build --release --examples --locked
-          python3 scripts/terminal_smoke.py
+      - name: Check bundled rustdoc guides
+        if: runner.os == 'Linux'
+        run: python3 scripts/build_rustdoc_guides.py --check
+      - name: Install terminal smoke dependency
+        if: runner.os == 'Linux'
+        run: python3 -m pip install pyte==0.8.2
+      - name: Build release examples
+        if: runner.os == 'Linux'
+        run: cargo build --release --examples --locked
+      - name: Run terminal smoke tests
+        if: runner.os == 'Linux'
+        run: python3 scripts/terminal_smoke.py
       - run: cargo doc --no-deps --locked
         env:
           RUSTDOCFLAGS: -D warnings
