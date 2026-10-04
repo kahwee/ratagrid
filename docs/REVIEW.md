@@ -1,6 +1,6 @@
 # Adversarial review and cleanup
 
-Reviewed October 4, 2026. Ratagrid has a useful foundation for an interactive Ratatui data table. It remains an unpublished development API. The review covered request lifecycle, sorting and selection invariants, input modifiers, style composition, packaging, CI, and measured performance.
+Reviewed October 4, 2026. Ratagrid has a useful foundation for an interactive Ratatui data table. This report records the development review preceding the 0.1.0 release. The review covered request lifecycle, sorting and selection invariants, input modifiers, style composition, packaging, CI, and measured performance.
 
 ## Defects reproduced and fixed
 
@@ -45,7 +45,7 @@ The [performance report](PERFORMANCE.md) and raw CSV predate this cleanup and re
 - Replaced the entire README embedded in rustdoc with a focused crate overview and explicit links. Rustdoc no longer depends on repository-relative screenshot URLs.
 - Excluded screenshots, benchmark captures, CI files and smoke scripts from the Cargo archive. The verified Cargo archive is approximately 56 KiB compressed.
 - Added the Unix terminal smoke test to Linux CI and expanded the then-current Rust 1.88 job to all targets (historical; current CI pins Rust 1.99.0).
-- Removed generated ignore-file commentary and consolidated the changelog under Unreleased. No crates.io release or release tag has been made.
+- Removed generated ignore-file commentary and consolidated the development changelog; 0.1.0 release preparation now records those changes.
 
 ## Verification
 
@@ -60,4 +60,4 @@ The original cleanup passed 41 tests and three doc examples. Subsequent changes 
 
 ## History
 
-The previous implementation history is preserved on [`archive/pre-squash-2026-10-04`](https://github.com/kahwee/ratagrid/tree/archive/pre-squash-2026-10-04), at `e9f8409004ef87aa66286d03c901c434f4e0563f`. The cleaned implementation is squashed on main, retaining the original repository-initialization commit. Historical benchmark commit references remain reachable through that archive.
+Main was squashed to one root commit before release preparation. Non-main branches were removed at the owner’s request after all reachable history was verified in local recovery bundles. Historical benchmark references describe the original measurements; no remote archive branch remains.

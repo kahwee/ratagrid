@@ -2,7 +2,7 @@
 
 ## Try it
 
-Run these commands in your terminal. Rust installed through [rustup](https://rustup.rs) is required; the checkout pins Rust 1.99.0. The repository is private, so GitHub must authenticate you as an account with access.
+Run these commands in your terminal. Rust 1.99.0 is required; [rustup](https://rustup.rs) is one way to install it. The public checkout can be cloned over HTTPS.
 
 For a new checkout:
 
@@ -82,7 +82,7 @@ Try the new browsing controls with `cargo run --example explorer`: search, mark 
 
 ## Use it
 
-This is an unpublished development version, available to accounts with access to the private repository. Its API may change before release; pin a reviewed Git commit with Cargo’s `rev` option for reproducible builds. A crates.io release is not yet available.
+Ratagrid 0.1.0 uses Ratatui 0.30 types. The public Git dependency below tracks main; pin a reviewed Git revision for reproducible source builds. Registry publication status and release source identity are recorded in the [GitHub release](https://github.com/kahwee/ratagrid/releases).
 
 ```toml
 [dependencies]

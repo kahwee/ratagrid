@@ -2,18 +2,18 @@
 
 An independent, typed data grid for [Ratatui](https://ratatui.rs): sorting, selection, search, column resizing and pagination.
 
-![Playground demo](docs/media/showcase.gif)
+![Playground demo](https://raw.githubusercontent.com/kahwee/ratagrid/main/docs/media/showcase.gif)
 
-[22-second video](docs/media/showcase.mp4) · [Documentation page source](docs/index.html) · [Usage guide](docs/GUIDE.md)
+[Documentation and demo](https://kahwee.github.io/ratagrid/) · [API reference](https://docs.rs/ratagrid) · [Usage guide](https://github.com/kahwee/ratagrid/blob/main/docs/GUIDE.md)
 
 The demo shows real terminal I/O rendered into media, using synthetic records.
 
 ## Run it
 
-Rust 1.99.0 is required. The repository currently requires GitHub access; no crates.io version has been published.
+Rust 1.99.0 is required.
 
 ```sh
-git clone git@github.com:kahwee/ratagrid.git
+git clone https://github.com/kahwee/ratagrid.git
 cd ratagrid
 cargo run --release --locked --example playground
 ```

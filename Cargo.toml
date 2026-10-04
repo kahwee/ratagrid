@@ -7,7 +7,9 @@ description = "A mouse-first interactive data grid for Ratatui"
 license = "MIT"
 repository = "https://github.com/kahwee/ratagrid"
 readme = "README.md"
-exclude = ["docs/screenshots/**", "docs/benchmarks/**", "docs/media/**", "docs/index.html", "docs/integration/**", "docs/.nojekyll", ".github/**", "scripts/**"]
+homepage = "https://kahwee.github.io/ratagrid/"
+documentation = "https://docs.rs/ratagrid"
+exclude = ["docs/screenshots/**", "docs/benchmarks/**", "docs/media/**", "docs/index.html", "docs/integration/**", "docs/.nojekyll", ".github/**", ".agents/**", "scripts/**"]
 keywords = ["ratatui", "tui", "table", "grid", "sorting"]
 categories = ["command-line-interface"]
 

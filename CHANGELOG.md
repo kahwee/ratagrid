@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 — 2026-10-04 (UTC)
 
 - Widget library depends on `ratatui-core`; application examples retain full Ratatui. Integration guides are bundled in rustdoc.
 - Rendering clips to the destination buffer before indexing, including partially outside and disjoint areas.

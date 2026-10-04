@@ -1,40 +1,23 @@
-# Public release preparation
+# Release validation and privacy review
 
-The repository remains private. These changes are prepared for a normal commit to main; crates.io publication and public visibility have not been requested.
+The repository is public. Version 0.1.0 is prepared for publication; completed registry, tag, release and Pages outcomes are recorded in the GitHub release. This document records audit coverage, rather than treating preparation as publication.
 
-## Adversarial findings
+## Reproduced defects and coverage
 
-A search consistency defect was reproduced before the fix: a formatter returning `a\nb` displayed and copied `ab`, but searching `ab` excluded the row. Search now removes terminal controls from formatted values and queries. Grid and direct model regressions cover it.
+Search previously displayed/copied formatter output `a\nb` as `ab` while excluding it from an `ab` query. Search now strips terminal controls consistently. A supplied render area outside the destination buffer previously panicked; clipping now happens before layout and indexing. Both defects have regression tests.
 
-Nine bounded adversarial tests exercise 2,000 mixed operations, 1,500 differential stable-sort updates, 150 request generations with stale/forged/duplicate responses, zero and extreme valid layouts, hidden/pinned columns, pasted Unicode graphemes and text up to 200,000 characters. Invalid CLI dimensions/counts fail before allocating data. Tiny empty snapshots render successfully.
+Nine bounded adversarial tests exercise 2,000 mixed operations, 1,500 differential stable-sort updates, 150 request generations, extreme valid layouts, pinned/hidden columns, Unicode graphemes and text up to 200,000 characters. The keyed-selection characterization verifies correct restoration and 10,000/40,000/160,000 comparisons for 200×50, 200×200 and 400×400 cases. Its O(marked × resident) cost remains a documented limit. Virtual totals are not database benchmarks.
 
-A second defect was reproduced when a supplied render area extended outside the destination buffer. Rendering now intersects the area with the buffer before layout and indexing; partially overlapping and disjoint rectangles are covered.
+The validated implementation passed formatting, Clippy with warnings denied, 96 all-target tests, 11 doctests, rustdoc, release example builds and playground/explorer real-PTY smoke checks on Rust 1.99.0. Linux/macOS/Windows CI passed. Release preparation reruns applicable checks against the exact final source and regenerates the Cargo archive.
 
-The independent keyed-selection characterization confirms O(marked × resident) restoration: 200 rows / 50 marks = 10,000 equality comparisons; 200 / 200 = 40,000; 400 / 400 = 160,000. Selection remains correct. This is a documented scaling limit, not a correctness failure or a measured million-row reload. A future indexed identity option needs a stronger key contract.
+## Privacy coverage
 
-Unknown-total forward navigation, dropping missing/duplicate IDs, and synchronous owned sorting are documented behavior. No new failure was established for those contracts. No test allocates the 100-million-record virtual total.
+Before branch cleanup, all three advertised remote branches were fetched; no tags were advertised. The scan covered 21 reachable commits and 232 blobs, including the former archive and preparation branches, plus metadata and current files. No blocking credentials, private records, personal filesystem paths or private application names were found. GitHub noreply author addresses are normal attribution. Unreachable objects, reflogs and unrelated repositories were outside the audit.
 
-## Validation on macOS / Rust 1.99.0
+The actual validated Cargo archive’s 50 regular files were unpacked and independently inspected. Only expected source, examples, tests, docs, license and Cargo-generated metadata were present. A readiness-document snapshot was older than the final tree; release preparation regenerates and rechecks the archive. Media, CI, scripts and release skills are excluded from the crate.
 
-- Formatting, Clippy with warnings denied, 96 all-target tests, eleven doctests, and rustdoc with warnings denied passed.
-- Bundled rustdoc guides use checked intra-doc links; an independent check found no missing files among 88 local HTML resources. CI checks that generated guides match their Markdown sources.
-- Release builds of all examples and the existing playground/explorer real-PTY smoke checks passed, including terminal cleanup.
-- The 63-line README uses the compiled keyboard quickstart. The library follows upstream widget guidance by depending on `ratatui-core`, while examples retain full Ratatui.
-- Local package verification passes; media/site assets are excluded. The crates.io name lookup returned 404, without reserving a name or publishing.
-- The synthetic positions example tests signed cents/basis points, integer limits, numeric sorting and selected-ID preservation.
-- The static page loads its video and images; the copy button works. Local links exist and the downloadable source matches the compiled example.
-- Media and the generated site are excluded from the Cargo archive. Publication has not been attempted.
+All 110 MP4 frames, all 110 GIF frames and five final PNGs were inspected, with generator/source and metadata review. Names, regions, IDs and metrics trace to synthetic fixtures. No private desktop content appeared. The raw PTY transcript was not retained; supplemental OCR failed, so no OCR coverage is claimed. PNG metadata was empty; MP4 contains one video stream and no audio. Media records terminal I/O rendered into images/video, not native iTerm screen recording.
 
-## Privacy and provenance review
+## Release identity and limits
 
-An independent review inspected the existing 19 reachable commits, 189 historical blobs, commit metadata and current files for credential patterns, private financial/customer records and user-home paths. No blocking leak was found. New examples and media contain synthetic fixtures; no private applications, accounts or real market data were accessed. PNGs contain no textual/EXIF metadata. MIT license and Cargo metadata agree. Generated images contain rasterized system-font glyphs, with no external image or font assets embedded in the SVGs.
-
-The 22-second GIF/MP4 and five PNGs are actual playground terminal I/O rendered into media. They are not native iTerm screen recordings. Native terminal computer-use controls were unavailable, and no alternate desktop automation was used to bypass that restriction.
-
-This review covers the candidate and reachable repository history, not unrelated projects or inaccessible external systems. No credential rotation was indicated by the reviewed material.
-
-## Remaining publication steps
-
-The documentation is ready in `/docs`. GitHub Pages settings currently require an account upgrade or a public repository. Visibility and billing remain untouched; there is no verified live Pages URL.
-
-The user authorized a normal push to main that preserves remote history. A local squashed history candidate and recoverable backup remain available, but no remote history rewrite is part of this push. Changing visibility and package publication require separate authorization. Local validation avoids repeated GitHub Actions runs while the account has limited included minutes remaining; the normal main push triggers the existing CI workflow once.
+Read the repository-scoped release skill for version/tag checks, package inspection and safe partial-publication recovery. Tags identify the tested source commit and are not moved after publication. Package verification is distinct from uploading; Pages settings are distinct from a verified live site. Credential/access setup requires a secure user handoff. Neither the skill nor this report grants future publication authority.

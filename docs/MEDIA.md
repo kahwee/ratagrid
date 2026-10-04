@@ -22,6 +22,6 @@ Open `http://127.0.0.1:8080/`. The page uses local assets, system fonts and a sm
 
 ## GitHub Pages publication
 
-The prepared source is `/docs` on the reviewed candidate branch. Choose **Deploy from a branch** and `/docs` in the repository's Pages settings once the account/repository is eligible. The current private-repository settings show that an upgrade or public visibility is required to enable Pages. No visibility, plan, permission or workflow-token changes were made during preparation.
+The public site is configured to deploy `/docs` from `main`, with HTTPS enforced at the default domain. Verify the live [documentation page](https://kahwee.github.io/ratagrid/) after each deployment; saving the source setting alone does not confirm deployment success.
 
-There is no verified live Pages URL yet. Publishing the page and changing repository visibility remain separate actions. The branch has no custom Pages workflow, avoiding new token grants and unnecessary Actions runs.
+The site has no custom Pages workflow, external embeds or analytics. Media remains in the Git checkout and is excluded from the Cargo archive. The release skill checks the site and package separately.
