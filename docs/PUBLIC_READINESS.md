@@ -2,7 +2,7 @@
 
 Ratagrid 0.1.0 was published on October 4, 2026 (UTC), from commit `3ce637c8fdacd57d2ed7f8ee65bcd16240dfef95`. The annotated [v0.1.0 tag and GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.1.0), [crates.io package](https://crates.io/crates/ratagrid/0.1.0), and [live Pages site](https://kahwee.github.io/ratagrid/) were verified. This document preserves the release audit's coverage and limits.
 
-Main documentation and Pages may change after release. The tag and registry archive remain immutable. Verify the [docs.rs build](https://docs.rs/crate/ratagrid/0.1.0/builds) separately; publication does not guarantee an immediate documentation build.
+Main documentation and Pages may change after release. The tag and registry archive remain immutable. The [docs.rs build](https://docs.rs/crate/ratagrid/0.1.0/builds/4703402) succeeded; the versioned API and all three bundled guides were verified through public requests. Future releases must check documentation builds separately from registry publication.
 
 ## Reproduced defects and coverage
 

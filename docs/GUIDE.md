@@ -84,7 +84,7 @@ Try the browsing controls with `cargo run --locked --example explorer`: search, 
 
 Install [Ratagrid 0.1.0 from crates.io](https://crates.io/crates/ratagrid/0.1.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.1"` accepts compatible 0.1 releases; use `"=0.1.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.1.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.1.0) identifies its published source.
 
-Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.1.0/ratagrid/) describes the immutable published crate; its availability depends on docs.rs completing its build.
+Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.1.0/ratagrid/) describes the immutable published crate.
 
 ```toml
 [dependencies]
