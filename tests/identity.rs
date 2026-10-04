@@ -1,10 +1,11 @@
+mod support;
+use support::{key, render};
+
 use std::num::NonZeroUsize;
 
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+use crossterm::event::{Event, KeyCode, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use ratagrid::{Action, Column, Grid, GridModel, PageError};
-use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
+use ratatui::{buffer::Buffer, layout::Rect};
 
 #[derive(Debug, PartialEq, Eq)]
 struct Record {
@@ -25,12 +26,7 @@ fn columns() -> Vec<Column<Record>> {
 }
 fn draw(grid: &mut Grid<Record>) -> Buffer {
     let area = Rect::new(0, 0, 30, 6);
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
+    render(grid, area)
 }
 
 #[test]

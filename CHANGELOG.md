@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Moved the Pages HTML into a separate template, with generation regressions for
+  escaping, Unicode, stale files and invalid placeholders. Shared integration-test
+  event/buffer helpers preserve each scenario's fixtures and viewport geometry.
+- Added eight real-PTY terminal lifecycle checks for success, application errors
+  and panics, including panic unwinding without Ratatui's restoration hook. These
+  checks run on Linux and macOS CI.
+
 - Grouped grid pagination methods into an internal module without changing the
   public API. Larger demos share terminal cleanup, while copyable integrations
   stay standalone. Added an example guide and generated Pages freshness checks.

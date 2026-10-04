@@ -1,3 +1,6 @@
+mod support;
+use support::render;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
 use ratagrid::{Column, CopyTarget, Grid};
 use ratatui::{
@@ -9,9 +12,7 @@ use ratatui::{
 
 fn draw(grid: &mut Grid<f64>, width: u16) -> Buffer {
     let area = Rect::new(3, 2, width, 16);
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
+    render(grid, area)
 }
 fn text(buffer: &Buffer, y: u16, start: u16, end: u16) -> String {
     (start..end).map(|x| buffer[(x, y)].symbol()).collect()

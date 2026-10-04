@@ -1,12 +1,12 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{click, key, render};
+
+use crossterm::event::KeyCode;
 use ratagrid::{Column, Grid, GridModel};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Color, Style},
-    widgets::Widget,
 };
 use std::{cell::Cell, num::NonZeroUsize, rc::Rc, time::Duration};
 
@@ -16,22 +16,9 @@ fn columns() -> Vec<Column<i64>> {
         Column::new("Other", 12, |n: &i64| format!("other {n}")),
     ]
 }
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
-}
 fn draw(grid: &mut Grid<i64>) -> Buffer {
     let area = Rect::new(0, 0, 24, 6);
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn click(x: u16, y: u16) -> Event {
-    Event::Mouse(MouseEvent {
-        kind: MouseEventKind::Down(MouseButton::Left),
-        column: x,
-        row: y,
-        modifiers: KeyModifiers::NONE,
-    })
+    render(grid, area)
 }
 #[test]
 fn edits_match_full_stable_sort_and_keep_selection_when_any_row_moves() {

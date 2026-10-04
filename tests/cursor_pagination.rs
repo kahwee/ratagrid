@@ -1,6 +1,7 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{click, line, modified_key as key, render as draw};
+
+use crossterm::event::{KeyCode, KeyModifiers};
 use ratagrid::{
     Action, Column, CursorPageRequest, Grid, LoadState, PageError, PaginationMode, SortDirection,
 };
@@ -25,27 +26,6 @@ fn request(action: Option<Action>) -> CursorPageRequest {
         Some(Action::CursorPageRequested(r)) => r,
         other => panic!("expected cursor request: {other:?}"),
     }
-}
-fn key(code: KeyCode, modifiers: KeyModifiers) -> Event {
-    Event::Key(KeyEvent::new(code, modifiers))
-}
-fn click(x: u16, y: u16) -> Event {
-    Event::Mouse(MouseEvent {
-        kind: MouseEventKind::Down(MouseButton::Left),
-        column: x,
-        row: y,
-        modifiers: KeyModifiers::NONE,
-    })
-}
-fn draw(grid: &mut Grid<u64>, area: Rect) -> Buffer {
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn line(buffer: &Buffer, y: u16) -> String {
-    (0..buffer.area.width)
-        .map(|x| buffer[(x, y)].symbol())
-        .collect()
 }
 fn first(grid: &mut Grid<u64>, token: &str) -> CursorPageRequest {
     let r = grid.cursor_page_request().unwrap();

@@ -1,14 +1,12 @@
 //! Bounded adversarial coverage; no implementation changes.
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{key, render};
+
+use crossterm::event::{Event, KeyCode, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use ratagrid::{Action, Column, CopyTarget, Grid, GridModel, PageError, SortDirection};
 use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
 use std::{num::NonZeroUsize, time::Duration};
 
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
-}
 fn columns() -> Vec<Column<u64>> {
     vec![
         Column::new("ID", 10, |n: &u64| n.to_string()).sortable(|a, b| a.cmp(b)),
@@ -18,8 +16,7 @@ fn columns() -> Vec<Column<u64>> {
     ]
 }
 fn draw(grid: &mut Grid<u64>, area: Rect) {
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
+    let buffer = render(grid, area);
     for cell in buffer.content() {
         assert!(!cell.symbol().chars().any(char::is_control));
     }

@@ -22,11 +22,21 @@ cargo build --release --examples --locked
 
 Keep the environment local; do not commit it. Media capture also needs Pillow and `ffmpeg` as described above.
 
-Build the static documentation page after editing the tested integration example:
+Check terminal restoration after normal exit, application I/O errors and panics
+with `python3 scripts/test_terminal_cleanup.py` on Linux or macOS. It compiles an
+ignored test probe and runs eight cases in isolated pseudo-terminals, verifying
+raw/cooked flags, alternate-screen exit, cursor visibility and optional mouse
+capture cleanup. The panic cases also run without Ratatui's panic hook so the
+shared cleanup guard is exercised independently. No optional Python dependency
+is needed; this does not alter the invoking terminal.
+
+Build the static documentation page after editing `scripts/templates/pages.html`
+or the tested integration example:
 
 ```sh
 python3 scripts/build_docs.py
 python3 scripts/build_docs.py --check
+python3 scripts/test_build_docs.py
 python3 -m http.server 8080 --bind 127.0.0.1 --directory docs
 ```
 

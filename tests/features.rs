@@ -1,8 +1,13 @@
+mod support;
+use support::{
+    key, line, modified_click as click, modified_key as modified, render_from_origin as draw,
+};
+
 use crossterm::event::{
     Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
 };
 use ratagrid::{Action, Column, CopyTarget, Grid, GridModel, LoadState, PageError, SortDirection};
-use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
+use ratatui::layout::Rect;
 use std::{cell::Cell, num::NonZeroUsize, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,32 +51,8 @@ fn columns() -> Vec<Column<Row>> {
 fn grid() -> Grid<Row> {
     Grid::new(columns(), rows()).with_row_id(|r| r.id)
 }
-fn draw(grid: &mut Grid<Row>, area: Rect) -> Buffer {
-    let mut buffer = Buffer::empty(Rect::new(0, 0, area.right(), area.bottom()));
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn key(code: KeyCode) -> Event {
-    modified(code, KeyModifiers::NONE)
-}
-fn modified(code: KeyCode, modifiers: KeyModifiers) -> Event {
-    Event::Key(KeyEvent::new(code, modifiers))
-}
-fn click(x: u16, y: u16, modifiers: KeyModifiers) -> Event {
-    Event::Mouse(MouseEvent {
-        kind: MouseEventKind::Down(MouseButton::Left),
-        column: x,
-        row: y,
-        modifiers,
-    })
-}
 fn indices(grid: &Grid<Row>) -> Vec<usize> {
     grid.model().selected_indices().collect()
-}
-fn line(buffer: &Buffer, y: u16) -> String {
-    (buffer.area.x..buffer.area.right())
-        .map(|x| buffer[(x, y)].symbol())
-        .collect()
 }
 
 #[test]

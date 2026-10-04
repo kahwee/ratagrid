@@ -9,9 +9,12 @@ cargo test --all-targets --locked
 cargo test --doc --locked
 RUSTDOCFLAGS='-D warnings' cargo doc --no-deps --locked
 cargo build --release --examples --locked
+python3 scripts/test_build_docs.py
+# Linux/macOS: isolated PTY checks, no optional Python packages needed.
+python3 scripts/test_terminal_cleanup.py
 ```
 
-After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. After changing the Pages integration source or template, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
+After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
 
 Keep mouse and keyboard behavior equivalent. Rendering and hit-testing must share the same layout, including horizontal scrolling, column resizing, and terminal resize. Add an interaction regression test for behavior changes.
 
@@ -22,6 +25,12 @@ separate Cargo example. Keep `quickstart` and `positions` standalone so readers
 can copy them into another application. `examples/positions.rs` is the canonical
 Pages integration source; regenerate its published copy instead of editing
 `docs/integration/positions.rs` directly.
+
+Integration tests share event construction and buffer rendering in
+`tests/support/`. Keep scenario records, expected results and viewport choices
+local to each test. `render` creates an offset buffer exactly matching the area;
+`render_from_origin` includes the space preceding an offset viewport. Preserve
+that distinction when testing layout and outside-area hit detection.
 
 Keep ordering and record selection in `GridModel`; keep terminal-specific input
 and rendering in `Grid`. Keep page request/response and navigation logic in

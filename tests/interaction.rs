@@ -1,8 +1,9 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{click, key, mouse, render_from_origin as draw};
+
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind};
 use ratagrid::{Action, Column, Grid, GridModel, SortDirection};
-use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
+use ratatui::layout::Rect;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Record {
@@ -32,25 +33,6 @@ fn rows() -> Vec<Record> {
             value: 10,
         },
     ]
-}
-fn draw(grid: &mut Grid<Record>, area: Rect) -> Buffer {
-    let mut buffer = Buffer::empty(Rect::new(0, 0, area.right(), area.bottom()));
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn mouse(kind: MouseEventKind, column: u16, row: u16) -> Event {
-    Event::Mouse(MouseEvent {
-        kind,
-        column,
-        row,
-        modifiers: KeyModifiers::NONE,
-    })
-}
-fn click(column: u16, row: u16) -> Event {
-    mouse(MouseEventKind::Down(MouseButton::Left), column, row)
-}
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
 }
 
 #[test]

@@ -53,6 +53,11 @@ and downloadable `docs/integration/positions.rs`. Regenerate those files with
 `python3 scripts/build_docs.py`; `--check` verifies they match their source.
 Do not edit the generated copy directly.
 
+Run `python3 scripts/test_terminal_cleanup.py` on Linux or macOS to verify the
+shared terminal lifecycle under application errors and panics, with and without
+mouse capture. Its ignored Rust probe lives in `tests/terminal_lifecycle.rs` and
+is exercised by CI through isolated PTYs.
+
 Example-local tests cover adapter and fixture behavior. Validate all targets
 with `cargo test --all-targets --locked` and build them with
 `cargo build --release --examples --locked`. Optional real-terminal checks are

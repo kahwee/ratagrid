@@ -1,18 +1,11 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{key, render as draw};
+
+use crossterm::event::{Event, KeyCode, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
 use ratagrid::{Action, Column, CopyTarget, Grid, LoadState, PageError};
-use ratatui::{buffer::Buffer, layout::Rect, style::Modifier, widgets::Widget};
+use ratatui::{layout::Rect, style::Modifier};
 use std::num::NonZeroUsize;
 
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
-}
-fn draw<T>(grid: &mut Grid<T>, area: Rect) -> Buffer {
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
 fn columns() -> Vec<Column<usize>> {
     vec![Column::new("Value", 12, |n: &usize| n.to_string()).sortable(|a, b| a.cmp(b))]
 }

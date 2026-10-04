@@ -1,54 +1,45 @@
 #!/usr/bin/env python3
-"""Build the dependency-free Pages site from the tested integration example."""
+"""Build the dependency-free Pages site from its template and tested integration."""
 import argparse
 from html import escape
 from pathlib import Path
 
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--check", action="store_true", help="fail if generated Pages files are stale")
-args = parser.parse_args()
-
 ROOT = Path(__file__).resolve().parents[1]
-source = (ROOT / "examples/positions.rs").read_text()
-code = escape(source.split("#[cfg(test)]")[0].rstrip())
-page = '''<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Ratagrid: an interactive typed data grid for Ratatui. Sorting, selection, search, mouse resizing and source pagination.">
-<title>Ratagrid — an interactive grid for Ratatui</title>
-<style>
-:root{color-scheme:dark;--bg:#0b111b;--panel:#131e2d;--ink:#e4edf7;--muted:#a5b5c9;--line:#2c3b4f;--mint:#80dfc5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 system-ui,sans-serif}a{color:var(--mint);text-underline-offset:.22em}a:hover{color:#bcffeb}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--mint);outline-offset:4px}header,main,footer{max-width:1150px;margin:auto;padding:28px}nav{display:flex;gap:24px;align-items:center;flex-wrap:wrap}nav strong{margin-right:auto;font:700 20px ui-monospace,monospace}.eyebrow{font:13px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.16em;color:var(--mint)}h1{font-size:clamp(40px,6vw,76px);line-height:1.08;letter-spacing:-.055em;max-width:850px;margin:24px 0}h2{font-size:30px;line-height:1.25;margin:0 0 20px}h3{font-size:21px}.lead{max-width:720px;font-size:21px;color:var(--muted)}section{padding:42px 0;border-top:1px solid var(--line)}.hero{border:0;padding-top:24px}.badges{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0}.badges span{padding:5px 12px;border:1px solid var(--line);border-radius:20px;color:var(--muted);font-size:13px}.actions{display:flex;gap:18px;flex-wrap:wrap;margin:30px 0}.button,button{border:1px solid var(--mint);border-radius:8px;background:transparent;color:var(--mint);padding:10px 18px;cursor:pointer;font:inherit}.button{display:inline-block;text-decoration:none}.primary{background:var(--mint);color:#0b111b}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}figure{margin:0}img,video{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line);background:var(--panel)}figcaption,.note{font-size:14px;color:var(--muted);margin-top:10px}pre{margin:16px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:auto;font:14px/1.6 ui-monospace,monospace}code{font-family:ui-monospace,monospace}p{max-width:860px}table{border-collapse:collapse;width:100%;font-size:15px}td,th{padding:12px;text-align:left;border-bottom:1px solid var(--line)}.table-wrap{overflow:auto}summary{cursor:pointer;color:var(--mint);padding:12px 0}footer{color:var(--muted);font-size:14px}.skip{position:absolute;left:12px;top:-60px;background:var(--panel);padding:8px}.skip:focus{top:12px}@media(max-width:680px){header,main,footer{padding:20px}.grid{grid-template-columns:1fr}.lead{font-size:18px}nav{gap:14px}section{padding:32px 0}}
-</style></head><body>
-<a class="skip" href="#main">Skip to content</a>
-<header><nav aria-label="Main navigation"><strong>▦ ratagrid</strong><a href="#walkthrough">Walkthrough</a><a href="#integrate">Integrate</a><a href="https://github.com/kahwee/ratagrid">GitHub ↗</a></nav></header>
-<main id="main"><section class="hero"><p class="eyebrow">Rust · Ratatui · terminal interfaces</p><h1>A data grid that feels at home in your terminal.</h1><p class="lead">Define typed columns, pass records, and forward input. Ratagrid gives your Ratatui app sorting, selection, search, resizing, and pagination.</p><div class="badges"><span>Mouse + keyboard</span><span>Stable record IDs</span><span>Unicode clipping</span><span>MIT licensed</span></div><div class="actions"><a class="button primary" href="#try">Run the playground</a><a class="button" href="#integrate">Use with Ratatui</a></div><figure><img src="media/overview.png" alt="Ratagrid playground showing synthetic jobs with typed columns and semantic colors" width="1380" height="868"><figcaption>Synthetic fixtures. Rendered from real playground terminal I/O.</figcaption></figure></section>
-<section id="walkthrough"><p class="eyebrow">22-second tour</p><h2>Sort. Resize. Browse.</h2><video controls playsinline preload="metadata" poster="media/overview.png" aria-label="Ratagrid terminal output walkthrough"><source src="media/showcase.mp4" type="video/mp4">Download the <a href="media/showcase.mp4">MP4 walkthrough</a>.</video><p class="note">This is an actual terminal-output recording rendered into video, not a native iTerm screen recording. It contains only synthetic records. No desktop or account information was captured.</p><details><summary>Walkthrough transcript and controls</summary><p>The tour selects a row, sorts Latency, resizes the ID column, browses a million resident rows, switches to Unicode and light theme, and pages a simulated 100-million-record source. The virtual source loads only one page; it does not allocate 100 million records.</p></details></section>
-<section id="try"><h2>Try it locally</h2><p>Rust 1.99.0 and a terminal with mouse reporting are required. Ratagrid 0.2.0 is an independent widget for Ratatui 0.30.</p><pre><code>git clone https://github.com/kahwee/ratagrid.git
-cd ratagrid
-cargo run --release --locked --example playground</code></pre><div class="table-wrap"><table><thead><tr><th>Control</th><th>Action</th></tr></thead><tbody><tr><td>1–7</td><td>Choose a scenario</td></tr><tr><td>Tab, Enter</td><td>Focus and sort a header</td></tr><tr><td>Arrows, click a cell</td><td>Move the row and cell cursor</td></tr><tr><td>Drag a separator, + / −</td><td>Resize a column</td></tr><tr><td>/, Enter, Escape</td><td>Search, apply, cancel</td></tr><tr><td>T · B · A</td><td>Theme · boost values · toggle motion</td></tr><tr><td>[ / ] · P · Q</td><td>Previous/next page · page size · quit</td></tr></tbody></table></div></section>
-<section><h2>Small details, large views.</h2><div class="grid"><figure><img src="media/resize.png" loading="lazy" alt="The ID column being resized using its separator handle"><figcaption>Column resizing preserves complete graphemes and sort indicators.</figcaption></figure><figure><img src="media/unicode.png" loading="lazy" alt="Unicode values including CJK, accents, and emoji in the grid"><figcaption>Wide characters, combining marks, and emoji remain whole.</figcaption></figure><figure><img src="media/million-rows.png" loading="lazy" alt="One million synthetic resident rows with the final record selected"><figcaption>Owned sorting processes all resident rows synchronously.</figcaption></figure><figure><img src="media/virtual-pagination.png" loading="lazy" alt="A simulated 100-million-record source with one page resident"><figcaption>External paging keeps one returned page in memory.</figcaption></figure></div></section>
-<section id="integrate"><p class="eyebrow">A complete runnable example</p><h2>Use it with Ratatui.</h2><p>Ratagrid is a widget inside your existing event loop. Your application owns terminal setup, focus, source I/O, clipboard writes, and cleanup. Render <code>grid.widget()</code>, then forward events with <code>grid.handle_event(&amp;event)</code>. Render again before the next mouse event so hit-testing uses the latest layout.</p><pre><code># In this checkout: exact source is examples/positions.rs
-cargo run --locked --example positions</code></pre><p>Version 0.2 adds optional full-value panels and native cursor/keyset pagination. See the <a href="https://github.com/kahwee/ratagrid/blob/main/CHANGELOG.md#020--2026-10-04-utc">release and migration notes</a>; <code>Action</code> is now Clone rather than Copy.</p><p>The synthetic positions example keeps amounts in integer cents and changes in basis points. Comparators use numeric values; formatting and colors stay in the application. It covers negative amounts, integer limits, selection, and sorting. No real accounts or market data are included.</p><p>For a separate application, add these dependencies and save the example below as <code>src/main.rs</code>:</p><pre><code>[package]
-name = "positions-demo"
-version = "0.2.0"
-edition = "2024"
+CODE_PLACEHOLDER = "__CODE__"
 
-[dependencies]
-ratagrid = "0.2"
-ratatui = "0.30"
-crossterm = "0.29"</code></pre><p class="note">Install Ratagrid from <a href="https://crates.io/crates/ratagrid/0.2.0">crates.io</a>. Use <code>=0.2.0</code> for this exact release and retain Cargo.lock. This site follows main; the <a href="https://docs.rs/ratagrid/0.2.0/ratagrid/">versioned API reference</a> follows the published crate.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">__CODE__</code></pre></details><p><a href="https://github.com/kahwee/ratagrid/blob/main/examples/README.md">Choose a runnable example</a> · <a href="integration/positions.rs" download>Download the tested source</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/PAGINATION.md">Source integration guide</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/FEATURES.md">Search and selection guide</a></p></section>
-<section><h2>Open sourcing one useful piece at a time.</h2><p>I'm gradually open sourcing reusable components from a few small closed-source projects. Those projects have a strong terminal-interface focus. Ratagrid is one piece that can stand on its own and help other Ratatui applications.</p><p>The grid stays general-purpose. Financial tables can supply their own exact numeric types, formatting, and source logic; the component does not own financial calculations, persistence, or trading decisions.</p><p class="note">Owned sorts and filters are synchronous. Keyed bulk-mark restoration scans replacement rows per marked ID; large selections can make reloads expensive. Prefer external pagination when datasets or frequent reloads exceed an interactive application's budget.</p></section></main><footer>Ratagrid · MIT · <a href="https://github.com/kahwee/ratagrid">Source and documentation</a></footer>
-<script>document.getElementById('copy-example').addEventListener('click',async()=>{const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(document.getElementById('rust-example').textContent);status.textContent=' Copied.'}catch{status.textContent=' Select the source below to copy.';document.querySelector('#integrate details').open=true}});</script>
-</body></html>'''
-outputs = {
-    ROOT / "docs/index.html": page.replace("__CODE__", code),
-    ROOT / "docs/integration/positions.rs": source,
-    ROOT / "docs/.nojekyll": "",
-}
-for path, content in outputs.items():
-    if args.check:
-        if not path.exists() or path.read_text() != content:
-            raise SystemExit(f"Outdated {path.relative_to(ROOT)}; run scripts/build_docs.py")
-    else:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content)
-print("Pages files are current" if args.check else "Built Pages files")
+
+def render_outputs(root):
+    """Read canonical sources and return the complete generated file contents."""
+    source = (root / "examples/positions.rs").read_text(encoding="utf-8")
+    template = (root / "scripts/templates/pages.html").read_text(encoding="utf-8")
+    if template.count(CODE_PLACEHOLDER) != 1:
+        raise ValueError("Pages template must contain exactly one __CODE__ placeholder")
+    code = escape(source.split("#[cfg(test)]", 1)[0].rstrip())
+    return {
+        root / "docs/index.html": template.replace(CODE_PLACEHOLDER, code),
+        root / "docs/integration/positions.rs": source,
+        root / "docs/.nojekyll": "",
+    }
+
+
+def build(root=ROOT, check=False):
+    outputs = render_outputs(root)
+    for path, content in outputs.items():
+        if check:
+            if not path.exists() or path.read_text(encoding="utf-8") != content:
+                raise SystemExit(f"Outdated {path.relative_to(root)}; run scripts/build_docs.py")
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="fail if generated Pages files are stale")
+    args = parser.parse_args()
+    build(check=args.check)
+    print("Pages files are current" if args.check else "Built Pages files")
+
+
+if __name__ == "__main__":
+    main()

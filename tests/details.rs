@@ -1,21 +1,11 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{key, mouse, render_from_origin as draw};
+
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEventKind};
 use ratagrid::{Action, CellDetailsOptions, Column, Grid};
-use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
+use ratatui::{buffer::Buffer, layout::Rect};
 use std::{num::NonZeroUsize, time::Duration};
 
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
-}
-fn mouse(kind: MouseEventKind, x: u16, y: u16) -> Event {
-    Event::Mouse(MouseEvent {
-        kind,
-        column: x,
-        row: y,
-        modifiers: KeyModifiers::NONE,
-    })
-}
 fn grid() -> Grid<String> {
     Grid::new(
         vec![
@@ -28,11 +18,6 @@ fn grid() -> Grid<String> {
             "東京 cafe\u{301} 👩🏽‍💻 very long".into(),
         ],
     )
-}
-fn draw(grid: &mut Grid<String>, area: Rect) -> Buffer {
-    let mut buffer = Buffer::empty(Rect::new(0, 0, area.right(), area.bottom()));
-    grid.widget().render(area, &mut buffer);
-    buffer
 }
 const AREA: Rect = Rect::new(2, 2, 40, 12);
 fn text(buffer: &Buffer) -> String {

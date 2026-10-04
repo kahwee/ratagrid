@@ -1,6 +1,7 @@
-use crossterm::event::{
-    Event, KeyCode, KeyEvent, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
-};
+mod support;
+use support::{click, key, line, modified_key, render};
+
+use crossterm::event::{Event, KeyCode, KeyModifiers, MouseEvent, MouseEventKind};
 use ratagrid::{Action, Column, Grid, PageError, PageRequest, PaginationMode, SortDirection};
 use ratatui::{buffer::Buffer, layout::Rect, widgets::Widget};
 use std::num::NonZeroUsize;
@@ -13,34 +14,16 @@ fn columns() -> Vec<Column<u64>> {
 }
 fn draw(grid: &mut Grid<u64>) -> Buffer {
     let area = Rect::new(0, 0, 70, 6);
-    let mut buffer = Buffer::empty(area);
-    grid.widget().render(area, &mut buffer);
-    buffer
-}
-fn key(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
+    render(grid, area)
 }
 fn ctrl(code: KeyCode) -> Event {
-    Event::Key(KeyEvent::new(code, KeyModifiers::CONTROL))
-}
-fn click(x: u16, y: u16) -> Event {
-    Event::Mouse(MouseEvent {
-        kind: MouseEventKind::Down(MouseButton::Left),
-        column: x,
-        row: y,
-        modifiers: KeyModifiers::NONE,
-    })
+    modified_key(code, KeyModifiers::CONTROL)
 }
 fn requested(action: Option<Action>) -> PageRequest {
     match action {
         Some(Action::PageRequested(request)) => request,
         other => panic!("Expected request, got {other:?}"),
     }
-}
-fn line(buffer: &Buffer, y: u16) -> String {
-    (0..buffer.area.width)
-        .map(|x| buffer[(x, y)].symbol())
-        .collect()
 }
 
 #[test]

@@ -19,9 +19,15 @@ jobs:
       - run: cargo test --all-targets --locked
       - run: cargo test --doc --locked
       - uses: actions/setup-python@v5
-        if: runner.os == 'Linux'
+        if: runner.os != 'Windows'
         with:
           python-version: '3.12'
+      - name: Test Pages generation
+        if: runner.os == 'Linux'
+        run: python3 scripts/test_build_docs.py
+      - name: Test terminal cleanup on errors and panics
+        if: runner.os != 'Windows'
+        run: python3 scripts/test_terminal_cleanup.py
       - name: Check bundled rustdoc guides
         if: runner.os == 'Linux'
         run: python3 scripts/build_rustdoc_guides.py --check
