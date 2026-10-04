@@ -1,9 +1,5 @@
 # Changelog
 
-## Unreleased
-
-- Long-cell rendering sanitizes only the prefix needed for clipping, retaining complete graphemes and the terminal/bidi policy. Added a stable Rust 1.99 benchmark and adversarial Unicode/chunk-boundary regressions.
-
 ## 0.2.0 — 2026-10-04 (UTC)
 
 ### Migration from 0.1
@@ -12,6 +8,7 @@ Use `ratagrid = "0.2"` with Ratatui 0.30 and Crossterm 0.29; stable Rust 1.99 re
 
 ### Changes
 
+- Long-cell rendering sanitizes only the prefix needed for clipping, retaining complete graphemes and the terminal/bidi policy. Added a stable Rust 1.99 benchmark and adversarial Unicode/chunk-boundary regressions.
 - Native cursor/keyset pagination with opaque request/response tokens, First/Previous/Next boundary history, source search/sort resets, stale-response protection, error/retry handling and an indexed cursor example. Cursor mode disables Last and unvisited page jumps.
 - `Action` adds `CursorPageRequested` and becomes `Clone` instead of `Copy`; `PaginationMode` adds `Cursor`. Existing client/offset request and response APIs remain available.
 
