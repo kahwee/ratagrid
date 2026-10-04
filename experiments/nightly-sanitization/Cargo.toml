@@ -1,8 +1,0 @@
-[package]
-name = "ratagrid-nightly-sanitization"
-version = "0.0.0"
-edition = "2024"
-publish = false
-
-# Standalone: the library's stable build does not compile this experiment.
-[workspace]

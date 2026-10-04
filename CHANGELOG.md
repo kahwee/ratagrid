@@ -4,8 +4,6 @@
 
 These changes are on GitHub main after v0.1.0; they are not in the published 0.1.0 crate or its versioned API docs. The package version remains 0.1.0 until the next release version is chosen.
 
-- Standalone nightly portable SIMD sanitization experiment includes boundary/Unicode adversarial tests and scalar comparison benchmarks; the library retains its stable Rust 1.99 toolchain.
-
 - Opt-in full-value panels for truncated cells, with configurable hover delay, Enter inspection, scrolling and safe dismissal. Enable the playground with `--cell-details`.
 - Runnable SQLite pagination adapter maps zero-based grid pages to one-based application pages, with global search, optional stable SQL sorting and snapshot-consistent changing totals.
 - Shared text sanitization strips terminal controls and Unicode bidirectional formatting controls from display, search, error messages and copy payloads.
