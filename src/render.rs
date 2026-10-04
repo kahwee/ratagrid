@@ -158,7 +158,11 @@ impl<T> Grid<T> {
                         buffer[(x, y)].set_style(style);
                     }
                     (
-                        fit_text(&(definition.format)(row), usize::from(definition.width - 1)),
+                        if let Some(bar) = &definition.bar_chart {
+                            bar_text((bar.value)(row), bar.max, usize::from(definition.width - 1))
+                        } else {
+                            fit_text(&(definition.format)(row), usize::from(definition.width - 1))
+                        },
                         style,
                     )
                 } else {
@@ -381,6 +385,18 @@ impl<T> Grid<T> {
             self.style.header,
         );
     }
+}
+
+fn bar_text(value: f64, max: f64, width: usize) -> String {
+    if !value.is_finite() || !max.is_finite() || max <= 0.0 || value <= 0.0 {
+        return String::new();
+    }
+    let eighths = ((value / max).min(1.0) * width as f64 * 8.0).floor() as usize;
+    let mut text = "█".repeat(eighths / 8);
+    if !eighths.is_multiple_of(8) {
+        text.push(['▏', '▎', '▍', '▌', '▋', '▊', '▉'][eighths % 8 - 1]);
+    }
+    text
 }
 
 fn faded_style(base: Style, flash: Style, remaining: f64) -> Style {

@@ -80,6 +80,36 @@ For measured limits and reproducible benchmarks, see [performance under stress](
 
 Try the browsing controls with `cargo run --locked --example explorer`: search, mark ranges, copy formatted text, hide/reorder/pin columns, refresh keyed records, and retry simulated source failures. See [the feature guide](FEATURES.md) for APIs and integration contracts.
 
+## Bar chart columns
+
+Available on main, after the published 0.2.0 release. Run
+`cargo run --locked --example bar_chart` for a synthetic disk usage table.
+
+Add `.bar_chart(max, value)` to a normal column:
+
+```rust
+use ratagrid::Column;
+
+let usage = Column::new("Usage", 33, |gb: &f64| format!("{gb:.1} GB"))
+    .bar_chart(60.0, |gb| *gb)
+    .sortable(|a, b| a.total_cmp(b));
+```
+
+Each row displays one horizontal bar. The maximum fills the column except for
+its separator; fractional lengths use eighth-cell blocks. Resizing the column
+rescales the bar, while horizontal scrolling clips it. Use `.cell_style(...)`
+to color bars by record; selection, hover and cursor styling still apply.
+Keep labels and numeric values in neighboring columns, as in the example.
+
+The application supplies a shared maximum (a capacity, a fixed threshold, or
+the largest value in its dataset). Filtering and pagination keep that scale.
+Values below zero render empty and values above the maximum fill the bar.
+Non-finite values or a non-positive/non-finite maximum render empty; values
+smaller than one eighth of a terminal cell also render empty.
+
+The original formatter supplies text for search, clipboard and optional
+full-value details. Sorting uses the record comparator, independently of the bar.
+
 ## Use it
 
 Install [Ratagrid 0.2.0 from crates.io](https://crates.io/crates/ratagrid/0.2.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.2"` accepts compatible 0.2 releases; use `"=0.2.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.2.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.2.0) identifies its published source.

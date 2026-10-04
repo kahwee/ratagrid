@@ -337,9 +337,29 @@ def cursor_smoke():
     print("Cursor terminal smoke passed: indexed seek, boundary history, mouse/keyboard navigation, descending sort, search, reload, exact end and resize.")
 
 
+def bar_chart_smoke():
+    session = Session(width=80, height=12, binary=ROOT / "target/release/examples/bar_chart")
+    try:
+        assert "Home" in session.text() and "57.1 GB" in session.text()
+        assert session.text().splitlines()[1][22:54] == "█" * 32
+        session.send(b"\t\t-")  # Focus and shrink Usage by one cell.
+        assert session.text().splitlines()[1][22:53] == "█" * 31
+        session.send(b"/Applications\r", "Applications")
+        assert "Home" not in session.text()
+        assert session.text().splitlines()[1][22:53] == "████▌" + " " * 26
+        session.resize(26, 6)
+        assert session.text().splitlines()[1][22:26] == "████"
+        session.resize(80, 12)
+        assert "8.4 GB" in session.text()
+    finally:
+        session.close(mouse_capture=False)
+    print("Bar chart terminal smoke passed: bars, numeric labels, column resize, fixed search scale and viewport clipping.")
+
+
 if __name__ == "__main__":
     playground_smoke()
     explorer_smoke()
     details_smoke()
     database_smoke()
     cursor_smoke()
+    bar_chart_smoke()

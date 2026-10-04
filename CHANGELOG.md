@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Opt-in `Column::bar_chart(max, value)` renders a horizontal bar per row, with
+  eighth-cell precision, existing cell styles and column resizing/clipping.
+  Search, copy and full-value details retain the column formatter. Added a
+  synthetic disk usage example (`cargo run --locked --example bar_chart`).
+
 ## 0.2.0 — 2026-10-04 (UTC)
 
 ### Migration from 0.1

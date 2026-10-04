@@ -26,6 +26,10 @@ cargo run --release --locked --example playground -- --cell-details
 
 Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. Escape closes the panel; Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel. The mouse wheel over the panel also scrolls it. This option is disabled by default. [Library configuration](docs/GUIDE.md#optional-cell-details).
 
+On main, a column can render a horizontal bar with `.bar_chart(max, value)`.
+Try `cargo run --locked --example bar_chart` for synthetic disk usage with
+colored bars and a separate size column. See [bar chart columns](docs/GUIDE.md#bar-chart-columns).
+
 ## Use with Ratatui
 
 ```toml

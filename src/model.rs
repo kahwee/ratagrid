@@ -16,6 +16,12 @@ struct RowIdentity<T> {
 
 type Formatter<T> = Box<dyn Fn(&T) -> String>;
 type CellStyle<T> = Box<dyn Fn(&T) -> Style>;
+type BarValue<T> = Box<dyn Fn(&T) -> f64>;
+
+pub(crate) struct BarChart<T> {
+    pub(crate) max: f64,
+    pub(crate) value: BarValue<T>,
+}
 type RowFilter<T> = Box<dyn Fn(&T) -> bool>;
 
 type Comparator<T> = Box<dyn Fn(&T, &T) -> Ordering>;
@@ -28,6 +34,7 @@ pub struct Column<T> {
     pub(crate) compare: Option<Comparator<T>>,
     pub(crate) external_sortable: bool,
     pub(crate) cell_style: Option<CellStyle<T>>,
+    pub(crate) bar_chart: Option<BarChart<T>>,
 }
 
 impl<T> Column<T> {
@@ -44,7 +51,34 @@ impl<T> Column<T> {
             compare: None,
             external_sortable: false,
             cell_style: None,
+            bar_chart: None,
         }
+    }
+
+    /// Render a horizontal bar instead of the formatted text in each data cell.
+    /// `max` is the shared scale: that value fills the column, excluding its
+    /// separator. Bars resize with the column and use its normal cell style.
+    /// Use [`Self::cell_style`] to color bars by record.
+    ///
+    /// Values are clamped to `0..=max`. Non-finite values and a non-positive or
+    /// non-finite maximum render empty. Eighth-cell blocks represent fractions;
+    /// values smaller than one eighth of a cell render empty.
+    /// The application chooses the maximum, so filtering and paging do not
+    /// silently rescale bars. The formatter remains the text used for search,
+    /// copying and full-value details; sorting still uses the comparator.
+    ///
+    /// ```
+    /// use ratagrid::Column;
+    /// let column = Column::new("Usage", 25, |gb: &f64| format!("{gb:.1} GB"))
+    ///     .bar_chart(60.0, |gb| *gb)
+    ///     .sortable(|a, b| a.total_cmp(b));
+    /// ```
+    pub fn bar_chart(mut self, max: f64, value: impl Fn(&T) -> f64 + 'static) -> Self {
+        self.bar_chart = Some(BarChart {
+            max,
+            value: Box::new(value),
+        });
+        self
     }
 
     /// Style data cells using the underlying record, independently of display text.
