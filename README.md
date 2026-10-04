@@ -18,6 +18,14 @@ cd ratagrid
 cargo run --release --locked --example playground
 ```
 
+On GitHub `main`, enable optional full-value panels for truncated cells (this feature is not in published 0.1.0):
+
+```sh
+cargo run --release --locked --example playground -- --cell-details
+```
+
+Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. Escape closes the panel; Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel. The mouse wheel over the panel also scrolls it. This option is disabled by default. [Library configuration](docs/GUIDE.md#optional-cell-details).
+
 ## Use with Ratatui
 
 ```toml

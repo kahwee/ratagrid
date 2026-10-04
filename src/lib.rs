@@ -30,6 +30,8 @@ pub mod guides {
 }
 
 mod columns;
+mod details;
+pub use details::{CellDetail, CellDetailsOptions};
 mod features;
 mod input;
 pub use columns::ColumnOrderError;
@@ -64,6 +66,8 @@ pub enum Action {
     },
     Scrolled,
     HoverChanged,
+    /// The optional full-value panel opened, closed, or scrolled.
+    CellDetailsChanged,
     HeaderFocused(usize),
     HeaderBlurred,
     PageChanged(PageState),
@@ -157,6 +161,7 @@ struct CellFlash {
 /// Interactive grid state plus its framework-independent model.
 pub struct Grid<T> {
     model: GridModel<T>,
+    details: details::DetailsState,
     style: GridStyle,
     area: Rect,
     layout: Vec<ColumnLayout>,
@@ -185,6 +190,7 @@ impl<T> Grid<T> {
         let column_count = columns.len();
         Self {
             model: GridModel::new(columns, rows),
+            details: details::DetailsState::default(),
             style: GridStyle::default(),
             area: Rect::default(),
             layout: vec![],
@@ -283,6 +289,7 @@ impl<T> Grid<T> {
         };
         if updated {
             self.hover = None;
+            self.clear_cell_details();
         }
         updated
     }
@@ -343,6 +350,7 @@ impl<T> Grid<T> {
         self.row_offset = 0;
         self.reveal_selected_row();
         self.hover = None;
+        self.clear_cell_details();
     }
 
     /// Enable paging an owned dataset. The full dataset stays resident and is sorted globally.
@@ -459,6 +467,7 @@ impl<T> Grid<T> {
         self.row_offset = 0;
         self.reveal_selected_row();
         self.hover = None;
+        self.clear_cell_details();
         Ok(())
     }
 
@@ -497,6 +506,7 @@ impl<T> Grid<T> {
         self.pagination = None;
         self.row_offset = 0;
         self.hover = None;
+        self.clear_cell_details();
         true
     }
 
@@ -554,6 +564,7 @@ impl<T> Grid<T> {
     fn page_action(&mut self) -> Option<Action> {
         self.row_offset = 0;
         self.hover = None;
+        self.clear_cell_details();
         self.drag = None;
         self.selection_anchor = None;
         self.range_base = None;

@@ -10,7 +10,7 @@ impl<T> Grid<T> {
     /// The result reports a change/action, not whether input was consumed: `None`
     /// can also mean a recognized navigation key made no change at a boundary.
     /// The application owns focus traversal; Tab cycles this grid's headers.
-    pub fn handle_event(&mut self, event: &Event) -> Option<Action> {
+    pub(super) fn handle_grid_event(&mut self, event: &Event) -> Option<Action> {
         if self.search_draft.is_some() {
             match event {
                 Event::Key(key) if key.kind != KeyEventKind::Release => {

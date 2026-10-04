@@ -81,6 +81,7 @@ impl<T> Grid<T> {
 
     fn columns_changed(&mut self) {
         self.hover = None;
+        self.clear_cell_details();
         self.drag = None;
         self.layout.clear();
         let first = self.visible_columns().first().copied();

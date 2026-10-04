@@ -86,3 +86,21 @@ assert_eq!(grid.load_state(), LoadState::Loading);
 ```
 
 Fetching, async tasks, focus between application components, persistence, and clipboard access remain application responsibilities. These features add browsing and bulk-action controls, not cell editing.
+
+## Optional full-value inspection
+
+Inspection is disabled by default. Enable it with `CellDetailsOptions`:
+
+```rust
+use ratagrid::{CellDetailsOptions, Column, Grid};
+use std::time::Duration;
+let mut grid = Grid::new(
+    vec![Column::new("Value", 8, |value: &String| value.clone())],
+    vec![String::from("A full value too long for this column")],
+).with_cell_details(CellDetailsOptions::default());
+// On regular ticks, even when animations are off:
+let redraw = grid.advance_cell_details(Duration::from_millis(100));
+assert!(grid.cell_details_options().is_some());
+```
+
+Hovering a truncated data cell for the configured delay opens its value. Enter opens a keyboard panel for the cursor cell; Escape closes it without clearing selection. Up/Down, PageUp/PageDown, Home/End and the mouse wheel over the panel scroll its content. Header Enter still sorts and values that fit still activate their row. Handle `Action::CellDetailsChanged` by redrawing, and defer application navigation shortcuts while `is_inspecting_cell()` is true. `cell_detail()` exposes the current snapshot. `set_cell_details(None)` disables inspection.

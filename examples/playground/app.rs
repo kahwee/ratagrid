@@ -21,6 +21,7 @@ pub(super) const ACCENT: Color = Color::Rgb(105, 231, 193);
 pub(super) struct App {
     pub(super) grid: Grid<Record>,
     pub(super) scenario: Scenario,
+    pub(super) cell_details: bool,
     pub(super) count: usize,
     pub(super) column_count: usize,
     pub(super) buttons: Vec<(Rect, Control)>,
@@ -89,6 +90,7 @@ impl App {
         let mut app = Self {
             grid: make_grid(scenario, count, column_count, 0, palette.clone()),
             scenario,
+            cell_details: false,
             count,
             column_count,
             buttons: vec![],
@@ -108,6 +110,10 @@ impl App {
         app
     }
     pub(super) fn theme(&mut self) {
+        self.grid.set_cell_details(
+            self.cell_details
+                .then(ratagrid::CellDetailsOptions::default),
+        );
         self.palette.set(self.light);
         let style = self.grid.style_mut();
         let (bg, ink, header, hover, selected) = if self.light {
@@ -261,6 +267,7 @@ impl App {
             && !key
                 .modifiers
                 .intersects(KeyModifiers::CONTROL | KeyModifiers::ALT | KeyModifiers::SUPER)
+            && (!self.grid.is_inspecting_cell() || matches!(key.code, KeyCode::Char('q' | 'Q')))
         {
             let control = match key.code {
                 KeyCode::Char(c @ '1'..='7') => {
@@ -513,8 +520,9 @@ impl App {
         }
     }
     pub(super) fn tick_at(&mut self, now: Instant) {
-        self.grid
-            .advance_animations(now.saturating_duration_since(self.last_tick));
+        let elapsed = now.saturating_duration_since(self.last_tick);
+        self.grid.advance_cell_details(elapsed);
+        self.grid.advance_animations(elapsed);
         self.last_tick = now;
         self.tweens.retain(|tween| {
             if self

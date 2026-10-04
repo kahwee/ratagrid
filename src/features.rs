@@ -54,6 +54,7 @@ impl<T> Grid<T> {
     pub fn begin_search(&mut self) -> Action {
         self.search_draft = Some(self.search_query.clone());
         self.hover = None;
+        self.clear_cell_details();
         self.drag = None;
         Action::SearchEdited
     }
@@ -69,6 +70,7 @@ impl<T> Grid<T> {
         self.search_query = query;
         self.row_offset = 0;
         self.hover = None;
+        self.clear_cell_details();
         self.drag = None;
         self.range_base = None;
         self.selection_anchor = None;
@@ -112,6 +114,7 @@ impl<T> Grid<T> {
     fn filter_changed(&mut self) {
         self.row_offset = 0;
         self.hover = None;
+        self.clear_cell_details();
         self.drag = None;
         self.selection_anchor = None;
         self.range_base = None;
@@ -295,6 +298,7 @@ impl<T> Grid<T> {
         p.loading = false;
         p.has_next = false;
         self.hover = None;
+        self.clear_cell_details();
         Ok(())
     }
 }

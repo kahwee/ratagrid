@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Opt-in full-value panels for truncated cells, with configurable hover delay, Enter inspection, scrolling and safe dismissal. Enable the playground with `--cell-details`.
+
 ## 0.1.0 — 2026-10-04 (UTC)
 
 - Widget library depends on `ratatui-core`; application examples retain full Ratatui. Integration guides are bundled in rustdoc.

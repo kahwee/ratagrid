@@ -155,3 +155,7 @@ python3 scripts/capture_polish.py --png
 ```
 
 The script requires `pyte`; `--png` additionally requires Playwright and Chromium at `/usr/bin/chromium`. HTML captures are available without Playwright.
+
+## Optional cell details
+
+Run `cargo run --release --locked --example playground -- --cell-details`. Hover a truncated data cell for 500 ms or select it and press Enter to open its full value. Escape closes it while preserving selection. Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel; the mouse wheel over a panel also scrolls it. The option survives scenario switches/resets and works with motion disabled. See [library configuration](GUIDE.md#optional-cell-details).

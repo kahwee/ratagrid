@@ -215,3 +215,38 @@ GitHub Actions tests Rust 1.99.0 on Linux, macOS and Windows. Linux also runs th
 ## License
 
 MIT. Contributions are welcome; see [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Optional cell details
+
+Available on GitHub `main`; not included in the published 0.1.0 crate.
+
+```sh
+cargo run --release --locked --example playground -- --cell-details
+```
+
+Shrink Workload and hover a data cell for half a second, or click it and press Enter. The detail panel wraps the full printable value without ellipses. Escape closes it without changing row selection. Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel; the mouse wheel over either kind of panel scrolls it. Header Enter still sorts, and Enter on a value that fits still activates the row.
+
+Library integration:
+
+```rust
+use ratagrid::{CellDetailsOptions, Column, Grid};
+use std::time::Duration;
+
+let mut grid = Grid::new(
+    vec![Column::new("Value", 8, |value: &String| value.clone())],
+    vec![String::from("A value too long for its column")],
+).with_cell_details(CellDetailsOptions {
+    hover_delay: Duration::from_millis(500),
+    max_height: 8,
+});
+
+// Advance on regular application ticks, even when animations are off.
+let needs_redraw = grid.advance_cell_details(Duration::from_millis(100));
+// Forward events to handle_event and render grid.widget() as usual.
+// cell_detail() exposes the snapshot; is_inspecting_cell() reports keyboard focus.
+// set_cell_details(None) disables the feature and closes its panel.
+```
+
+Applications should defer their navigation shortcuts while `is_inspecting_cell()` is true, and honour `Action::CellDetailsChanged` with a redraw. Hover delay uses supplied elapsed time, not a library-owned clock. Panels close on data updates/replacement, paging, search, column layout changes, terminal resize and disabling the option. Moving to another cell closes a hover panel. Clicking inside a panel closes it without selecting the row underneath.
+
+The playground preserves the option across scenarios, resets and theme changes. The feature is off by default, so existing row activation is preserved. Complete Unicode graphemes are retained and terminal controls omitted. Tiny areas below eight cells wide or four rows high retain normal row activation.

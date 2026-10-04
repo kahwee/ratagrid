@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / "target/release/examples/playground"
 
 class Session:
-    def __init__(self, width=132, height=34, binary=BINARY):
+    def __init__(self, width=132, height=34, binary=BINARY, args=()):
         if not binary.exists():
             raise SystemExit("Run cargo build --release --examples first")
         self.width, self.height = width, height
@@ -33,7 +33,7 @@ class Session:
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", height, width, 0, 0))
         capture_env = dict(os.environ, TERM="xterm-256color")
         capture_env.pop("NO_COLOR", None)  # Exercise theme colors even in a colorless CI shell.
-        self.process = subprocess.Popen([str(binary)], stdin=slave, stdout=slave, stderr=slave,
+        self.process = subprocess.Popen([str(binary), *args], stdin=slave, stdout=slave, stderr=slave,
                                         env=capture_env, cwd=ROOT)
         os.close(slave)
         self.screen = pyte.Screen(width, height)
@@ -256,6 +256,34 @@ def explorer_smoke():
     print("Explorer terminal smoke passed: modal search, keyed range selection, copy, column controls, loading, errors, and keyboard/mouse retry.")
 
 
+
+def details_smoke():
+    session = Session(args=("--cell-details",))
+    try:
+        session.send(b"\x1b[<0;39;10M\x1b[<32;20;10M\x1b[<0;20;10m", "Column 2 resized to 10")
+        session.send(b"\x1b[<35;11;11M")
+        session.drain(0.55)
+        assert "Compile workspace #000001" in session.text(), "Hover did not reveal full value"
+        session.capture(ROOT / "target/playground/terminal-details.html")
+        session.send(b"\x1b[<35;1;1M")
+        assert "Esc close" not in session.text(), "Hover panel did not dismiss"
+        session.send(b"\x1b[<0;11;11M\x1b[<0;11;11m", "selected #000001")
+        session.send(b"\r", "Esc close")
+        assert "Compile workspace #000001" in session.text(), "Enter did not reveal full value"
+        session.send(b"\x1b")
+        assert "Esc close" not in session.text(), "Escape did not dismiss"
+        assert "selected #000001" in session.text(), "Escape lost selection"
+        session.send(b"a", "Animations off")
+        session.send(b"\x1b[<35;11;11M")
+        session.drain(0.55)
+        assert "Esc close" in session.text(), "Motion off stopped hover timing"
+        session.resize(7,3)
+        assert "Esc close" not in session.text(), "Resize left stale details"
+    finally:
+        session.close()
+    print("Cell details terminal smoke passed: opt-in hover, Enter, Escape, reduced motion and resize.")
+
 if __name__ == "__main__":
     playground_smoke()
     explorer_smoke()
+    details_smoke()

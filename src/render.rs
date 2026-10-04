@@ -9,6 +9,7 @@ impl<T> Grid<T> {
         let area = area.intersection(buffer.area);
         if self.area != area {
             self.hover = None;
+            self.clear_cell_details();
             self.drag = None;
         }
         self.area = area;
@@ -194,6 +195,7 @@ impl<T> Grid<T> {
         }
         self.render_status(buffer);
         self.render_pager(buffer);
+        self.render_cell_details(buffer);
     }
 
     fn render_status(&mut self, buffer: &mut Buffer) {

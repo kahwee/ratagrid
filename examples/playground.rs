@@ -47,6 +47,8 @@ fn main() -> io::Result<()> {
         options.rows.unwrap_or(options.scenario.rows()),
         options.columns.unwrap_or(options.scenario.columns()),
     );
+    app.cell_details = options.cell_details;
+    app.theme();
     if let Some(milliseconds) = options.animation_frame {
         let now = app.last_tick;
         app.boost(now);

@@ -8,6 +8,7 @@ pub(super) struct Options {
     pub(super) columns: Option<usize>,
     pub(super) snapshot: Option<PathBuf>,
     pub(super) benchmark: bool,
+    pub(super) cell_details: bool,
     pub(super) stress: bool,
     pub(super) stress_large: bool,
     pub(super) width: u16,
@@ -22,6 +23,7 @@ impl Options {
             columns: None,
             snapshot: None,
             benchmark: false,
+            cell_details: false,
             stress: false,
             stress_large: false,
             width: 132,
@@ -33,10 +35,11 @@ impl Options {
             match arg.as_str() {
                 "--help" | "-h" => {
                     println!(
-                        "Ratagrid playground\n\n  --scenario jobs|100k|million|unicode|wide|empty|paged\n  --rows N           Override row count (0..=2000000)\n  --columns N        Override columns (1..=128)\n  --snapshot FILE    Render the initial screen as an SVG, without a terminal\n  --width N          Snapshot/benchmark terminal width (default 132)\n  --height N         Snapshot/benchmark terminal height (default 34)\n  --animation-frame MS  Snapshot Boost at an elapsed animation time\n  --benchmark        Measure all owned-data scenarios; use --release\n  --stress           Fixed stress suite: percentiles, sorting, updates, paging\n  --stress-large     Include 10 million resident rows (use --release)\n\nKeys: 1..7 scenarios · B boost row · A motion · P pagination/page size · [ and ] previous/next · L live feed · T theme · R reset · Q quit\nMouse: click scenario tabs and footer controls; sort, select, scroll; hold a header separator and drag left/right to resize."
+                        "Ratagrid playground\n\n  --scenario jobs|100k|million|unicode|wide|empty|paged\n  --rows N           Override row count (0..=2000000)\n  --columns N        Override columns (1..=128)\n  --snapshot FILE    Render the initial screen as an SVG, without a terminal\n  --width N          Snapshot/benchmark terminal width (default 132)\n  --height N         Snapshot/benchmark terminal height (default 34)\n  --animation-frame MS  Snapshot Boost at an elapsed animation time\n  --cell-details     Reveal truncated values on hover or Enter\n  --benchmark        Measure all owned-data scenarios; use --release\n  --stress           Fixed stress suite: percentiles, sorting, updates, paging\n  --stress-large     Include 10 million resident rows (use --release)\n\nKeys: 1..7 scenarios · B boost row · A motion · P pagination/page size · [ and ] previous/next · L live feed · T theme · R reset · Q quit\nMouse: click scenario tabs and footer controls; sort, select, scroll; hold a header separator and drag left/right to resize."
                     );
                     return Ok(None);
                 }
+                "--cell-details" => options.cell_details = true,
                 "--benchmark" => options.benchmark = true,
                 "--stress" => options.stress = true,
                 "--stress-large" => {
