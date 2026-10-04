@@ -1,0 +1,63 @@
+# Ratagrid
+
+An independent, typed data grid for [Ratatui](https://ratatui.rs): sorting, selection, search, column resizing and pagination.
+
+![Playground demo](docs/media/showcase.gif)
+
+[22-second video](docs/media/showcase.mp4) · [Documentation page source](docs/index.html) · [Usage guide](docs/GUIDE.md)
+
+The demo shows real terminal I/O rendered into media, using synthetic records.
+
+## Run it
+
+Rust 1.99.0 is required. The repository currently requires GitHub access; no crates.io version has been published.
+
+```sh
+git clone git@github.com:kahwee/ratagrid.git
+cd ratagrid
+cargo run --release --locked --example playground
+```
+
+## Use with Ratatui
+
+```toml
+ratagrid = { git = "https://github.com/kahwee/ratagrid" }
+ratatui = "0.30"
+crossterm = "0.29"
+```
+
+A complete keyboard example (`cargo run --locked --example quickstart`):
+
+```rust
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use ratagrid::{Column, Grid};
+
+fn main() -> std::io::Result<()> {
+    let mut grid = Grid::new(
+        vec![Column::new("Value", 12, |n: &i64| n.to_string()).sortable(|a, b| a.cmp(b))],
+        vec![20, -3, 100],
+    );
+    let mut terminal = ratatui::init();
+    let result = (|| {
+        loop {
+            terminal.draw(|frame| frame.render_widget(grid.widget(), frame.area()))?;
+            let input = event::read()?;
+            if matches!(&input, Event::Key(k) if k.code == KeyCode::Char('q')
+                && k.kind != KeyEventKind::Release
+                && !k.modifiers.intersects(KeyModifiers::CONTROL | KeyModifiers::ALT | KeyModifiers::SUPER)
+                && !grid.is_searching())
+            {
+                break;
+            }
+            grid.handle_event(&input);
+        }
+        Ok(())
+    })();
+    ratatui::restore();
+    result
+}
+```
+
+Use arrows to select, Tab + Enter to sort, `/` to search, and `q` to quit. For mouse capture and synthetic financial amounts, see [positions.rs](examples/positions.rs). Your application owns the terminal, focus and data source.
+
+[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

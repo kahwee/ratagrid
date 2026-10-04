@@ -1,0 +1,21 @@
+[package]
+name = "ratagrid"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+description = "A mouse-first interactive data grid for Ratatui"
+license = "MIT"
+repository = "https://github.com/kahwee/ratagrid"
+readme = "README.md"
+exclude = ["docs/screenshots/**", "docs/benchmarks/**", "docs/media/**", "docs/index.html", "docs/integration/**", "docs/.nojekyll", ".github/**", "scripts/**"]
+keywords = ["ratatui", "tui", "table", "grid", "sorting"]
+categories = ["command-line-interface"]
+
+[dependencies]
+ratatui-core = { version = "0.1.2", default-features = false }
+crossterm = "0.29"
+unicode-segmentation = "1.12"
+unicode-width = "0.2"
+
+[dev-dependencies]
+ratatui = { version = "0.30", default-features = false, features = ["crossterm"] }

@@ -1,0 +1,9 @@
+/target/
+/debug/
+**/*.rs.bk
+*.pdb
+**/mutants.out*/
+rustc-ice-*.txt
+
+__pycache__/
+docs/screenshots/polish-*.html

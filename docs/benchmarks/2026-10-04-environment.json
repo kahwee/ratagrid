@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-04",
+  "architecture": "x86_64",
+  "cpu": "AMD EPYC 9V74",
+  "container_cpu_quota": 4,
+  "container_memory_limit_gib": 16,
+  "rustc": "1.99.0 (b940084d7 2026-09-28)",
+  "profile": "release",
+  "harness_commit": "6efb01630fbfc91b37578051271118b2bc3e0e4c",
+  "command": "cargo run --release --example playground -- --stress-large",
+  "elapsed_seconds": 116.687,
+  "peak_rss_kib": 627048,
+  "record_size_bytes": 48,
+  "order_index_size_bytes": 8,
+  "case_count": 10,
+  "metric_count": 90,
+  "terminal_io_included": false,
+  "database_network_included": false,
+  "sort_samples": 3,
+  "warmup_operations_except_sort": 3,
+  "timing_note": "Elapsed wall-clock operation time; render 100 samples, update/frame 30-100 samples. p95 of three sort samples is their maximum."
+}
