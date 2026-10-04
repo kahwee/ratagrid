@@ -41,8 +41,8 @@ mod pagination;
 mod render;
 mod text;
 pub use model::{Column, GridModel, Sort, SortDirection};
+pub use pagination::{CursorPageRequest, PageError, PageRequest, PageState, PaginationMode};
 use pagination::{Navigation, Pagination};
-pub use pagination::{PageError, PageRequest, PageState, PaginationMode};
 use std::{collections::HashMap, num::NonZeroUsize, ops::Range, time::Duration};
 
 use ratatui_core::{
@@ -51,7 +51,7 @@ use ratatui_core::{
 };
 
 /// Changes emitted by grid interaction. Row indices refer to insertion order.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Action {
     SortChanged(Option<Sort>),
     SelectionChanged(usize),
@@ -73,6 +73,8 @@ pub enum Action {
     HeaderBlurred,
     PageChanged(PageState),
     PageRequested(PageRequest),
+    /// Fetch using this opaque token, preserving the request with its response.
+    CursorPageRequested(CursorPageRequest),
     /// The query/filter changed. Read the current query using `Grid::search_query`.
     FilterChanged,
     /// Redraw the search entry after typing, starting, or cancelling a search.
@@ -420,8 +422,84 @@ impl<T> Grid<T> {
             has_next: false,
             revision: pagination::next_revision(),
             loading: true,
+            cursors: Vec::new(),
         });
         grid
+    }
+
+    /// Construct a grid whose source uses opaque cursor/keyset pagination.
+    /// Fetch [`Self::cursor_page_request`] initially, then handle
+    /// [`Action::CursorPageRequested`]. The grid performs no database I/O.
+    /// Only the current page is resident; previous request tokens are retained.
+    /// Totals and last-page navigation are unavailable in this mode.
+    pub fn new_cursor_paged(columns: Vec<Column<T>>, page_size: NonZeroUsize) -> Self {
+        let mut grid = Self::new_paged(columns, None, page_size);
+        let p = grid.pagination.as_mut().expect("pagination");
+        p.mode = PaginationMode::Cursor;
+        p.reset_cursors();
+        grid
+    }
+
+    /// Current cursor request. Check `page_state().loading` for pending work.
+    /// Capture this and `search_query()` together before dispatching a worker.
+    pub fn cursor_page_request(&self) -> Option<CursorPageRequest> {
+        let p = self.pagination.as_ref()?;
+        (p.mode == PaginationMode::Cursor).then(|| CursorPageRequest {
+            page: p.page,
+            page_size: p.size,
+            sort: self.model.sort(),
+            revision: p.revision,
+            cursor: p.cursors[p.page].clone(),
+        })
+    }
+
+    /// Accept one cursor response, preserving source order. `next_cursor: None`
+    /// marks the end, even for a full page. A token permits Next even for a short
+    /// or empty page. At most `page_size` rows may be returned. Revisiting or
+    /// reloading a page replaces its continuation and discards later history.
+    /// Stale, foreign, duplicate, and oversized responses leave the grid unchanged.
+    pub fn set_cursor_page_data(
+        &mut self,
+        request: CursorPageRequest,
+        rows: Vec<T>,
+        next_cursor: Option<String>,
+    ) -> Result<(), PageError> {
+        self.validate_cursor_request(&request)?;
+        if rows.len() > request.page_size.get() {
+            return Err(PageError::WrongRowCount {
+                expected: request.page_size.get(),
+                actual: rows.len(),
+            });
+        }
+        let p = self.pagination.as_mut().expect("cursor pagination");
+        p.cursors.truncate(p.page + 1);
+        let has_next = next_cursor.is_some();
+        if has_next {
+            p.cursors.push(next_cursor);
+        }
+        self.accept_page_rows(rows, has_next);
+        Ok(())
+    }
+
+    fn validate_cursor_request(&self, request: &CursorPageRequest) -> Result<(), PageError> {
+        let current = self.cursor_page_request().ok_or(PageError::NotCursor)?;
+        if current != *request || !self.page_state().expect("cursor pagination").loading {
+            return Err(PageError::StaleResponse);
+        }
+        Ok(())
+    }
+
+    /// Restart cursor traversal from the beginning with a fresh request. Use
+    /// after application-owned filters change or when a source token expires.
+    /// Sorting, search and page-size changes already restart automatically.
+    pub fn restart_cursor_pagination(&mut self) -> Option<Action> {
+        let p = self.pagination.as_mut()?;
+        if p.mode != PaginationMode::Cursor {
+            return None;
+        }
+        p.page = 0;
+        p.reset_cursors();
+        self.page_action()
     }
 
     pub fn page_state(&self) -> Option<PageState> {
@@ -438,14 +516,16 @@ impl<T> Grid<T> {
             page_count: total.map(|total| p.count(total)),
             has_next_page: total.map_or(!p.loading && p.has_next, |total| {
                 p.page < p.count(total) - 1
-            }) && p.page < (usize::MAX - 1) / p.size.get(),
+            }) && (p.mode == PaginationMode::Cursor
+                || p.page < (usize::MAX - 1) / p.size.get()),
             total_rows: total,
             loaded_rows: self.model.rows().len(),
             loading: p.loading,
         })
     }
 
-    /// Current external request, including after acceptance. Check
+    /// Current offset-based external request, including after acceptance.
+    /// Cursor mode returns `None`; use [`Self::cursor_page_request`]. Check
     /// `page_state().loading` for pending work; use `reload_page()` for a fresh request.
     pub fn page_request(&self) -> Option<PageRequest> {
         let p = self.pagination.as_ref()?;
@@ -485,6 +565,11 @@ impl<T> Grid<T> {
             });
         }
         let has_next = rows.len() == request.page_size.get();
+        self.accept_page_rows(rows, has_next);
+        Ok(())
+    }
+
+    fn accept_page_rows(&mut self, rows: Vec<T>, has_next: bool) {
         self.model.replace_rows_in_order(rows);
         self.clear_animations();
         let p = self.pagination.as_mut().expect("external pagination");
@@ -497,7 +582,6 @@ impl<T> Grid<T> {
         self.reveal_selected_row();
         self.hover = None;
         self.clear_cell_details();
-        Ok(())
     }
 
     /// Enable client pagination or change an existing page size. Resets to page one.
@@ -513,6 +597,7 @@ impl<T> Grid<T> {
         if let Some(p) = self.pagination.as_mut() {
             p.size = page_size;
             p.page = 0;
+            p.reset_cursors();
         } else {
             self.pagination = Some(Pagination {
                 mode: PaginationMode::Client,
@@ -522,6 +607,7 @@ impl<T> Grid<T> {
                 has_next: false,
                 revision: 0,
                 loading: false,
+                cursors: Vec::new(),
             });
         }
         self.page_action()
@@ -543,7 +629,10 @@ impl<T> Grid<T> {
     /// client pages; external pages discard records while retaining a configured
     /// selected ID until the next accepted response.
     /// With unknown totals, forward jumps are clamped to the next page, available
-    /// only after a full response. Previous pages and page zero remain accessible.
+    /// only after a full offset response or a cursor response with a next token.
+    /// Cursor mode revisits earlier pages using retained request tokens; it never
+    /// seeks to unvisited pages or emits an offset request. Previous pages and
+    /// page zero remain accessible.
     pub fn set_page(&mut self, page: usize) -> Option<Action> {
         let state = self.page_state()?;
         let last = state.page_count.map_or(
@@ -558,12 +647,13 @@ impl<T> Grid<T> {
         self.page_action()
     }
 
-    /// Update an external source's total count (for example after filtering).
+    /// Update an offset-based external source's total count (for example after filtering).
+    /// Cursor grids ignore this operation; counts do not enable random access.
     /// A known count clamps the current page. `None` removes the count and keeps the
     /// current page. Either change emits a new request, invalidating prior responses.
     pub fn set_total_rows(&mut self, total_rows: impl Into<Option<usize>>) -> Option<Action> {
         let total_rows = total_rows.into();
-        if !self.is_external() {
+        if self.pagination.as_ref()?.mode != PaginationMode::External {
             return None;
         }
         let p = self.pagination.as_mut()?;
@@ -588,7 +678,7 @@ impl<T> Grid<T> {
     fn is_external(&self) -> bool {
         self.pagination
             .as_ref()
-            .is_some_and(|p| p.mode == PaginationMode::External)
+            .is_some_and(|p| p.mode != PaginationMode::Client)
     }
     fn page_action(&mut self) -> Option<Action> {
         self.row_offset = 0;
@@ -605,7 +695,11 @@ impl<T> Grid<T> {
             p.has_next = false;
             self.model.clear_rows_for_request();
             self.clear_animations();
-            Some(Action::PageRequested(self.page_request()?))
+            if let Some(request) = self.cursor_page_request() {
+                Some(Action::CursorPageRequested(request))
+            } else {
+                Some(Action::PageRequested(self.page_request()?))
+            }
         } else {
             Some(Action::PageChanged(self.page_state()?))
         }
@@ -643,7 +737,9 @@ impl<T> Grid<T> {
             if !self.model.request_sort(column) {
                 return None;
             }
-            self.pagination.as_mut()?.page = 0;
+            let p = self.pagination.as_mut()?;
+            p.page = 0;
+            p.reset_cursors();
             self.page_action()
         } else {
             self.range_base = None;

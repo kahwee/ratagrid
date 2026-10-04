@@ -1,13 +1,14 @@
 # Pagination
 
-Use client pagination for data already held in memory. Use external pagination for large datasets supplied by a database or API.
+Use client pagination for data already held in memory. Use offset-based external or native cursor pagination for large datasets supplied by a database or API.
 
 | Mode | Records in memory | Who sorts | Constructor |
 | --- | --- | --- | --- |
 | Client | Entire dataset | Ratagrid, before dividing into pages | `Grid::new(columns, rows).with_pagination(page_size)` |
-| External | Current page only | Your source, across the entire dataset | `Grid::new_paged(columns, total_rows, page_size)` |
+| External (offset) | Current page only | Your source, across the entire dataset | `Grid::new_paged(columns, total_rows, page_size)` |
+| Cursor (keyset) | Current page and boundary tokens | Your source, across the entire dataset | `Grid::new_cursor_paged(columns, page_size)` |
 
-Both modes provide clickable first/previous/next/last buttons, a row range and page count when totals are known. Unknown-total external sources show a row range and `?` for the total, and disable the last-page button. Page numbers in the API are zero-based; displayed page numbers start at one. An empty dataset has one empty page.
+Client and offset modes provide clickable first/previous/next/last buttons, a row range and page count when totals are known. Unknown-total external sources show a row range and `?` for the total, and disable the last-page button. Page numbers in the API are zero-based; displayed page numbers start at one. An empty dataset has one empty page. Cursor mode enables first/previous/next navigation as tokens become available, disables Last, and displays a batch ordinal and resident record count without claiming absolute row positions.
 
 ## Try the large-data example
 
@@ -130,6 +131,49 @@ If a count becomes available, call `set_total_rows(count)` (or `Some(count)`) to
 
 `PageState::total_rows` and `page_count` are now `Option<usize>`. Applications using the previous integer fields must handle `None`; an application that always supplies totals can unwrap them. Integer arguments to `new_paged` and `set_total_rows` continue to work.
 
+## Native cursor/keyset pagination
+
+Use cursor mode when your database or API returns a continuation token instead of accepting an offset:
+
+```rust
+use ratagrid::{Action, Column, Grid};
+use std::num::NonZeroUsize;
+
+let columns = vec![Column::new("ID", 12, |id: &u64| id.to_string())
+    .sortable_external()];
+let mut grid = Grid::new_cursor_paged(columns, NonZeroUsize::new(2).unwrap());
+let first = grid.cursor_page_request().unwrap();
+assert_eq!(first.cursor, None); // Start of traversal.
+// Fetch using first.cursor, first.page_size, first.sort and a captured query.
+grid.set_cursor_page_data(first, vec![10, 30], Some("30".into())).unwrap();
+let next = match grid.set_page(1).unwrap() {
+    Action::CursorPageRequested(request) => request,
+    _ => unreachable!(),
+};
+assert_eq!(next.cursor.as_deref(), Some("30"));
+// A full final batch can end immediately, with no extra empty fetch.
+grid.set_cursor_page_data(next, vec![50, 70], None).unwrap();
+assert!(!grid.page_state().unwrap().has_next_page);
+```
+
+Run `cargo run --locked --example cursor` for a mouse/keyboard example backed by a synthetic `BTreeMap` index. It seeks over sparse IDs in ascending or descending order, supports source-side search, and reads one extra matching record to determine the continuation. It performs no offset scan or count query; it is an integration example, not a database benchmark.
+
+Handle `Action::CursorPageRequested(request)` by capturing `search_query().to_owned()` with the request and sending both to your worker. On completion, call `set_cursor_page_data(original_request, rows, next_cursor)` and redraw. The token is an opaque `Option<String>`: `None` means the beginning in a request and the end in a response. Empty strings and Unicode tokens are valid; serialize composite keys or encode binary tokens in your source adapter. `CursorPageRequest::page` is only a zero-based navigation ordinal, never a SQL offset. Cursor requests deliberately have no `offset()` method. `page_request()` returns `None` in this mode.
+
+The response accepts at most `page_size` rows in source order. A `Some(next_cursor)` explicitly enables Next, including for short or empty batches; `None` disables it even for full batches. This accommodates APIs that limit batches independently of the requested size. Tokens must actually advance traversal; Ratagrid does not interpret them. For a database, fetching `page_size + 1` records lets you determine whether more exist, return only `page_size` records, and encode the last returned record's key as the next cursor.
+
+First restarts at the original beginning boundary; Previous re-fetches an earlier batch using its stored request token. `set_page` may revisit earlier ordinals but clamps forward jumps to the next available batch. Last and Ctrl+End are unavailable. Cursor mode always reports `None` for `total_rows` and `page_count`, and `set_total_rows` is a no-op: knowing a count does not make arbitrary cursor positions addressable. Tokens require memory proportional to the pages visited; only the current batch's records are resident. On acceptance after revisiting or reloading a batch, its continuation replaces the old one and all later history is discarded, preventing navigation through obsolete boundaries.
+
+Sorting, committed search changes, and page-size changes restart at `cursor: None` and clear token history. For application-owned filters or expired tokens, call `restart_cursor_pagination()` and handle its fresh cursor request. An unchanged query or page size is a no-op. `reload_page()` preserves the current batch's starting token and generates a fresh request ID. While loading or after a source error, Next is disabled; First and Previous remain available.
+
+Call `set_cursor_page_error(original_request, message)` for source failures. The shared error display, clickable Retry and F5 emit a fresh `CursorPageRequested` with the same boundary token. Stale, foreign, tampered, duplicate and oversized responses leave rows and history unchanged. Rejected oversized responses do not consume the request, so a corrected response can still be accepted. Requests use process-wide revision IDs exactly like offset mode; retain the original request, never replace it with the latest grid request when a worker completes. `with_row_id` restores active and marked selection when the accepted batch contains the IDs; local comparators are never invoked in cursor mode.
+
+Cursor mode carries continuation tokens and leaves all I/O, token encoding and database connections to your application. It does not open or retain a transaction-bound database cursor. Previous re-queries a boundary; it does not promise the same records if the dataset changes. Choose snapshot semantics in your source when required.
+
+### API compatibility
+
+Existing `PageRequest`, `PageRequested`, client pagination and offset pagination contracts are unchanged. `PaginationMode` adds `Cursor`, `PageError` adds `NotCursor`, and `Action` adds `CursorPageRequested`; exhaustive matches need corresponding arms. Because cursor requests own strings, `Action` now implements `Clone` rather than `Copy`. Use `.clone()` where an action must be reused.
+
 ## Navigation
 
 | Input | Behavior |
@@ -147,4 +191,16 @@ Render before mouse input and redraw after each event, as with other grid contro
 
 Sorting must happen before limiting the result to a page. Map column indices to an allowlist of database fields and use a deterministic tie-breaker such as a primary key. `sort: None` should map to a stable default ordering. Appropriate indexes avoid loading the entire dataset into the application to sort it.
 
-The API uses numbered, offset-based page requests with optional totals. A deep SQL `OFFSET` can still require a large scan even though Ratagrid holds only one page. For very large production datasets, a source can cache page boundaries or use an indexed seek strategy. Native cursor/keyset pagination is not supported; applications can translate page requests into cached cursors. Unknown-total mode avoids the count query, but does not change the cost of a deep offset.
+Offset mode uses numbered page requests with optional totals. A deep SQL `OFFSET` can still require a large scan even though Ratagrid holds only one page. Unknown-total offset mode avoids the count query, but does not change the cost of a deep offset. Native cursor mode lets the source seek directly from an indexed boundary.
+
+For ascending `(created_at, id)` ordering in a database supporting row comparisons:
+
+```sql
+SELECT id, created_at, name
+FROM records
+WHERE (created_at, id) > (:last_created_at, :last_id)
+ORDER BY created_at ASC, id ASC
+LIMIT :page_size_plus_one;
+```
+
+Omit the boundary predicate on the first request. For descending order, use `<` and order both keys `DESC`. An index matching the filter and ordering makes the seek efficient. Always include a unique tie-breaker in the token and ordering; encode all sort keys, not just the visible field. Handle nulls, mixed sort directions and collation according to your database's ordering rules. Map column indices to allowlisted fields, bind boundary values, and validate tokens in your adapter. Changes to mutable sort keys can still move records across boundaries; keyset pagination alone does not provide a snapshot.

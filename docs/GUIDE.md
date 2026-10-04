@@ -152,7 +152,7 @@ persist selection across application restarts. Replacement still clears cell fla
 
 ## Large datasets
 
-Use `.with_pagination(page_size)` to page an owned dataset; sorting still processes all resident records. For a database or API, use `Grid::new_paged(columns, total_rows, page_size)`: mark columns with `.sortable_external()`, handle `Action::PageRequested`, and return only that page through `set_page_data`. The source sorts globally. Pass `None` as the total for sources without a count: full responses enable Next, and short or empty responses stop forward navigation. Foreign, stale, and duplicate responses are rejected.
+Use `.with_pagination(page_size)` to page an owned dataset; sorting still processes all resident records. For a database or API, use `Grid::new_paged(columns, total_rows, page_size)`: mark columns with `.sortable_external()`, handle `Action::PageRequested`, and return only that page through `set_page_data`. The source sorts globally. Pass `None` as the total for sources without a count: full responses enable Next, and short or empty responses stop forward navigation. Foreign, stale, and duplicate responses are rejected. For native keyset traversal, use `Grid::new_cursor_paged(columns, page_size)`, handle `Action::CursorPageRequested`, and return rows plus an explicit next token through `set_cursor_page_data`. First/Previous use boundary history; Last and unvisited page jumps are unavailable.
 
 See [pagination and source integration](PAGINATION.md) for examples, controls and database considerations.
 

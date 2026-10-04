@@ -25,6 +25,8 @@ pub enum PaginationMode {
     Client,
     /// Only the returned page is resident; the application fetches and sorts globally.
     External,
+    /// Opaque continuation tokens; the application performs keyset queries.
+    Cursor,
 }
 
 /// A page/sort request. Keep this value with an asynchronous request and return it
@@ -46,17 +48,34 @@ impl PageRequest {
     }
 }
 
+/// A cursor request. Capture this value and the search query before dispatching
+/// asynchronous work; return the original request with its response.
+///
+/// `cursor: None` starts from the beginning. Tokens are opaque UTF-8 strings;
+/// serialize structured keys or encode binary tokens in the application.
+/// `page` is a navigation ordinal, never a database offset.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CursorPageRequest {
+    pub page: usize,
+    pub page_size: NonZeroUsize,
+    pub sort: Option<Sort>,
+    /// Process-wide request ID with the same lifecycle as [`PageRequest::revision`].
+    pub revision: u64,
+    pub cursor: Option<String>,
+}
+
 /// Read-only pagination metadata. Empty datasets have one empty page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PageState {
     pub mode: PaginationMode,
     pub page: usize,
     pub page_size: NonZeroUsize,
-    /// None when the external source has not supplied a total.
+    /// None in cursor mode or when an offset source has not supplied a total.
     pub page_count: Option<usize>,
-    /// None when the external source has not supplied a total.
+    /// None in cursor mode or when an offset source has not supplied a total.
     pub total_rows: Option<usize>,
-    /// Whether navigation can request the next page. False while an unknown-total page loads.
+    /// Whether navigation can request the next page. Cursor mode uses the source
+    /// continuation token; cursor and unknown-total sources disable Next while loading.
     pub has_next_page: bool,
     /// Records resident in memory: the full dataset in client mode, one page in external mode.
     pub loaded_rows: usize,
@@ -66,14 +85,21 @@ pub struct PageState {
 /// A page response was not accepted. Failed responses leave the current grid unchanged.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PageError {
+    /// An offset response was supplied to a client or cursor grid.
     NotExternal,
+    /// A cursor response was supplied to a client or offset grid.
+    NotCursor,
     StaleResponse,
-    WrongRowCount { expected: usize, actual: usize },
+    WrongRowCount {
+        expected: usize,
+        actual: usize,
+    },
 }
 impl fmt::Display for PageError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::NotExternal => f.write_str("grid is not externally paginated"),
+            Self::NotExternal => f.write_str("grid is not offset externally paginated"),
+            Self::NotCursor => f.write_str("grid is not cursor paginated"),
             Self::StaleResponse => {
                 f.write_str("page response is obsolete, foreign, or already applied")
             }
@@ -94,8 +120,18 @@ pub(crate) struct Pagination {
     pub has_next: bool,
     pub revision: u64,
     pub loading: bool,
+    // The request boundary for each visited page, plus the available next page.
+    pub cursors: Vec<Option<String>>,
 }
 impl Pagination {
+    pub fn reset_cursors(&mut self) {
+        if self.mode == PaginationMode::Cursor {
+            self.cursors.clear();
+            self.cursors.push(None);
+            self.has_next = false;
+        }
+    }
+
     pub fn count(&self, total: usize) -> usize {
         total.div_ceil(self.size.get()).max(1)
     }

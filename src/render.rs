@@ -327,32 +327,43 @@ impl<T> Grid<T> {
             self.page_buttons.push((rect, navigation, enabled));
             x = x.saturating_add(width).saturating_add(1);
         }
-        let offset = state.page.saturating_mul(state.page_size.get());
-        let (range_rows, total, count) = match (state.total_rows, state.page_count) {
-            (Some(total), Some(count)) => (
-                total.saturating_sub(offset).min(state.page_size.get()),
-                total.to_string(),
-                format!("/{count}"),
-            ),
-            _ => (state.loaded_rows, "?".into(), String::new()),
-        };
-        let start = if range_rows == 0 {
-            0
+        let summary = if state.mode == PaginationMode::Cursor {
+            format!(
+                "Batch {} · {} records",
+                state.page.saturating_add(1),
+                state.loaded_rows,
+            )
         } else {
-            offset.saturating_add(1)
-        };
-        let end = if range_rows == 0 {
-            0
-        } else {
-            offset.saturating_add(range_rows)
+            let offset = state.page.saturating_mul(state.page_size.get());
+            let (range_rows, total, count) = match (state.total_rows, state.page_count) {
+                (Some(total), Some(count)) => (
+                    total.saturating_sub(offset).min(state.page_size.get()),
+                    total.to_string(),
+                    format!("/{count}"),
+                ),
+                _ => (state.loaded_rows, "?".into(), String::new()),
+            };
+            let start = if range_rows == 0 {
+                0
+            } else {
+                offset.saturating_add(1)
+            };
+            let end = if range_rows == 0 {
+                0
+            } else {
+                offset.saturating_add(range_rows)
+            };
+            format!(
+                "Page {}{} · {}–{} / {}",
+                state.page.saturating_add(1),
+                count,
+                start,
+                end,
+                total,
+            )
         };
         let text = format!(
-            "Page {}{} · {}–{} / {}{}{}",
-            state.page.saturating_add(1),
-            count,
-            start,
-            end,
-            total,
+            "{summary}{}{}",
             if state.loading { " · loading" } else { "" },
             if self.search_query.is_empty() {
                 String::new()

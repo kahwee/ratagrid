@@ -30,7 +30,7 @@ The foreign-response, header-hover and missing-focus-action tests failed against
 | P1 for demanding owned-data applications | Full sorts are synchronous. | Historical ten-million-row sorts took 4–5 seconds and block input. Prefer external sorting today. A future background-sort design must account for the boxed callbacks, which are not `Send`/`Sync`; moving the existing model directly to a worker is not supported. |
 | P2 | Unselected sorted edits locate the row with a linear scan; moves shift an index vector. | Fifty concurrent edits took 212–277 ms per frame at ten million rows. Consider a batch-update API or optional inverse-position cache, with explicit memory costs. |
 | P2 | Cell flashes use insertion indices, or page-local indices in external mode. | Stable row IDs now preserve selection across reloads, but replacement still clears cell flashes. |
-| P2 | External pagination uses offset-based pages. | Known and unknown totals are supported; cursors/keyset navigation remain application concerns; source error/retry states are now integrated. A virtual 100M-row demo is not evidence of database throughput. |
+| P2 | Deep offset pages can require large database scans. | Native cursor/keyset mode now carries source tokens, retains Previous boundaries, and integrates source errors/retries. Existing offset mode supports known and unknown totals. Database querying and indexing remain application concerns; a virtual 100M-row demo is not evidence of database throughput. |
 | P2 | Owned and external modes share one type with runtime checks. | `replace_rows` panics for external grids; some wrong-mode operations return no action. Keep these contracts explicit before deciding whether separate storage types justify a breaking API change. |
 | P3 | Formatting returns an allocated `String` for every visible cell. | Cheap demo formatters are fast, but expensive formatters or long strings can dominate. Consider borrowed/`Cow` formatting only after measuring a real application. |
 | P3 | Single-column sorting and row-level actions are the current scope. | Search/filtering, a cell cursor, bulk ranges, and column presentation are now supported. Multi-sort and rich renderers remain absent. Describe it as an interactive data table rather than promising spreadsheet behavior. |
@@ -54,7 +54,7 @@ The original cleanup passed 41 tests and three doc examples. Subsequent changes 
 
 1. Exercise the optional stable row ID API with a real consuming application; the live playground now preserves selection across reloads.
 2. Add measured batch updates or an optional inverse-position cache for frequent owned-data edits.
-3. Design cursor/keyset source integration without hiding database work inside the widget.
+3. Validate native cursor integration against application database indexes and snapshot requirements; the widget leaves database work in the source adapter.
 4. Gather feedback on the published 0.1 API before adding new contracts.
 
 ## History

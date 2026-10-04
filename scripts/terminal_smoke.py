@@ -306,8 +306,40 @@ def database_smoke():
     print("Database terminal smoke passed: page conversion, global search, optional sorting, literal SQL input, shrinking/growing totals and tiny resize.")
 
 
+def cursor_smoke():
+    session = Session(width=90, height=18, binary=ROOT / "target/release/examples/cursor")
+    try:
+        assert "Batch 1 · 10 records" in session.text()
+        assert "Job 001" in session.text() and "Job 010" in session.text()
+        session.send(b"]", "Batch 2 · 10 records")
+        assert "Job 011" in session.text() and "Job 020" in session.text()
+        session.send(b"[", "Batch 1 · 10 records")
+        # Actual footer mouse input uses the same boundary history.
+        session.send(b"\x1b[<0;11;18M\x1b[<0;11;18m", "Batch 2 · 10 records")
+        session.send(b"\x1b[1;5H", "Batch 1 · 10 records")  # Ctrl+Home
+        session.send(b"\t\r")  # Ascending sort resets traversal.
+        session.send(b"\r", "Job 120")  # Descending sort.
+        assert "Job 111" in session.text()
+        session.send(b"]", "Batch 2 · 10 records")
+        assert "Job 110" in session.text()
+        session.send(b"/Job 00\r", "Batch 1 · 9 records")
+        assert "Job 009" in session.text() and "Job 001" in session.text()
+        session.send(b"]")
+        assert "Batch 1 · 9 records" in session.text()  # Explicit end token.
+        session.send(b"\x1b[15~", "Batch 1 · 9 records")  # F5 reloads current boundary.
+        session.resize(14, 6)
+        session.send(b"/missing\r")
+        session.resize(90, 18)
+        assert "No matching records" in session.text()
+        assert "Batch 1 · 0 records" in session.text()
+    finally:
+        session.close()
+    print("Cursor terminal smoke passed: indexed seek, boundary history, mouse/keyboard navigation, descending sort, search, reload, exact end and resize.")
+
+
 if __name__ == "__main__":
     playground_smoke()
     explorer_smoke()
     details_smoke()
     database_smoke()
+    cursor_smoke()

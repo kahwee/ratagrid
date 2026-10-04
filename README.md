@@ -70,4 +70,6 @@ Use arrows to select, Tab + Enter to sort, `/` to search, and `q` to quit. For m
 
 For a SQLite adapter with global search, one-based application pages, optional sorting and changing totals, run `cargo run --locked --example database`; see [the adapter guide](docs/PAGINATION.md#database-adapter-with-one-based-application-pages).
 
+For native database cursor/keyset pagination, use `Grid::new_cursor_paged`, handle `Action::CursorPageRequested`, and return rows plus the next token. Try `cargo run --locked --example cursor`; see the [cursor integration guide](docs/PAGINATION.md#native-cursorkeyset-pagination).
+
 [Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Update notes](CHANGELOG.md#unreleased) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

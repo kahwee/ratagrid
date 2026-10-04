@@ -82,6 +82,7 @@ impl<T> Grid<T> {
             let p = self.pagination.as_mut()?;
             p.page = 0;
             p.total = None;
+            p.reset_cursors();
             self.page_action()
         } else {
             self.model.set_search(self.search_query.clone());
@@ -294,6 +295,23 @@ impl<T> Grid<T> {
         if current != request || !self.page_state().is_some_and(|p| p.loading) {
             return Err(PageError::StaleResponse);
         }
+        self.accept_page_error(message);
+        Ok(())
+    }
+
+    /// Report a cursor source failure. Retry preserves the cursor and emits a
+    /// fresh request ID; late responses to the failed request are rejected.
+    pub fn set_cursor_page_error(
+        &mut self,
+        request: CursorPageRequest,
+        message: impl Into<String>,
+    ) -> Result<(), PageError> {
+        self.validate_cursor_request(&request)?;
+        self.accept_page_error(message);
+        Ok(())
+    }
+
+    fn accept_page_error(&mut self, message: impl Into<String>) {
         let message: String = message
             .into()
             .chars()
@@ -309,6 +327,5 @@ impl<T> Grid<T> {
         p.has_next = false;
         self.hover = None;
         self.clear_cell_details();
-        Ok(())
     }
 }

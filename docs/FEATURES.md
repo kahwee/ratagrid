@@ -48,7 +48,7 @@ assert_eq!(grid.model().rows().len(), 3);
 
 `visible_len()` is the filtered count; `rows()` retains resident data. Client `PageState::total_rows` and page count describe the filtered view, while `loaded_rows` describes resident storage. Query/predicate changes return to page one and emit `FilterChanged`. Replacement and targeted updates re-evaluate active filters. Filtering/search is synchronous; active search formats all candidate records and filtered updates rebuild ordering. The existing incremental update path remains in use without filters.
 
-For an external grid, `set_search(query)` emits `PageRequested`, resets to page one and unknown total, and invalidates pending work. Capture an owned copy of `search_query()` immediately with that request. The source must filter globally before sorting and paging. Return the original request with its response so outdated work is rejected. `set_filter` and `clear_filter` return `ExternalFilterError` rather than filtering only the current page. If your source returns a count, use `set_total_rows` and handle its fresh request as described in [pagination](PAGINATION.md).
+For an external grid, `set_search(query)` emits `PageRequested` (or `CursorPageRequested` in cursor mode), resets to page one and unknown total, and invalidates pending work. Capture an owned copy of `search_query()` immediately with that request. The source must filter globally before sorting and paging. Return the original request with its response so outdated work is rejected. `set_filter` and `clear_filter` return `ExternalFilterError` rather than filtering only the current page. If your source returns a count, use `set_total_rows` and handle its fresh request as described in [pagination](PAGINATION.md).
 
 The explorer source supports full text search across its 120 records. The 100M virtual playground source supports `id:NUMBER` as an indexed exact-ID query; unsupported queries produce a retryable source error instead of scanning 100M synthetic rows.
 
@@ -89,9 +89,9 @@ The library exposes these controls for application menus and bindings. The explo
 
 ## Source lifecycle
 
-`load_state()` returns `Loading`, `Error(message)`, `Empty`, or `Ready`. The grid draws loading and empty messages in its body. Errors draw `[Retry]`, a sanitized source message, and an F5 hint; both mouse Retry and F5 emit a new `PageRequested`. `GridStyle::status` and `error` customize these messages.
+`load_state()` returns `Loading`, `Error(message)`, `Empty`, or `Ready`. The grid draws loading and empty messages in its body. Errors draw `[Retry]`, a sanitized source message, and an F5 hint; both mouse Retry and F5 emit a new `PageRequested` or `CursorPageRequested` for the active source mode. `GridStyle::status` and `error` customize these messages.
 
-Report a failure with `set_page_error(original_request, message)`. It accepts only a current pending request, ends loading, and disables forward navigation for an unknown-total source. Foreign, outdated, and duplicate failures return `PageError::StaleResponse`. Data arriving after a failed request is also rejected; reload creates a fresh request. Validation errors such as `WrongRowCount` leave a request pending so the application may correct the response or complete it with a source error.
+Report a failure with `set_page_error(original_request, message)` or `set_cursor_page_error(original_request, message)` in cursor mode. It accepts only a current pending request, ends loading, and disables forward navigation for an unknown-total source. Foreign, outdated, and duplicate failures return `PageError::StaleResponse`. Data arriving after a failed request is also rejected; reload creates a fresh request. Validation errors such as `WrongRowCount` leave a request pending so the application may correct the response or complete it with a source error.
 
 ```rust
 use ratagrid::{Column, Grid, LoadState};

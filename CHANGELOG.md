@@ -4,6 +4,9 @@
 
 These changes are on GitHub main after v0.1.0; they are not in the published 0.1.0 crate or its versioned API docs. The package version remains 0.1.0 until the next release version is chosen.
 
+- Native cursor/keyset pagination with opaque request/response tokens, First/Previous/Next boundary history, source search/sort resets, stale-response protection, error/retry handling and an indexed cursor example. Cursor mode disables Last and unvisited page jumps.
+- `Action` adds `CursorPageRequested` and becomes `Clone` instead of `Copy`; `PaginationMode` adds `Cursor`. Existing client/offset request and response APIs remain available.
+
 - Opt-in full-value panels for truncated cells, with configurable hover delay, Enter inspection, scrolling and safe dismissal. Enable the playground with `--cell-details`.
 - Runnable SQLite pagination adapter maps zero-based grid pages to one-based application pages, with global search, optional stable SQL sorting and snapshot-consistent changing totals.
 - Shared text sanitization strips terminal controls and Unicode bidirectional formatting controls from display, search, error messages and copy payloads.
