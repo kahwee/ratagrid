@@ -414,13 +414,51 @@ impl<T> Widget for GridWidget<'_, T> {
 
 // Fit by terminal cells, retaining complete graphemes and indicating overflow.
 // Sanitization precedes segmentation; clipping stops at the first overflow.
+// Inspect geometrically growing chunks until a complete grapheme overflows.
+// Keep the final grapheme pending: later text (including text joined across
+// removed controls) can extend it. Each source byte is sanitized at most once.
+fn sanitized_prefix(text: &str, cells: usize) -> std::borrow::Cow<'_, str> {
+    use std::borrow::Cow;
+    if text.len() <= 128 {
+        return crate::text::sanitize(text);
+    }
+    let mut prefix = Cow::Borrowed("");
+    let mut start = 0;
+    let mut end = text.floor_char_boundary(128);
+    loop {
+        let chunk = crate::text::sanitize(&text[start..end]);
+        if matches!(prefix, Cow::Borrowed(_)) && matches!(chunk, Cow::Borrowed(_)) {
+            prefix = Cow::Borrowed(&text[..end]);
+        } else {
+            prefix.to_mut().push_str(&chunk);
+        }
+        if end == text.len() {
+            return prefix;
+        }
+        let mut graphemes = prefix.graphemes(true).peekable();
+        let mut used = 0;
+        while let Some(grapheme) = graphemes.next() {
+            if graphemes.peek().is_none() {
+                break;
+            }
+            let width = UnicodeWidthStr::width(grapheme);
+            if used + width > cells {
+                return prefix;
+            }
+            used += width;
+        }
+        start = end;
+        end = text.floor_char_boundary(end.saturating_mul(2).min(text.len()));
+    }
+}
+
 fn fit_text(text: &str, cells: usize) -> String {
     if cells == 0 {
         return String::new();
     }
     let mut fitted = String::new();
     let mut used = 0;
-    let text = crate::text::sanitize(text);
+    let text = sanitized_prefix(text, cells);
     for grapheme in text.graphemes(true) {
         let width = UnicodeWidthStr::width(grapheme);
         if width == 0 {
@@ -453,7 +491,8 @@ fn write_clipped(
     style: Style,
 ) {
     let mut x = start;
-    let text = crate::text::sanitize(text);
+    let end = end.min(i64::from(area.right()));
+    let text = sanitized_prefix(text, end.saturating_sub(start).max(0) as usize);
     for grapheme in text.graphemes(true) {
         let width = UnicodeWidthStr::width(grapheme) as i64;
         if width == 0 {
@@ -471,5 +510,150 @@ fn write_clipped(
             }
         }
         x += width;
+    }
+}
+
+#[cfg(test)]
+mod long_text_tests {
+    use super::*;
+
+    // Whole-text oracle: choose the longest prefix that leaves one cell for an
+    // ellipsis, instead of using the renderer's overflow/backtracking algorithm.
+    fn reference_fit(text: &str, cells: usize) -> String {
+        if cells == 0 {
+            return String::new();
+        }
+        let text = crate::text::sanitize(text);
+        let graphemes: Vec<_> = text
+            .graphemes(true)
+            .map(|g| (g, UnicodeWidthStr::width(g)))
+            .filter(|(_, width)| *width > 0)
+            .collect();
+        let total: usize = graphemes.iter().map(|(_, width)| width).sum();
+        if total <= cells {
+            return graphemes.iter().map(|(g, _)| *g).collect();
+        }
+        let mut result = String::new();
+        let mut used = 0;
+        for (g, width) in graphemes {
+            if used + width > cells - 1 {
+                break;
+            }
+            result.push_str(g);
+            used += width;
+        }
+        result.extend(std::iter::repeat_n(' ', cells - 1 - used));
+        result.push('…');
+        result
+    }
+
+    #[test]
+    fn long_visible_prefix_does_not_scan_or_allocate_the_hidden_tail() {
+        let text = format!("{}\u{202e}hidden", "a".repeat(1_048_576));
+        let prefix = sanitized_prefix(&text, 20);
+        assert!(matches!(prefix, std::borrow::Cow::Borrowed(_)));
+        assert_eq!(prefix.len(), 128);
+        let text = format!("\u{202e}{}\x1bhidden", "a".repeat(1_048_576));
+        assert!(sanitized_prefix(&text, 20).len() <= 128);
+        assert_eq!(fit_text(&text, 20), format!("{}…", "a".repeat(19)));
+    }
+
+    #[test]
+    fn chunk_boundaries_preserve_graphemes_joined_across_removed_controls() {
+        for prefix_len in [0, 123, 124, 125, 126, 127, 128, 129, 250, 255, 256, 257] {
+            for joined in [
+                "e\u{202e}\u{301}",
+                "👩\u{2066}\u{200d}💻",
+                "👩\x1b🏽\u{200d}💻",
+                "🇺\u{061c}🇸",
+                "\u{0600}\u{202e}a",
+                "क्\u{202e}ष",
+                "\r\n",
+                "e\u{301}\u{301}\u{301}",
+                "\u{200d}\u{fe0f}",
+            ] {
+                let input = format!(
+                    "{}{joined}{}",
+                    "a".repeat(prefix_len),
+                    "tail 東京 ".repeat(50)
+                );
+                for cells in [0, 1, 2, 19, 20, 64, 127, 128, 129, 255, 256, 257, 1024] {
+                    assert_eq!(
+                        fit_text(&input, cells),
+                        reference_fit(&input, cells),
+                        "prefix={prefix_len}, cells={cells}, joined={joined:?}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn control_runs_and_unbounded_combining_clusters_remain_correct() {
+        for input in [
+            format!("{}e\u{202e}\u{301}tail", "\u{2066}\x1b\n".repeat(20_000)),
+            format!("e{}tail", "\u{301}".repeat(20_000)),
+            "\u{202e}\u{2069}\x1b".repeat(20_000),
+            "🇺".repeat(1000),
+        ] {
+            for cells in [0, 1, 2, 20, 128, 256] {
+                assert_eq!(fit_text(&input, cells), reference_fit(&input, cells));
+            }
+        }
+    }
+
+    #[test]
+    fn seeded_hostile_strings_match_full_sanitization_and_clipping() {
+        let pieces = [
+            "a",
+            "東",
+            "e\u{301}",
+            "👩🏽‍💻",
+            "🇺",
+            "🇸",
+            "\u{200d}",
+            "\u{fe0f}",
+            "\u{202e}",
+            "\u{2066}",
+            "\u{2069}",
+            "\x1b",
+            "\t",
+            "\n",
+            "\u{061c}",
+            "\u{0600}",
+            "\u{301}",
+            "क्",
+            "ष",
+        ];
+        let mut seed = 0x99ab42u64;
+        for step in 0..512 {
+            let mut input = String::new();
+            for _ in 0..(step % 256 + 64) {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                input.push_str(pieces[(seed >> 32) as usize % pieces.len()]);
+            }
+            for cells in [1, 2, 3, 20, 64, 128, 256] {
+                assert_eq!(
+                    fit_text(&input, cells),
+                    reference_fit(&input, cells),
+                    "step={step}, cells={cells}"
+                );
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod long_clipped_tests {
+    use super::*;
+
+    #[test]
+    fn horizontal_clipping_skips_partial_graphemes_and_hidden_long_tail() {
+        let text = format!("東👩🏽‍💻e\u{202e}\u{301}abc{}", "Z".repeat(1_048_576));
+        let area = Rect::new(3, 4, 5, 1);
+        let mut buffer = Buffer::empty(area);
+        write_clipped(&mut buffer, area, 4, 0, 1_048_576, &text, Style::default());
+        let symbols: Vec<_> = buffer.content().iter().map(|c| c.symbol()).collect();
+        assert_eq!(symbols, [" ", "e\u{301}", "a", "b", "c"]);
     }
 }

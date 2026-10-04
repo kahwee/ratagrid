@@ -1,0 +1,7 @@
+case,bytes,column_cells,iterations,before_ns_per_render,after_ns_per_render,speedup
+ascii_short,40,20,2000,2082.6,2098.4,0.99
+ascii_4k,4096,20,2000,7291.3,2888.6,2.52
+ascii_1m,1048576,20,100,1203088.7,27100.5,44.39
+unicode_1m,1080000,20,100,715364.9,31454.6,22.74
+bidi_1m,851968,20,100,1062212.6,23600.5,45.01
+controls_1m,1000004,20,100,872447.9,656622.1,1.33

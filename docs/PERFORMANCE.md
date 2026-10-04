@@ -71,3 +71,20 @@ The ellipsis and semantic-colour update was checked with `--rows 1000000 --bench
 Stable row IDs accept equality-only keys. To reject duplicate IDs, restoring each marked record scans the replacement dataset: O(marked rows × resident rows) ID comparisons. A bounded adversarial test measured 10,000 comparisons for 50 marks across 200 rows, 40,000 for 200 marks across 200 rows, and 160,000 for 400 marks across 400 rows. These are operation counts, not elapsed-time benchmarks.
 
 Avoid selecting an entire large resident dataset before frequent reloads. Use external pagination or small client pages and bound the number of retained marks. Indexed identity lookup would require an additional Hash/Ord contract and remains future work.
+
+## Long formatted cells
+
+`cargo run --release --locked --example long_cells` benchmarks one data row with a 20-cell content width in a 21×3 buffer. It includes formatter string cloning, sanitization, clipping and buffer drawing; terminal output is excluded. Ten warmups precede each timed batch. The results below are batch means from a before/after run on the same Linux x86-64 environment with stable Rust 1.99, measured October 4, 2026. [Raw comparison CSV](benchmarks/2026-10-04-long-cells.csv).
+
+| Value | Input bytes | Before (µs/render) | After (µs/render) |
+| --- | ---: | ---: | ---: |
+| Short ASCII | 40 | 2.08 | 2.10 |
+| ASCII, 4 KiB | 4,096 | 7.29 | 2.89 |
+| ASCII, 1 MiB | 1,048,576 | 1,203.09 | 27.10 |
+| Unicode text | 1,080,000 | 715.36 | 31.45 |
+| Text with bidi controls | 851,968 | 1,062.21 | 23.60 |
+| Long controls-only prefix, then `tail` | 1,000,004 | 872.45 | 656.62 |
+
+Rendering sanitizes geometrically growing source chunks and stops after a complete printable grapheme overflows the target width. The final grapheme stays pending because subsequent characters can extend it, including combining marks and emoji joined across removed controls. Each inspected source byte is sanitized once. Short values retain the direct sanitization path. Horizontal clipping also stops at the visible right edge without adding an ellipsis at a viewport boundary.
+
+The grid still receives an owned `String` from each formatter: copying or constructing a huge value can remain linear in its full length. Controls-only prefixes must be scanned to find visible text; one enormous combining cluster must be read in full to preserve the grapheme. Thus this optimization avoids unnecessary hidden-tail sanitation, rather than promising constant-time rendering for every input. Copying, search and full-value inspection continue to process complete values with the same control/bidi policy. Machine and workload changes can change these timings; use the example to measure your environment.

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Long-cell rendering sanitizes only the prefix needed for clipping, retaining complete graphemes and the terminal/bidi policy. Added a stable Rust 1.99 benchmark and adversarial Unicode/chunk-boundary regressions.
+
 ## 0.2.0 — 2026-10-04 (UTC)
 
 ### Migration from 0.1
