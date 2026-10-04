@@ -30,7 +30,7 @@ cargo run --locked --example database
 cargo run --locked --example cursor
 ```
 
-Run each example separately; quit with Q before starting the next. Applications enabling cell details must advance the hover timer, redraw on `Action::CellDetailsChanged`, and defer navigation shortcuts while `is_inspecting_cell()` is true. Inspection stays disabled by default. SQLite is an example-only dependency; the library still owns no database connection or event loop.
+Run each example separately; quit with `q` before starting the next. Applications enabling cell details must advance the hover timer, redraw on `Action::CellDetailsChanged`, and defer navigation shortcuts while `is_inspecting_cell()` is true. Inspection stays disabled by default. SQLite is an example-only dependency; the library still owns no database connection or event loop.
 
 ## 0.1.0 — 2026-10-04 (UTC)
 
