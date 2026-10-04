@@ -22,7 +22,9 @@ The smaller profile reduced artifacts by **49.9%**. Fresh build time was
 essentially unchanged in this small experiment; there is no demonstrated cold
 build speedup. Warm results vary, and retaining every local artifact is a
 best-case cache scenario, not a prediction of GitHub cache restore time.
-Limited free disk space stopped the baseline after one fresh trial. The runner
+Limited free disk space stopped the baseline after one fresh trial, so the
+collected local trials were baseline, candidate, candidate rather than a full
+alternating comparison. The runner
 removed only its own temporary build directories and retained the existing
 checkout's build artifacts. Two candidate trials completed afterward.
 
@@ -42,11 +44,46 @@ Linux/macOS panic and error cleanup checks, generated documentation checks,
 release example builds and Linux terminal smoke tests. Superseded runs for the
 same branch are cancelled to avoid redundant builds.
 
-The baseline [CI run](https://github.com/kahwee/ratagrid/actions/runs/37238306255)
-finished its Linux job in 112 s, macOS in 75 s and Windows in 96 s, excluding
-queue time. Cargo stages accounted for 69 s, 56 s and 69 s respectively. Linux's
-release example build took 41 s. Actual cached workflow measurements will be
-recorded after the first cache-seeding run and a repeat of the same commit.
+## Actual GitHub workflow measurements
+
+Compared the previous [uncached workflow](https://github.com/kahwee/ratagrid/actions/runs/37238306255)
+at `9b2817c` with [cache seeding](https://github.com/kahwee/ratagrid/actions/runs/37244760386/attempts/1)
+and an [exact-hit repeat](https://github.com/kahwee/ratagrid/actions/runs/37244760386/attempts/2)
+of the same optimized commit, `85e81a2`. All nine jobs passed. Logs confirmed
+exact cache hits on all three platforms; compressed cache downloads were about
+94 MB for macOS, 97 MB for Windows and 160 MB for Linux.
+
+These are **job wall times**, including setup, cache restore/save and every
+existing check, excluding queue time. They come from GitHub's job timestamps.
+
+| Runner | Previous uncached job | Initial cache-seeding job | Exact-hit job | Exact hit vs previous |
+| --- | ---: | ---: | ---: | ---: |
+| Linux | 112 s | 144 s | 73 s | 34.8% faster |
+| macOS | 75 s | 92 s | 35 s | 53.3% faster |
+| Windows | 96 s | 89 s | 82 s | 14.6% faster |
+
+The initial Linux/macOS runs were slower overall. Cache seeding and variable
+runner/build performance have a cost; caching is useful when reused, not a
+promise that every run is faster. On the exact-hit repeat, restoring the cache
+took 4 s on Linux/macOS and 12 s on Windows, included in the job totals above.
+
+| Runner | Previous Cargo stages | Cache-seeding Cargo stages | Exact-hit Cargo stages |
+| --- | ---: | ---: | ---: |
+| Linux | 69 s | 96 s | 20 s |
+| macOS | 56 s | 51 s | 14 s |
+| Windows | 69 s | 48 s | 45 s |
+
+Cargo totals sum Clippy, all-target tests, doctests, rustdoc and, on Linux, the
+release example build. They exclude formatting, setup and smoke-test time.
+Rust tests still execute; dependency caching does not bypass the checks.
+
+Each CI cell is one observed run on a fresh hosted runner. Hardware, load,
+registry downloads and network transfer differ between runs. The repeat shares
+the optimized commit and has confirmed cache hits, but these measurements are
+not statistical guarantees. The local profile experiment separates artifact
+size from compilation time; it does not demonstrate a cold compilation speedup.
+Changing the toolchain, dependencies or profile environment can require fresh
+caches and incur seeding costs again.
 
 ## Reproduce
 

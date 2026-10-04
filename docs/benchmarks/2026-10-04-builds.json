@@ -761,6 +761,1299 @@
         }
       ],
       "url": "https://github.com/kahwee/ratagrid/actions/runs/37238306255/attempts/1"
+    },
+    "cache_seed": {
+      "attempt": 1,
+      "conclusion": "success",
+      "databaseId": 37244760386,
+      "headSha": "85e81a2ffe736879e7e60efebcf92b2d707f56bc",
+      "jobs": [
+        {
+          "completedAt": "2026-10-04T23:44:38Z",
+          "conclusion": "success",
+          "databaseId": 111560333662,
+          "name": "check (windows-latest)",
+          "startedAt": "2026-10-04T23:43:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:43:11Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:43:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:16Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:43:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:29Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:43:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:33Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:43:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:34Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:43:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:01Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:43:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:16Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:44:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:44:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:17Z",
+              "conclusion": "skipped",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:22Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:44:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:34Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:44:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:36Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:44:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:36Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:44:36Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560333662"
+        },
+        {
+          "completedAt": "2026-10-04T23:44:49Z",
+          "conclusion": "success",
+          "databaseId": 111560333787,
+          "name": "check (macos-latest)",
+          "startedAt": "2026-10-04T23:43:17Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:43:22Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:43:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:25Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:43:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:37Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:43:25Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:38Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:43:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:39Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:43:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:09Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:43:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:24Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:44:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:26Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:44:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:26Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:26Z",
+              "conclusion": "skipped",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "success",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "skipped",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "skipped",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "skipped",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "skipped",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:27Z",
+              "conclusion": "skipped",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:31Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:44:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:31Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 32,
+              "startedAt": "2026-10-04T23:44:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:44Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:44:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:46Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:44:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:47Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:44:46Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560333787"
+        },
+        {
+          "completedAt": "2026-10-04T23:45:33Z",
+          "conclusion": "success",
+          "databaseId": 111560333831,
+          "name": "check (ubuntu-latest)",
+          "startedAt": "2026-10-04T23:43:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:43:11Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:43:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:11Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:43:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:20Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:43:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:21Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:43:20Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:21Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:43:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:39Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:43:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:49Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:43:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:49Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:43:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:49Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:43:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:50Z",
+              "conclusion": "success",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:43:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:50Z",
+              "conclusion": "success",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:43:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:50Z",
+              "conclusion": "success",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:43:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:50Z",
+              "conclusion": "success",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:43:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:43:51Z",
+              "conclusion": "success",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:43:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:44:56Z",
+              "conclusion": "success",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:43:51Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:24Z",
+              "conclusion": "success",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:44:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:27Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:45:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:27Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 32,
+              "startedAt": "2026-10-04T23:45:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:31Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:45:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:32Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:45:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:45:32Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:45:32Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560333831"
+        }
+      ],
+      "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/attempts/1"
+    },
+    "exact_cache_hit_repeat": {
+      "attempt": 2,
+      "conclusion": "success",
+      "databaseId": 37244760386,
+      "headSha": "85e81a2ffe736879e7e60efebcf92b2d707f56bc",
+      "jobs": [
+        {
+          "completedAt": "2026-10-04T23:47:33Z",
+          "conclusion": "success",
+          "databaseId": 111560859670,
+          "name": "check (windows-latest)",
+          "startedAt": "2026-10-04T23:46:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:46:13Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:46:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:18Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:46:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:31Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:46:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:43Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:46:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:46:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:13Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:27Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:47:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:47:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:29Z",
+              "conclusion": "skipped",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:30Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:47:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:30Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:47:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:32Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:47:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:32Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:47:32Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560859670"
+        },
+        {
+          "completedAt": "2026-10-04T23:46:51Z",
+          "conclusion": "success",
+          "databaseId": 111560859818,
+          "name": "check (macos-latest)",
+          "startedAt": "2026-10-04T23:46:16Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:46:18Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:46:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:19Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:46:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:27Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:46:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:31Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:46:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:31Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:46:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:34Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:46:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:43Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:46:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:44Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:46:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:44Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:46:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:44Z",
+              "conclusion": "skipped",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:46:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "success",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:46:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "skipped",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "skipped",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "skipped",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "skipped",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:45Z",
+              "conclusion": "skipped",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:46Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:46:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:46Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 32,
+              "startedAt": "2026-10-04T23:46:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:46Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:46:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:47Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:46:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:47Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:46:47Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560859818"
+        },
+        {
+          "completedAt": "2026-10-04T23:47:25Z",
+          "conclusion": "success",
+          "databaseId": 111560859830,
+          "name": "check (ubuntu-latest)",
+          "startedAt": "2026-10-04T23:46:12Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-04T23:46:14Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-04T23:46:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:15Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-04T23:46:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:26Z",
+              "conclusion": "success",
+              "name": "Run dtolnay/rust-toolchain@master",
+              "number": 3,
+              "startedAt": "2026-10-04T23:46:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:30Z",
+              "conclusion": "success",
+              "name": "Cache Rust dependencies",
+              "number": 4,
+              "startedAt": "2026-10-04T23:46:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:31Z",
+              "conclusion": "success",
+              "name": "Run cargo fmt --all --check",
+              "number": 5,
+              "startedAt": "2026-10-04T23:46:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:32Z",
+              "conclusion": "success",
+              "name": "Run cargo clippy --all-targets --locked -- -D warnings",
+              "number": 6,
+              "startedAt": "2026-10-04T23:46:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:38Z",
+              "conclusion": "success",
+              "name": "Run cargo test --all-targets --locked",
+              "number": 7,
+              "startedAt": "2026-10-04T23:46:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:39Z",
+              "conclusion": "success",
+              "name": "Run cargo test --doc --locked",
+              "number": 8,
+              "startedAt": "2026-10-04T23:46:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:39Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 9,
+              "startedAt": "2026-10-04T23:46:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:39Z",
+              "conclusion": "success",
+              "name": "Test Pages generation",
+              "number": 10,
+              "startedAt": "2026-10-04T23:46:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:40Z",
+              "conclusion": "success",
+              "name": "Test terminal cleanup on errors and panics",
+              "number": 11,
+              "startedAt": "2026-10-04T23:46:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:40Z",
+              "conclusion": "success",
+              "name": "Check bundled rustdoc guides",
+              "number": 12,
+              "startedAt": "2026-10-04T23:46:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:40Z",
+              "conclusion": "success",
+              "name": "Check generated Pages files",
+              "number": 13,
+              "startedAt": "2026-10-04T23:46:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:41Z",
+              "conclusion": "success",
+              "name": "Install terminal smoke dependency",
+              "number": 14,
+              "startedAt": "2026-10-04T23:46:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:46:53Z",
+              "conclusion": "success",
+              "name": "Build release examples",
+              "number": 15,
+              "startedAt": "2026-10-04T23:46:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:21Z",
+              "conclusion": "success",
+              "name": "Run terminal smoke tests",
+              "number": 16,
+              "startedAt": "2026-10-04T23:46:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:21Z",
+              "conclusion": "success",
+              "name": "Run cargo doc --no-deps --locked",
+              "number": 17,
+              "startedAt": "2026-10-04T23:47:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:21Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 32,
+              "startedAt": "2026-10-04T23:47:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:22Z",
+              "conclusion": "success",
+              "name": "Post Cache Rust dependencies",
+              "number": 33,
+              "startedAt": "2026-10-04T23:47:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:22Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 34,
+              "startedAt": "2026-10-04T23:47:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-04T23:47:22Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 35,
+              "startedAt": "2026-10-04T23:47:22Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/job/111560859830"
+        }
+      ],
+      "url": "https://github.com/kahwee/ratagrid/actions/runs/37244760386/attempts/2"
+    }
+  },
+  "cache_restore_evidence": {
+    "check (ubuntu-latest)": {
+      "exact_hit": true,
+      "compressed_bytes": 167468202,
+      "key": "v0-rust-ubuntu-latest-check-Linux-x64-f7e9c913-b0a6f7a0"
+    },
+    "check (macos-latest)": {
+      "exact_hit": true,
+      "compressed_bytes": 98451296,
+      "key": "v0-rust-macos-latest-check-Darwin-arm64-9cf63f1b-b0a6f7a0"
+    },
+    "check (windows-latest)": {
+      "exact_hit": true,
+      "compressed_bytes": 101787560,
+      "key": "v0-rust-windows-latest-check-Windows_NT-x64-b3cc94a0-bb61ea7e"
+    }
+  },
+  "ci_summary": {
+    "baseline": {
+      "check (macos-latest)": {
+        "job_seconds": 75.0,
+        "cargo_seconds": 56.0,
+        "successful_stage_seconds": {
+          "Set up job": 1.0,
+          "Run actions/checkout@v4": 2.0,
+          "Run dtolnay/rust-toolchain@master": 9.0,
+          "Run cargo fmt --all --check": 0.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 33.0,
+          "Run cargo test --all-targets --locked": 18.0,
+          "Run cargo test --doc --locked": 1.0,
+          "Run actions/setup-python@v5": 1.0,
+          "Test terminal cleanup on errors and panics": 1.0,
+          "Run cargo doc --no-deps --locked": 4.0,
+          "Post Run actions/setup-python@v5": 1.0,
+          "Post Run actions/checkout@v4": 0.0,
+          "Complete job": 1.0
+        }
+      },
+      "check (windows-latest)": {
+        "job_seconds": 96.0,
+        "cargo_seconds": 69.0,
+        "successful_stage_seconds": {
+          "Set up job": 1.0,
+          "Run actions/checkout@v4": 6.0,
+          "Run dtolnay/rust-toolchain@master": 13.0,
+          "Run cargo fmt --all --check": 3.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 38.0,
+          "Run cargo test --all-targets --locked": 24.0,
+          "Run cargo test --doc --locked": 2.0,
+          "Run cargo doc --no-deps --locked": 5.0,
+          "Post Run actions/checkout@v4": 2.0,
+          "Complete job": 0.0
+        }
+      },
+      "check (ubuntu-latest)": {
+        "job_seconds": 112.0,
+        "cargo_seconds": 69.0,
+        "successful_stage_seconds": {
+          "Set up job": 2.0,
+          "Run actions/checkout@v4": 1.0,
+          "Run dtolnay/rust-toolchain@master": 8.0,
+          "Run cargo fmt --all --check": 0.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 18.0,
+          "Run cargo test --all-targets --locked": 8.0,
+          "Run cargo test --doc --locked": 0.0,
+          "Run actions/setup-python@v5": 1.0,
+          "Test Pages generation": 0.0,
+          "Test terminal cleanup on errors and panics": 0.0,
+          "Check bundled rustdoc guides": 0.0,
+          "Check generated Pages files": 0.0,
+          "Install terminal smoke dependency": 1.0,
+          "Build release examples": 41.0,
+          "Run terminal smoke tests": 27.0,
+          "Run cargo doc --no-deps --locked": 2.0,
+          "Post Run actions/setup-python@v5": 0.0,
+          "Post Run actions/checkout@v4": 0.0,
+          "Complete job": 0.0
+        }
+      }
+    },
+    "cache_seed": {
+      "check (windows-latest)": {
+        "job_seconds": 89.0,
+        "cargo_seconds": 48.0,
+        "successful_stage_seconds": {
+          "Set up job": 2.0,
+          "Run actions/checkout@v4": 5.0,
+          "Run dtolnay/rust-toolchain@master": 13.0,
+          "Cache Rust dependencies": 4.0,
+          "Run cargo fmt --all --check": 1.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 27.0,
+          "Run cargo test --all-targets --locked": 15.0,
+          "Run cargo test --doc --locked": 1.0,
+          "Run cargo doc --no-deps --locked": 5.0,
+          "Post Cache Rust dependencies": 12.0,
+          "Post Run actions/checkout@v4": 2.0,
+          "Complete job": 0.0
+        }
+      },
+      "check (macos-latest)": {
+        "job_seconds": 92.0,
+        "cargo_seconds": 51.0,
+        "successful_stage_seconds": {
+          "Set up job": 3.0,
+          "Run actions/checkout@v4": 3.0,
+          "Run dtolnay/rust-toolchain@master": 12.0,
+          "Cache Rust dependencies": 1.0,
+          "Run cargo fmt --all --check": 1.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 30.0,
+          "Run cargo test --all-targets --locked": 15.0,
+          "Run cargo test --doc --locked": 2.0,
+          "Run actions/setup-python@v5": 0.0,
+          "Test terminal cleanup on errors and panics": 1.0,
+          "Run cargo doc --no-deps --locked": 4.0,
+          "Post Run actions/setup-python@v5": 0.0,
+          "Post Cache Rust dependencies": 13.0,
+          "Post Run actions/checkout@v4": 2.0,
+          "Complete job": 1.0
+        }
+      },
+      "check (ubuntu-latest)": {
+        "job_seconds": 144.0,
+        "cargo_seconds": 96.0,
+        "successful_stage_seconds": {
+          "Set up job": 2.0,
+          "Run actions/checkout@v4": 0.0,
+          "Run dtolnay/rust-toolchain@master": 9.0,
+          "Cache Rust dependencies": 1.0,
+          "Run cargo fmt --all --check": 0.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 18.0,
+          "Run cargo test --all-targets --locked": 10.0,
+          "Run cargo test --doc --locked": 0.0,
+          "Run actions/setup-python@v5": 0.0,
+          "Test Pages generation": 1.0,
+          "Test terminal cleanup on errors and panics": 0.0,
+          "Check bundled rustdoc guides": 0.0,
+          "Check generated Pages files": 0.0,
+          "Install terminal smoke dependency": 1.0,
+          "Build release examples": 65.0,
+          "Run terminal smoke tests": 28.0,
+          "Run cargo doc --no-deps --locked": 3.0,
+          "Post Run actions/setup-python@v5": 0.0,
+          "Post Cache Rust dependencies": 4.0,
+          "Post Run actions/checkout@v4": 1.0,
+          "Complete job": 0.0
+        }
+      }
+    },
+    "exact_cache_hit_repeat": {
+      "check (windows-latest)": {
+        "job_seconds": 82.0,
+        "cargo_seconds": 45.0,
+        "successful_stage_seconds": {
+          "Set up job": 1.0,
+          "Run actions/checkout@v4": 5.0,
+          "Run dtolnay/rust-toolchain@master": 13.0,
+          "Cache Rust dependencies": 12.0,
+          "Run cargo fmt --all --check": 2.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 28.0,
+          "Run cargo test --all-targets --locked": 14.0,
+          "Run cargo test --doc --locked": 2.0,
+          "Run cargo doc --no-deps --locked": 1.0,
+          "Post Cache Rust dependencies": 0.0,
+          "Post Run actions/checkout@v4": 2.0,
+          "Complete job": 0.0
+        }
+      },
+      "check (macos-latest)": {
+        "job_seconds": 35.0,
+        "cargo_seconds": 14.0,
+        "successful_stage_seconds": {
+          "Set up job": 2.0,
+          "Run actions/checkout@v4": 1.0,
+          "Run dtolnay/rust-toolchain@master": 8.0,
+          "Cache Rust dependencies": 4.0,
+          "Run cargo fmt --all --check": 0.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 3.0,
+          "Run cargo test --all-targets --locked": 9.0,
+          "Run cargo test --doc --locked": 1.0,
+          "Run actions/setup-python@v5": 0.0,
+          "Test terminal cleanup on errors and panics": 1.0,
+          "Run cargo doc --no-deps --locked": 1.0,
+          "Post Run actions/setup-python@v5": 0.0,
+          "Post Cache Rust dependencies": 0.0,
+          "Post Run actions/checkout@v4": 1.0,
+          "Complete job": 0.0
+        }
+      },
+      "check (ubuntu-latest)": {
+        "job_seconds": 73.0,
+        "cargo_seconds": 20.0,
+        "successful_stage_seconds": {
+          "Set up job": 1.0,
+          "Run actions/checkout@v4": 1.0,
+          "Run dtolnay/rust-toolchain@master": 11.0,
+          "Cache Rust dependencies": 4.0,
+          "Run cargo fmt --all --check": 1.0,
+          "Run cargo clippy --all-targets --locked -- -D warnings": 1.0,
+          "Run cargo test --all-targets --locked": 6.0,
+          "Run cargo test --doc --locked": 1.0,
+          "Run actions/setup-python@v5": 0.0,
+          "Test Pages generation": 0.0,
+          "Test terminal cleanup on errors and panics": 1.0,
+          "Check bundled rustdoc guides": 0.0,
+          "Check generated Pages files": 0.0,
+          "Install terminal smoke dependency": 1.0,
+          "Build release examples": 12.0,
+          "Run terminal smoke tests": 28.0,
+          "Run cargo doc --no-deps --locked": 0.0,
+          "Post Run actions/setup-python@v5": 0.0,
+          "Post Cache Rust dependencies": 1.0,
+          "Post Run actions/checkout@v4": 0.0,
+          "Complete job": 0.0
+        }
+      }
     }
   }
 }
