@@ -18,7 +18,7 @@ cd ratagrid
 cargo run --release --locked --example playground
 ```
 
-On GitHub `main`, enable optional full-value panels for truncated cells (this feature is not in published 0.1.0):
+In 0.2.0, enable optional full-value panels for truncated cells:
 
 ```sh
 cargo run --release --locked --example playground -- --cell-details
@@ -29,7 +29,7 @@ Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. 
 ## Use with Ratatui
 
 ```toml
-ratagrid = "0.1"
+ratagrid = "0.2"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -72,4 +72,4 @@ For a SQLite adapter with global search, one-based application pages, optional s
 
 For native database cursor/keyset pagination, use `Grid::new_cursor_paged`, handle `Action::CursorPageRequested`, and return rows plus the next token. Try `cargo run --locked --example cursor`; see the [cursor integration guide](docs/PAGINATION.md#native-cursorkeyset-pagination).
 
-[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Update notes](CHANGELOG.md#unreleased) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
+[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Release notes and migration](CHANGELOG.md#020--2026-10-04-utc) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

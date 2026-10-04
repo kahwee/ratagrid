@@ -68,7 +68,7 @@ assert_eq!(grid.copy_text(CopyTarget::Row(0)).as_deref(), Some("123456"));
 
 ## Plain-text sanitization
 
-Ratagrid strips Unicode control characters (`char::is_control`, C0/C1 including tab, newline, carriage return and ESC) and the Unicode `Bidi_Control` set: U+061C, U+200E–U+200F, U+202A–U+202E, and U+2066–U+2069. This includes direction marks, embeddings, overrides, and isolates, providing protection against invisible direction changes in untrusted text, as Wombat does.
+Ratagrid strips Unicode control characters (`char::is_control`, C0/C1 including tab, newline, carriage return and ESC) and the Unicode `Bidi_Control` set: U+061C, U+200E–U+200F, U+202A–U+202E, and U+2066–U+2069. This includes direction marks, embeddings, overrides, and isolates, providing protection against invisible direction changes in untrusted text.
 
 The same policy applies to formatted cells, column titles, search queries/drafts (including paste), formatted values used for owned search, source error messages, and each cell in `copy_text`. Rendering sanitizes before grapheme segmentation and width measurement. Copying removes controls inside cells and then adds the grid's own tabs/newlines between columns/rows; it returns full text without display truncation. Source records and formatter output are not modified in storage. Applications that copy raw records instead of using `copy_text` must apply their own policy.
 

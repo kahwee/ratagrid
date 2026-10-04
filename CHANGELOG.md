@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-10-04 (UTC)
 
-These changes are on GitHub main after v0.1.0; they are not in the published 0.1.0 crate or its versioned API docs. The package version remains 0.1.0 until the next release version is chosen.
+### Migration from 0.1
+
+Use `ratagrid = "0.2"` with Ratatui 0.30 and Crossterm 0.29; stable Rust 1.99 remains required. `Action` is now `Clone`, not `Copy`: borrow it or call `.clone()` when reusing it. Extend exhaustive matches for `Action::CellDetailsChanged`, `Action::CursorPageRequested`, `PaginationMode::Cursor`, and `PageError::NotCursor`. Existing client/offset pagination methods remain available. Cursor tokens are application-owned strings and cursor mode provides no total or Last-page navigation.
+
+### Changes
 
 - Native cursor/keyset pagination with opaque request/response tokens, First/Previous/Next boundary history, source search/sort resets, stale-response protection, error/retry handling and an indexed cursor example. Cursor mode disables Last and unvisited page jumps.
 - `Action` adds `CursorPageRequested` and becomes `Clone` instead of `Copy`; `PaginationMode` adds `Cursor`. Existing client/offset request and response APIs remain available.
@@ -14,18 +18,19 @@ These changes are on GitHub main after v0.1.0; they are not in the published 0.1
 - `Grid::select_row(index)` selects resident insertion indices and reveals sorted/filtered positions across client pages.
 - Adversarial regressions cover unsafe Unicode, separator injection, resize/selection sequences, database query inputs, stale counts and offset overflow.
 - Regenerated bundled rustdoc guides to fix the stale-guide CI failure. Guide freshness, smoke dependency installation, release example builds and terminal smoke tests now appear as separate named Linux CI gates.
-- README, installation guides and the live Pages site use crates.io for the released library and distinguish main-only APIs from published 0.1.0.
+- README, installation guides and the live Pages site use crates.io and link the matching versioned API.
 
-### Try the update from main
+### Try the release examples
 
 ```sh
 git switch main
 git pull --ff-only
 cargo run --release --locked --example playground -- --cell-details
 cargo run --locked --example database
+cargo run --locked --example cursor
 ```
 
-Run each example separately; quit the playground with Q before starting the database example. Applications enabling cell details must advance the hover timer, redraw on `Action::CellDetailsChanged`, and defer navigation shortcuts while `is_inspecting_cell()` is true. Inspection stays disabled by default. SQLite is an example-only dependency; the library still owns no database connection or event loop.
+Run each example separately; quit with Q before starting the next. Applications enabling cell details must advance the hover timer, redraw on `Action::CellDetailsChanged`, and defer navigation shortcuts while `is_inspecting_cell()` is true. Inspection stays disabled by default. SQLite is an example-only dependency; the library still owns no database connection or event loop.
 
 ## 0.1.0 — 2026-10-04 (UTC)
 

@@ -1,4 +1,4 @@
-# Release validation and privacy review
+# 0.1.0 release validation and privacy review
 
 Ratagrid 0.1.0 was published on October 4, 2026 (UTC), from commit `3ce637c8fdacd57d2ed7f8ee65bcd16240dfef95`. The annotated [v0.1.0 tag and GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.1.0), [crates.io package](https://crates.io/crates/ratagrid/0.1.0), and [live Pages site](https://kahwee.github.io/ratagrid/) were verified. This document preserves the release audit's coverage and limits.
 

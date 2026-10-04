@@ -82,13 +82,13 @@ Try the browsing controls with `cargo run --locked --example explorer`: search, 
 
 ## Use it
 
-Install [Ratagrid 0.1.0 from crates.io](https://crates.io/crates/ratagrid/0.1.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.1"` accepts compatible 0.1 releases; use `"=0.1.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.1.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.1.0) identifies its published source.
+Install [Ratagrid 0.2.0 from crates.io](https://crates.io/crates/ratagrid/0.2.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.2"` accepts compatible 0.2 releases; use `"=0.2.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.2.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.2.0) identifies its published source.
 
-Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.1.0/ratagrid/) describes the immutable published crate.
+Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.2.0/ratagrid/) describes the immutable published crate.
 
 ```toml
 [dependencies]
-ratagrid = "0.1"
+ratagrid = "0.2"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -216,9 +216,11 @@ GitHub Actions tests Rust 1.99.0 on Linux, macOS and Windows. Linux also runs th
 
 MIT. Contributions are welcome; see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+See the [0.2 migration notes](../CHANGELOG.md#020--2026-10-04-utc) for new enum variants and the change from `Action: Copy` to `Action: Clone`.
+
 ## Optional cell details
 
-Available on GitHub `main`; not included in the published 0.1.0 crate.
+Available in Ratagrid 0.2.0; disabled by default.
 
 ```sh
 cargo run --release --locked --example playground -- --cell-details
