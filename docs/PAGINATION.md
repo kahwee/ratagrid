@@ -12,7 +12,7 @@ Both modes provide clickable first/previous/next/last buttons, a row range and p
 ## Try the large-data example
 
 ```sh
-cargo run --release --example playground -- --scenario paged
+cargo run --release --locked --example playground -- --scenario paged
 ```
 
 This scenario represents 100 million virtual records and materializes only 50 at a time. Its simulated indexed source computes each page directly, including global sorting and stable ties. It does not allocate or sort 100 million records. It demonstrates the integration contract; its page-load timing does not measure database or network latency.

@@ -78,15 +78,17 @@ Open the resulting SVG in your browser or image viewer.
 
 For measured limits and reproducible benchmarks, see [performance under stress](PERFORMANCE.md). The [playground guide](PLAYGROUND.md) has all controls and capture instructions. For a smaller integration example, run `cargo run --locked --example demo`.
 
-Try the new browsing controls with `cargo run --example explorer`: search, mark ranges, copy formatted text, hide/reorder/pin columns, refresh keyed records, and retry simulated source failures. See [the feature guide](FEATURES.md) for APIs and integration contracts.
+Try the browsing controls with `cargo run --locked --example explorer`: search, mark ranges, copy formatted text, hide/reorder/pin columns, refresh keyed records, and retry simulated source failures. See [the feature guide](FEATURES.md) for APIs and integration contracts.
 
 ## Use it
 
-Ratagrid 0.1.0 uses Ratatui 0.30 types. The public Git dependency below tracks main; pin a reviewed Git revision for reproducible source builds. Registry publication status and release source identity are recorded in the [GitHub release](https://github.com/kahwee/ratagrid/releases).
+Install [Ratagrid 0.1.0 from crates.io](https://crates.io/crates/ratagrid/0.1.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.1"` accepts compatible 0.1 releases; use `"=0.1.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.1.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.1.0) identifies its published source.
+
+Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.1.0/ratagrid/) describes the immutable published crate; its availability depends on docs.rs completing its build.
 
 ```toml
 [dependencies]
-ratagrid = { git = "https://github.com/kahwee/ratagrid" }
+ratagrid = "0.1"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -206,25 +208,9 @@ The grid supports single-column sorting, keyed cursor/row selection, ranges, fil
 
 ## Development
 
-See the [adversarial review](REVIEW.md) for reproduced defects, completed cleanup and remaining design limits.
+See [contributing](../CONTRIBUTING.md) for required checks and generated documentation, [media tooling](MEDIA.md) for terminal smoke tests, and the historical [adversarial review](REVIEW.md) for reproduced defects and remaining limits.
 
-```sh
-cargo fmt --all --check
-cargo clippy --all-targets --locked -- -D warnings
-cargo test --all-targets --locked
-cargo test --doc --locked
-cargo doc --no-deps --locked
-```
-
-To reproduce the real-terminal checks on Linux or macOS, install the optional Python dependency and build both interactive examples:
-
-```sh
-python3 -m pip install pyte==0.8.2
-cargo build --release --examples --locked
-python3 scripts/terminal_smoke.py
-```
-
-Rust 1.99 or newer is required. GitHub Actions tests Rust 1.99.0 on Linux, macOS and Windows, running formatting, Clippy, all-target tests, doc tests and documentation checks. Linux also runs the real-terminal smoke test.
+GitHub Actions tests Rust 1.99.0 on Linux, macOS and Windows. Linux also runs the real-terminal smoke test.
 
 ## License
 

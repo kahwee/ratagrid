@@ -20,9 +20,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ratagrid = { git = "https://github.com/kahwee/ratagrid" }
+ratagrid = "0.1"
 ratatui = "0.30"
-crossterm = "0.29"</code></pre><p class="note">The source dependency tracks main. Pin a reviewed Git revision for reproducible builds; registry publication status is recorded in the GitHub release.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">//! Synthetic positions: integer minor units and basis points, never real accounts.
+crossterm = "0.29"</code></pre><p class="note">Install Ratagrid from <a href="https://crates.io/crates/ratagrid/0.1.0">crates.io</a>. Use <code>=0.1.0</code> for this exact release and retain Cargo.lock. This site follows main; the <a href="https://docs.rs/ratagrid/0.1.0/ratagrid/">versioned API reference</a> follows the published crate once docs.rs completes its build.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">//! Synthetic positions: integer minor units and basis points, never real accounts.
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,

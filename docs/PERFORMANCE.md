@@ -58,8 +58,8 @@ The external source is the playground’s virtual indexed dataset. Its fetch-and
 ## Reproduce
 
 ```sh
-cargo run --release --example playground -- --stress > stress.csv
-cargo run --release --example playground -- --stress-large > stress-large.csv
+cargo run --release --locked --example playground -- --stress > stress.csv
+cargo run --release --locked --example playground -- --stress-large > stress-large.csv
 ```
 
 These are fixed suites; `--stress-large` adds ten million actual resident records. They print progress to stderr and CSV to stdout. The regular suite includes up to two million resident rows, Unicode, 128 columns, a 500×200 viewport, and 100-million-record virtual paging with 50/500 resident rows. Warmups and repetitions mutate the same grid, representing repeated operations on a warm process. Timings vary by machine and cache state; p95 with three sort samples is only the maximum of those samples.

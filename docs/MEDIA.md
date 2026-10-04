@@ -11,6 +11,17 @@ cargo build --release --locked --example playground
 python3 scripts/record_showcase.py --binary target/release/examples/playground
 ```
 
+For the optional Unix terminal smoke test on Linux or macOS:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install pyte==0.8.2
+cargo build --release --examples --locked
+.venv/bin/python scripts/terminal_smoke.py
+```
+
+Keep the environment local; do not commit it. Media capture also needs Pillow and `ffmpeg` as described above.
+
 Build the static documentation page after editing the tested integration example:
 
 ```sh

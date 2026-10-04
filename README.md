@@ -4,7 +4,7 @@ An independent, typed data grid for [Ratatui](https://ratatui.rs): sorting, sele
 
 ![Playground demo](https://raw.githubusercontent.com/kahwee/ratagrid/main/docs/media/showcase.gif)
 
-[Documentation and demo](https://kahwee.github.io/ratagrid/) · [API reference](https://docs.rs/ratagrid) · [Usage guide](https://github.com/kahwee/ratagrid/blob/main/docs/GUIDE.md)
+[Documentation and demo](https://kahwee.github.io/ratagrid/) · [crates.io](https://crates.io/crates/ratagrid) · [API reference](https://docs.rs/ratagrid) · [Usage guide](https://github.com/kahwee/ratagrid/blob/main/docs/GUIDE.md)
 
 The demo shows real terminal I/O rendered into media, using synthetic records.
 
@@ -21,7 +21,7 @@ cargo run --release --locked --example playground
 ## Use with Ratatui
 
 ```toml
-ratagrid = { git = "https://github.com/kahwee/ratagrid" }
+ratagrid = "0.1"
 ratatui = "0.30"
 crossterm = "0.29"
 ```

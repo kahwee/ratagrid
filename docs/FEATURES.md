@@ -1,6 +1,6 @@
 # Search, selection, copying, column layout, and source states
 
-Run `cargo run --example explorer` for a small, interactive demonstration. It starts with 120 owned jobs, a pinned ID column, and client pagination. F2 switches to a simulated remote source with a 350 ms delay; F3 fails a remote request; F4 refreshes owned records in a different insertion order. Click Retry or press F5 to reload. The application uses domain IDs to keep its cursor and marked rows attached to records.
+Run `cargo run --locked --example explorer` for a small, interactive demonstration. It starts with 120 owned jobs, a pinned ID column, and client pagination. F2 switches to a simulated remote source with a 350 ms delay; F3 fails a remote request; F4 refreshes owned records in a different insertion order. Click Retry or press F5 to reload. The application uses domain IDs to keep its cursor and marked rows attached to records.
 
 ## Stable identity and bulk selection
 

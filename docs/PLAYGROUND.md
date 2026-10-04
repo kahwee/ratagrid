@@ -3,7 +3,7 @@
 Run from a checkout with Rust 1.99 or newer:
 
 ```sh
-cargo run --release --example playground
+cargo run --release --locked --example playground
 ```
 
 Use `--release` for large datasets. The playground is an actual Ratatui terminal application using the public `Grid` API; the screenshots below are exports of its rendered buffer.
@@ -30,32 +30,32 @@ Click **Live**, **Theme**, **Reset**, and **Quit** in the footer, or press **L**
 
 Tab focuses headers; Left/Right moves header focus; Enter sorts or opens the selected record; +/- resizes the focused header.
 
-Press **/** to search owned records; Enter applies and Escape cancels. Space marks rows; Shift+arrows or Shift+click selects a range; Ctrl+A marks the current page. Ctrl+C and Ctrl+Shift+C show cell/row copy payloads. In the virtual Paged scenario, search `id:NUMBER` for an indexed exact ID; other queries show a source error. Run `cargo run --example explorer` for full text remote search, column hiding/reordering/pinning, and simulated pending/failing loads. See [the feature guide](FEATURES.md).
+Press **/** to search owned records; Enter applies and Escape cancels. Space marks rows; Shift+arrows or Shift+click selects a range; Ctrl+A marks the current page. Ctrl+C and Ctrl+Shift+C show cell/row copy payloads. In the virtual Paged scenario, search `id:NUMBER` for an indexed exact ID; other queries show a source error. Run `cargo run --locked --example explorer` for full text remote search, column hiding/reordering/pinning, and simulated pending/failing loads. See [the feature guide](FEATURES.md).
 
 ## Push it further
 
 ```sh
 # Two million records, 128 columns. Values are formatted only when visible.
-cargo run --release --example playground -- --rows 2000000 --columns 128
+cargo run --release --locked --example playground -- --rows 2000000 --columns 128
 
 # Load only a page from a 100-million-record virtual source.
-cargo run --release --example playground -- --scenario paged
+cargo run --release --locked --example playground -- --scenario paged
 
 # Start in a particular scenario.
-cargo run --release --example playground -- --scenario unicode
+cargo run --release --locked --example playground -- --scenario unicode
 
 # Generate an SVG from the actual grid buffer, with no terminal needed.
-cargo run --release --example playground -- --snapshot preview.svg
-cargo run --release --example playground -- --snapshot boost.svg --animation-frame 250
-cargo run --release --example playground -- --width 48 --height 18 --snapshot narrow.svg
+cargo run --release --locked --example playground -- --snapshot preview.svg
+cargo run --release --locked --example playground -- --snapshot boost.svg --animation-frame 250
+cargo run --release --locked --example playground -- --width 48 --height 18 --snapshot narrow.svg
 
 # Repeat the rendering/sorting measurements across the six owned-data scenarios (excluding the virtual paged source).
-cargo run --release --example playground -- --benchmark
+cargo run --release --locked --example playground -- --benchmark
 
 # Stress rendering, sorting, cell updates and virtual paging; writes CSV to stdout.
-cargo run --release --example playground -- --stress > stress.csv
+cargo run --release --locked --example playground -- --stress > stress.csv
 # Add 10 million actual resident records (higher memory and CPU use).
-cargo run --release --example playground -- --stress-large > stress-large.csv
+cargo run --release --locked --example playground -- --stress-large > stress-large.csv
 ```
 
 `--rows` accepts 0–2,000,000 and `--columns` accepts 1–128. Snapshot/benchmark dimensions accept widths 1–500 and heights 1–200. These bounds keep accidental resource use manageable in the playground; they are not library limits. The Paged scenario defaults to 100 million virtual records and supports up to nine indexed columns; it never materializes its total dataset. Its timing measures the simulated source, not database or network latency. Run `--help` for the full argument list.
@@ -115,9 +115,10 @@ Fonts and emoji vary between terminal emulators. SVG export preserves cell posit
 The optional Unix smoke test drives the executable through a pseudo-terminal, rather than calling the event handlers directly. It covers animated cell edits from a footer click, reduced motion, scenario-tab mouse clicks, million-row sorting and selection, drag resizing, wheel scrolling, wide-column focus, live insertion into an empty dataset, mouse/keyboard paging through 100 million virtual records, global page sorting, page-size changes, client paging, theme switching, and resizing the terminal down to 8×4. It also checks mouse capture is disabled when exiting.
 
 ```sh
-python3 -m pip install pyte
+python3 -m venv .venv
+.venv/bin/python -m pip install pyte==0.8.2
 cargo build --release --examples --locked
-python3 scripts/terminal_smoke.py
+.venv/bin/python scripts/terminal_smoke.py
 ```
 
 It saves real terminal captures to `target/playground/terminal-million.html`, `target/playground/terminal-pagination.html`, `target/playground/terminal-animation.html`, and `target/playground/terminal-resize.html`. Open these files in a browser for the recorded screens. Library regression tests run with `cargo test --all-targets --locked`.

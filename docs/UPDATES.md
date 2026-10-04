@@ -3,7 +3,7 @@
 A click anywhere in your application can change a grid record. Ratagrid emits input actions; your event loop decides what they change. The playground's **Boost** button sits below the table and updates three cells in the selected row, or the first visible row if no record on this page is selected.
 
 ```sh
-cargo run --release --example playground
+cargo run --release --locked --example playground
 ```
 
 Select a row, then click **Boost** or press **B**. Latency, Delta and Memory count up over 650 ms, with a progress indicator and an amber highlight that fades over 1.1 seconds. **A** toggles motion; turning it off completes pending updates immediately and clears their highlights. Repeated clicks restart from the current values. You can animate several rows concurrently. **L** also highlights cells after live feed updates.
@@ -47,7 +47,7 @@ For reduced motion, apply data edits immediately and skip `flash_cell`, or clear
 ## Export a reproducible frame
 
 ```sh
-cargo run --release --example playground -- \
+cargo run --release --locked --example playground -- \
   --snapshot boost.svg --animation-frame 250
 ```
 

@@ -33,7 +33,6 @@ The foreign-response, header-hover and missing-focus-action tests failed against
 | P2 | External pagination uses offset-based pages. | Known and unknown totals are supported; cursors/keyset navigation remain application concerns; source error/retry states are now integrated. A virtual 100M-row demo is not evidence of database throughput. |
 | P2 | Owned and external modes share one type with runtime checks. | `replace_rows` panics for external grids; some wrong-mode operations return no action. Keep these contracts explicit before deciding whether separate storage types justify a breaking API change. |
 | P3 | Formatting returns an allocated `String` for every visible cell. | Cheap demo formatters are fast, but expensive formatters or long strings can dominate. Consider borrowed/`Cow` formatting only after measuring a real application. |
-| P3 | The playground combines substantial UI, data generation and export code. | Resolved: the playground now separates application state, rendering, data/source, CLI options, SVG export, benchmarks, stress measurements and regression tests. Keep showcase features out of the core API. |
 | P3 | Single-column sorting and row-level actions are the current scope. | Search/filtering, a cell cursor, bulk ranges, and column presentation are now supported. Multi-sort and rich renderers remain absent. Describe it as an interactive data table rather than promising spreadsheet behavior. |
 
 The [performance report](PERFORMANCE.md) and raw CSV predate this cleanup and remain historical measurements. They exclude terminal writes, network and database work. The cleanup did not change the ordering algorithm; timing claims should still be remeasured when that algorithm changes.
@@ -43,20 +42,20 @@ The [performance report](PERFORMANCE.md) and raw CSV predate this cleanup and re
 - Split input/navigation into `src/input.rs` and drawing/clipping/style composition into `src/render.rs`.
 - Added `.sortable_external()` for source-only columns, avoiding unused comparator callbacks. Owned grids safely ignore source-only sortability.
 - Replaced the entire README embedded in rustdoc with a focused crate overview and explicit links. Rustdoc no longer depends on repository-relative screenshot URLs.
-- Excluded screenshots, benchmark captures, CI files and smoke scripts from the Cargo archive. The verified Cargo archive is approximately 56 KiB compressed.
+- Excluded screenshots, benchmark captures, CI files and smoke scripts from the Cargo archive.
 - Added the Unix terminal smoke test to Linux CI and expanded the then-current Rust 1.88 job to all targets (historical; current CI pins Rust 1.99.0).
-- Removed generated ignore-file commentary and consolidated the development changelog; 0.1.0 release preparation now records those changes.
+- Removed generated ignore-file commentary and consolidated the development changelog; the 0.1.0 changelog records those changes.
 
 ## Verification
 
-The original cleanup passed 41 tests and three doc examples. Subsequent changes add coverage for row IDs, reload visibility, cell navigation and unknown totals. That historical cleanup passed Clippy with warnings denied, Rust 1.88 all-target checks, rustdoc with warnings denied, Cargo package verification and the real-terminal smoke test. The current checkout requires Rust 1.99.0; see the current validation report below. GitHub's Linux/macOS/Windows workflow remains the cross-platform check; local verification ran on Linux.
+The original cleanup passed 41 tests and three doc examples. Subsequent changes add coverage for row IDs, reload visibility, cell navigation and unknown totals. That historical cleanup passed Clippy with warnings denied, Rust 1.88 all-target checks, rustdoc with warnings denied, Cargo package verification and the real-terminal smoke test. The current checkout requires Rust 1.99.0; see the [0.1.0 validation report](PUBLIC_READINESS.md). GitHub's Linux/macOS/Windows workflow remains the cross-platform check; local verification ran on Linux.
 
 ## Next cleanup order
 
 1. Exercise the optional stable row ID API with a real consuming application; the live playground now preserves selection across reloads.
 2. Add measured batch updates or an optional inverse-position cache for frequent owned-data edits.
-3. Design source/cursor/error integration without hiding database work inside the widget.
-4. Decide which public APIs should be stabilized for a first release.
+3. Design cursor/keyset source integration without hiding database work inside the widget.
+4. Gather feedback on the published 0.1 API before adding new contracts.
 
 ## History
 
