@@ -1,5 +1,9 @@
 # Ratagrid guide
 
+The [example guide](../examples/README.md) lists runnable integrations, demos and
+performance tools. Start with `quickstart` for keyboard input or `positions` for
+a self-contained mouse integration.
+
 ## Try it
 
 Run these commands in your terminal. Rust 1.99.0 is required; [rustup](https://rustup.rs) is one way to install it. The public checkout can be cloned over HTTPS.

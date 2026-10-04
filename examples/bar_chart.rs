@@ -1,4 +1,6 @@
 //! One bar per row, sharing a scale across locations. All values are synthetic.
+mod support;
+
 use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratagrid::{Column, Grid};
 use ratatui::style::{Color, Style};
@@ -50,8 +52,7 @@ fn main() -> std::io::Result<()> {
         ],
         rows,
     );
-    let mut terminal = ratatui::init();
-    let result = (|| {
+    support::run(false, |terminal| {
         loop {
             terminal.draw(|frame| frame.render_widget(grid.widget(), frame.area()))?;
             let input = event::read()?;
@@ -65,7 +66,5 @@ fn main() -> std::io::Result<()> {
             grid.handle_event(&input);
         }
         Ok(())
-    })();
-    ratatui::restore();
-    result
+    })
 }

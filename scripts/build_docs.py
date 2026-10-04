@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Build the dependency-free Pages site from the tested integration example."""
+import argparse
 from html import escape
 from pathlib import Path
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--check", action="store_true", help="fail if generated Pages files are stale")
+args = parser.parse_args()
+
 ROOT = Path(__file__).resolve().parents[1]
 source = (ROOT / "examples/positions.rs").read_text()
-(ROOT / "docs/integration").mkdir(exist_ok=True)
-(ROOT / "docs/integration/positions.rs").write_text(source)
 code = escape(source.split("#[cfg(test)]")[0].rstrip())
 page = '''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -32,10 +35,20 @@ edition = "2024"
 [dependencies]
 ratagrid = "0.2"
 ratatui = "0.30"
-crossterm = "0.29"</code></pre><p class="note">Install Ratagrid from <a href="https://crates.io/crates/ratagrid/0.2.0">crates.io</a>. Use <code>=0.2.0</code> for this exact release and retain Cargo.lock. This site follows main; the <a href="https://docs.rs/ratagrid/0.2.0/ratagrid/">versioned API reference</a> follows the published crate.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">__CODE__</code></pre></details><p><a href="integration/positions.rs" download>Download the tested source</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/PAGINATION.md">Source integration guide</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/FEATURES.md">Search and selection guide</a></p></section>
+crossterm = "0.29"</code></pre><p class="note">Install Ratagrid from <a href="https://crates.io/crates/ratagrid/0.2.0">crates.io</a>. Use <code>=0.2.0</code> for this exact release and retain Cargo.lock. This site follows main; the <a href="https://docs.rs/ratagrid/0.2.0/ratagrid/">versioned API reference</a> follows the published crate.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">__CODE__</code></pre></details><p><a href="https://github.com/kahwee/ratagrid/blob/main/examples/README.md">Choose a runnable example</a> · <a href="integration/positions.rs" download>Download the tested source</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/PAGINATION.md">Source integration guide</a> · <a href="https://github.com/kahwee/ratagrid/blob/main/docs/FEATURES.md">Search and selection guide</a></p></section>
 <section><h2>Open sourcing one useful piece at a time.</h2><p>I'm gradually open sourcing reusable components from a few small closed-source projects. Those projects have a strong terminal-interface focus. Ratagrid is one piece that can stand on its own and help other Ratatui applications.</p><p>The grid stays general-purpose. Financial tables can supply their own exact numeric types, formatting, and source logic; the component does not own financial calculations, persistence, or trading decisions.</p><p class="note">Owned sorts and filters are synchronous. Keyed bulk-mark restoration scans replacement rows per marked ID; large selections can make reloads expensive. Prefer external pagination when datasets or frequent reloads exceed an interactive application's budget.</p></section></main><footer>Ratagrid · MIT · <a href="https://github.com/kahwee/ratagrid">Source and documentation</a></footer>
 <script>document.getElementById('copy-example').addEventListener('click',async()=>{const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(document.getElementById('rust-example').textContent);status.textContent=' Copied.'}catch{status.textContent=' Select the source below to copy.';document.querySelector('#integrate details').open=true}});</script>
 </body></html>'''
-(ROOT / "docs/index.html").write_text(page.replace("__CODE__", code))
-(ROOT / "docs/.nojekyll").touch()
-print("Built docs/index.html and docs/integration/positions.rs")
+outputs = {
+    ROOT / "docs/index.html": page.replace("__CODE__", code),
+    ROOT / "docs/integration/positions.rs": source,
+    ROOT / "docs/.nojekyll": "",
+}
+for path, content in outputs.items():
+    if args.check:
+        if not path.exists() or path.read_text() != content:
+            raise SystemExit(f"Outdated {path.relative_to(ROOT)}; run scripts/build_docs.py")
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+print("Pages files are current" if args.check else "Built Pages files")

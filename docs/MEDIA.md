@@ -26,6 +26,7 @@ Build the static documentation page after editing the tested integration example
 
 ```sh
 python3 scripts/build_docs.py
+python3 scripts/build_docs.py --check
 python3 -m http.server 8080 --bind 127.0.0.1 --directory docs
 ```
 

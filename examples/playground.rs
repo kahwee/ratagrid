@@ -17,12 +17,11 @@ mod tests;
 #[path = "playground/view.rs"]
 mod view;
 
+mod support;
+
 use app::App;
 use benchmark::benchmark;
-use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture},
-    execute,
-};
+use crossterm::event;
 use export::snapshot;
 use options::Options;
 use ratatui::{Terminal, backend::TestBackend};
@@ -67,9 +66,7 @@ fn main() -> io::Result<()> {
         println!("Snapshot saved to {}", path.display());
         return Ok(());
     }
-    let mut terminal = ratatui::init();
-    let result = (|| {
-        execute!(io::stdout(), EnableMouseCapture)?;
+    support::run(true, |terminal| {
         loop {
             app.tick();
             terminal.draw(|frame| app.render(frame))?;
@@ -83,8 +80,5 @@ fn main() -> io::Result<()> {
             }
         }
         Ok(())
-    })();
-    let mouse_result = execute!(io::stdout(), DisableMouseCapture);
-    ratatui::restore();
-    result.and(mouse_result)
+    })
 }

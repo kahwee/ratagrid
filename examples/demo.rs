@@ -1,11 +1,8 @@
+mod support;
+
 use std::{io, time::Duration};
 
-use crossterm::{
-    event::{
-        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,
-    },
-    execute,
-};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratagrid::{Column, Grid};
 use ratatui::{
     layout::{Constraint, Layout},
@@ -51,10 +48,7 @@ fn grid() -> Grid<Job> {
 }
 
 fn main() -> io::Result<()> {
-    // Ratatui's default panic hook restores terminal mode if the application panics.
-    let mut terminal = ratatui::init();
-    let result = (|| {
-        execute!(io::stdout(), EnableMouseCapture)?;
+    support::run(true, |terminal| {
         let mut grid = grid();
         let mut status = String::from("Click a header to sort. Drag its right boundary to resize.");
         loop {
@@ -83,8 +77,5 @@ fn main() -> io::Result<()> {
             }
         }
         Ok(())
-    })();
-    let mouse_result = execute!(io::stdout(), DisableMouseCapture);
-    ratatui::restore();
-    result.and(mouse_result)
+    })
 }

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Grouped grid pagination methods into an internal module without changing the
+  public API. Larger demos share terminal cleanup, while copyable integrations
+  stay standalone. Added an example guide and generated Pages freshness checks.
+
 - Opt-in `Column::bar_chart(max, value)` renders a horizontal bar per row, with
   eighth-cell precision, existing cell styles and column resizing/clipping.
   Search, copy and full-value details retain the column formatter. Added a

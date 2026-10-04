@@ -38,6 +38,8 @@ ratatui = "0.30"
 crossterm = "0.29"
 ```
 
+Start with the [example guide](examples/README.md) to choose an integration or demo.
+
 A complete keyboard example (`cargo run --locked --example quickstart`):
 
 ```rust

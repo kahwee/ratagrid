@@ -1,12 +1,9 @@
 //! Try: cargo run --example explorer
 //! A small source simulation deliberately exposes pending/error states. The
 //! application owns fetching, clipboard handling, and column-control bindings.
-use crossterm::{
-    event::{
-        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,
-    },
-    execute,
-};
+mod support;
+
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratagrid::{Action, Column, Grid, LoadState, PageRequest, SortDirection};
 use ratatui::{
     layout::{Constraint, Layout},
@@ -252,9 +249,7 @@ impl App {
     }
 }
 fn main() -> io::Result<()> {
-    let mut terminal = ratatui::init();
-    let result = (|| {
-        execute!(io::stdout(), EnableMouseCapture)?;
+    support::run(true, |terminal| {
         let mut app = App::new(false);
         loop {
             app.tick();
@@ -271,8 +266,5 @@ fn main() -> io::Result<()> {
             }
         }
         Ok(())
-    })();
-    let mouse = execute!(io::stdout(), DisableMouseCapture);
-    ratatui::restore();
-    result.and(mouse)
+    })
 }

@@ -1,11 +1,7 @@
 //! Native keyset pagination over a synthetic ordered index, with no OFFSET or count.
 //! Run `cargo run --locked --example cursor`; use [ / ], Tab+Enter, /, F5 and q.
-use crossterm::{
-    event::{
-        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,
-    },
-    execute,
-};
+mod support;
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratagrid::{Action, Column, CursorPageRequest, Grid, SortDirection};
 use std::{
     collections::BTreeMap,
@@ -78,9 +74,7 @@ fn main() -> io::Result<()> {
     let mut grid = new_grid(NonZeroUsize::new(10).unwrap());
     let request = grid.cursor_page_request().unwrap();
     fulfill(&mut grid, &source, request);
-    let mut terminal = ratatui::init();
-    let result = (|| {
-        execute!(io::stdout(), EnableMouseCapture)?;
+    support::run(true, |terminal| {
         loop {
             terminal.draw(|frame| frame.render_widget(grid.widget(), frame.area()))?;
             let input = event::read()?;
@@ -96,10 +90,7 @@ fn main() -> io::Result<()> {
             }
         }
         Ok(())
-    })();
-    let cleanup = execute!(io::stdout(), DisableMouseCapture);
-    ratatui::restore();
-    result.and(cleanup)
+    })
 }
 
 #[cfg(test)]
