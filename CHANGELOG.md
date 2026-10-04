@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added toolchain-aware Rust dependency caching and cancellation of superseded
+  CI runs. CI uses smaller debug artifacts; local and release profiles are
+  unchanged. Added a reproducible build benchmark and measured report.
+
 - Moved the Pages HTML into a separate template, with generation regressions for
   escaping, Unicode, stale files and invalid placeholders. Shared integration-test
   event/buffer helpers preserve each scenario's fixtures and viewport geometry.

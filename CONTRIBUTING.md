@@ -16,6 +16,9 @@ python3 scripts/test_terminal_cleanup.py
 
 After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
 
+For measured CI profile and cache tradeoffs, see the [build report](docs/BUILDS.md).
+Run `python3 scripts/benchmark_builds.py` to reproduce the local experiment.
+
 Keep mouse and keyboard behavior equivalent. Rendering and hit-testing must share the same layout, including horizontal scrolling, column resizing, and terminal resize. Add an interaction regression test for behavior changes.
 
 The [example guide](examples/README.md) describes each target and which integrations

@@ -1,5 +1,8 @@
 name: CI
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -8,12 +11,25 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      # Keep useful line information in CI without full debugger metadata.
+      # Local Cargo profiles and release optimization remain unchanged.
+      CARGO_PROFILE_DEV_DEBUG: "1"
+      CARGO_PROFILE_TEST_DEBUG: "1"
+      CARGO_INCREMENTAL: "0"
+      RUSTDOCFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.99.0
           components: rustfmt, clippy
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: ${{ matrix.os }}
+          cache-bin: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets --locked -- -D warnings
       - run: cargo test --all-targets --locked
@@ -44,5 +60,3 @@ jobs:
         if: runner.os == 'Linux'
         run: python3 scripts/terminal_smoke.py
       - run: cargo doc --no-deps --locked
-        env:
-          RUSTDOCFLAGS: -D warnings
