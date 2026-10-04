@@ -8,7 +8,21 @@ Configure `.with_row_id(|record| record.id)` using a stable, unique ID. The acti
 
 The cursor and bulk selection are independent. Space toggles the active row. Ctrl+click toggles the clicked row; Shift+click and Shift+Up/Down, Page Up/Down, Home/End extend a range in filtered, sorted order. Reversing direction shrinks that range while preserving marks made before it. Ctrl+A marks the current filtered page and preserves other resident marks. Escape clears marks when headers do not have focus; with header focus it first leaves headers.
 
-`model().selected_index()` is the active row; `model().selected_indices()` iterates marked resident insertion indices. `Action::RowsSelected` tells the application to read the updated set. Programmatic controls include `toggle_row_selection(index)`, `select_page_rows()`, and `clear_row_selection()`. `GridStyle::marked` customizes marked-row styling; the active row and cell cursor layer over it.
+`model().selected_index()` is the active row; `model().selected_indices()` iterates marked resident insertion indices. `Action::RowsSelected` tells the application to read the updated set. Programmatic controls include `select_row(index)`, `toggle_row_selection(index)`, `select_page_rows()`, and `clear_row_selection()`. `GridStyle::marked` customizes marked-row styling; the active row and cell cursor layer over it.
+
+`select_row(index)` selects the insertion index in `model().rows()`, follows its sorted/filtered position, and switches client pages to reveal it. It returns the appropriate action for redraws; invalid or filtered-out indices leave state unchanged. In external mode it selects only resident rows and does not fetch another page. It leaves bulk marks unchanged and exits header focus, as keyboard row navigation does. Call it directly when restoring application selection instead of simulating Home/Down events.
+
+Rendering reveals the active row after the viewport size changes, using the new dimensions in the same frame. A visible cursor column is also revealed after a width change. Header-only or empty viewports cannot show a row; it is revealed when space becomes available. Selection on another client page or hidden by filtering stays hidden. Ordinary redraws retain manual wheel scrolling.
+
+```rust
+use ratagrid::{Action, Column, Grid};
+let mut grid = Grid::new(
+    vec![Column::new("Value", 10, |n: &u64| n.to_string())],
+    vec![10, 20, 30],
+);
+assert_eq!(grid.select_row(2), Some(Action::SelectionChanged(2)));
+assert_eq!(grid.model().selected_index(), Some(2));
+```
 
 Only keys for the active and marked records are stored. The existing equality-only ID contract is preserved: restoring each selected key scans replacement rows to detect duplicates. Large marked selections can make reloads expensive; no ID index is allocated for every resident record.
 
@@ -18,7 +32,7 @@ Applications own focus between widgets. Forward navigation keys only to the focu
 
 Press `/` to open query entry. Enter commits, Escape cancels, Backspace removes a grapheme, and forwarded paste events append plain text. While entry is open, grid mouse and navigation commands do not act underneath it. Applications must route input to the grid before processing their own shortcuts while `is_searching()` is true; `search_draft()` exposes the draft for custom UI. Starting, typing, cancelling, or committing an unchanged query emits `Action::SearchEdited` for redraws.
 
-For owned data, `set_search("ada")` performs a Unicode-lowercase substring match across all defined formatted columns, including hidden columns. Terminal control characters are removed from formatted values before matching, consistently with display and copying. Empty text clears search. `set_filter(|record| record.duration > 500)` adds a typed predicate, and `clear_filter()` removes it without clearing search. Both filters combine. Filtering happens before sorting and pagination and retains the active record and marks even if they are hidden. Hidden active records cannot be activated with Enter.
+For owned data, `set_search("ada")` performs a Unicode-lowercase substring match across all defined formatted columns, including hidden columns. Terminal controls and bidirectional formatting controls are removed from formatted values before matching, consistently with display and copying. Empty text clears search. `set_filter(|record| record.duration > 500)` adds a typed predicate, and `clear_filter()` removes it without clearing search. Both filters combine. Filtering happens before sorting and pagination and retains the active record and marks even if they are hidden. Hidden active records cannot be activated with Enter.
 
 ```rust
 use ratagrid::{Column, Grid};
@@ -51,6 +65,14 @@ use ratagrid::{Column, CopyTarget, Grid};
 let grid = Grid::new(vec![Column::new("Value", 4, |n: &u64| n.to_string())], vec![123456]);
 assert_eq!(grid.copy_text(CopyTarget::Row(0)).as_deref(), Some("123456"));
 ```
+
+## Plain-text sanitization
+
+Ratagrid strips Unicode control characters (`char::is_control`, C0/C1 including tab, newline, carriage return and ESC) and the Unicode `Bidi_Control` set: U+061C, U+200E–U+200F, U+202A–U+202E, and U+2066–U+2069. This includes direction marks, embeddings, overrides, and isolates, providing protection against invisible direction changes in untrusted text, as Wombat does.
+
+The same policy applies to formatted cells, column titles, search queries/drafts (including paste), formatted values used for owned search, source error messages, and each cell in `copy_text`. Rendering sanitizes before grapheme segmentation and width measurement. Copying removes controls inside cells and then adds the grid's own tabs/newlines between columns/rows; it returns full text without display truncation. Source records and formatter output are not modified in storage. Applications that copy raw records instead of using `copy_text` must apply their own policy.
+
+Normal Arabic/Hebrew letters, combining marks, emoji joiners and variation selectors are preserved. This is plain-text filtering, not an ANSI parser: stripping ESC from an escape sequence may leave its printable suffix (for example `[31m`). It does not normalize text or detect lookalike characters. Database search semantics are chosen by the application's source; use the same sanitization policy there if stored values may contain these controls.
 
 ## Column presentation
 

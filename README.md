@@ -68,4 +68,6 @@ fn main() -> std::io::Result<()> {
 
 Use arrows to select, Tab + Enter to sort, `/` to search, and `q` to quit. For mouse capture and synthetic financial amounts, see [positions.rs](examples/positions.rs). Your application owns the terminal, focus and data source.
 
+For a SQLite adapter with global search, one-based application pages, optional sorting and changing totals, run `cargo run --locked --example database`; see [the adapter guide](docs/PAGINATION.md#database-adapter-with-one-based-application-pages).
+
 [Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)

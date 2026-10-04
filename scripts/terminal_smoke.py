@@ -101,13 +101,14 @@ class Session:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(page)
 
-    def close(self):
+    def close(self, mouse_capture=True):
         try:
             if self.process.poll() is None:
                 self.send(b"q")
                 self.drain(0.15)
                 assert self.process.wait(timeout=3) == 0
-                assert b"\x1b[?1003l" in self.transcript, "Mouse capture not disabled"
+                if mouse_capture:
+                    assert b"\x1b[?1003l" in self.transcript, "Mouse capture not disabled"
         finally:
             if self.process.poll() is None:
                 self.process.terminate()
@@ -282,8 +283,31 @@ def details_smoke():
     finally:
         session.close()
     print("Cell details terminal smoke passed: opt-in hover, Enter, Escape, reduced motion and resize.")
+def database_smoke():
+    session = Session(binary=ROOT / "target/release/examples/database")
+    try:
+        assert "Grid page 0 → application page 1" in session.text()
+        assert "73 matches" in session.text()
+        session.send(b"]", "Grid page 1 → application page 2")
+        session.send(b"]" * 6, "Grid page 7 → application page 8")
+        session.send(b"d", "58 matches")
+        assert "Grid page 5 → application page 6" in session.text()
+        session.send(b"\t\t\r", "Grid page 0 → application page 1")
+        session.send(b"/noor\r", "19 matches")
+        assert "Noor" in session.text()
+        session.send(b"/" + b"\x7f" * 4 + b"' OR 1=1 --\r", "0 matches")
+        assert "No matching records" in session.text()
+        session.send(b"/" + b"\x7f" * 11 + b"\r", "58 matches")
+        session.send(b"a", "59 matches")
+        session.resize(24, 6)
+        session.send(b"]")
+    finally:
+        session.close(mouse_capture=False)
+    print("Database terminal smoke passed: page conversion, global search, optional sorting, literal SQL input, shrinking/growing totals and tiny resize.")
+
 
 if __name__ == "__main__":
     playground_smoke()
     explorer_smoke()
     details_smoke()
+    database_smoke()

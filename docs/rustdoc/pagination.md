@@ -20,6 +20,33 @@ This scenario represents 100 million virtual records and materializes only 50 at
 
 Press **P** to cycle between 50, 100 and 25 rows per page. In the other scenarios, P toggles client pagination with 50 rows per page; those scenarios still hold their complete dataset in memory.
 
+## Database adapter with one-based application pages
+
+Run `cargo run --locked --example database` for the SQLite adapter in `examples/database.rs`. SQLite is an example-only dependency; the library performs no database I/O. The example seeds 73 synthetic rows in an in-memory database and holds only the current ten-row page in Ratagrid.
+
+The adapter keeps the original `PageRequest` alongside a one-based `NonZeroUsize` application page:
+
+```rust
+use ratagrid::{Column, Grid};
+use std::num::NonZeroUsize;
+let grid = Grid::new_paged(
+    vec![Column::new("ID", 8, |id: &u64| id.to_string())],
+    73, NonZeroUsize::new(10).unwrap(),
+);
+let request = grid.page_request().unwrap();
+let application_page = request.page.checked_add(1).unwrap();
+let offset = (application_page - 1).checked_mul(request.page_size.get()).unwrap();
+assert_eq!((request.page, application_page, offset), (0, 1, 0));
+```
+
+Grid page 6 maps to application page 7 and SQL offset 60. The runnable adapter checks arithmetic overflow and conversion to SQLite's signed integer range. Page conversion never replaces the opaque grid request token.
+
+Press `/` to search across ID, name and owner in the database before pagination. Query text is bound as a parameter; `instr` treats quotes, `%` and `_` literally. SQLite's built-in `lower` gives ASCII case folding in this example; production Unicode search requires a suitable collation or tokenizer. Tab/Enter cycles optional sorting. `None` uses `id ASC`; other sorts use allowlisted fields/directions with `id ASC` as a deterministic tie-breaker. Sorting happens in SQL before `LIMIT`/`OFFSET`.
+
+Press **d** to delete the last 15 records or **a** to insert a record. Each refresh counts the filtered results and calls `set_total_rows`. When that changes the count, the adapter uses the returned fresh request, including its clamped page, to fetch rows. Count and rows share one SQLite transaction snapshot so a short final page agrees with the count. Empty results have one empty page. Search resets the grid to page zero and unknown total; the adapter supplies the new filtered count.
+
+This synchronous example checks that the original request is current and pending before changing totals. An asynchronous implementation must carry the query and original token with its work, reject stale count responses before calling `set_total_rows`, and dispatch any fresh request that a total change returns. Never attach an old query's count or rows to the latest token. The adapter tests cover literal SQL metacharacters, global search, sorted ties, shrinking/growing/empty totals, stale/duplicate requests and page/offset overflow.
+
 ## Client pagination
 
 ```rust

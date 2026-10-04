@@ -63,7 +63,11 @@ impl<T> Grid<T> {
     /// owned data. External data emits a new request, resets to page one, and
     /// discards the old count; the application applies the query globally.
     pub fn set_search(&mut self, query: impl Into<String>) -> Option<Action> {
-        let query: String = query.into().chars().filter(|c| !c.is_control()).collect();
+        let query: String = query
+            .into()
+            .chars()
+            .filter(|c| !crate::text::is_unsafe(*c))
+            .collect();
         if query == self.search_query {
             return None;
         }
@@ -182,12 +186,14 @@ impl<T> Grid<T> {
     }
 
     /// Full formatted text, never viewport-clipped. Rows use tabs between visible
-    /// columns and newlines between records. Terminal control characters within
-    /// formatted cells are removed so values cannot inject row/column separators.
+    /// columns and newlines between records. Terminal controls and bidirectional
+    /// formatting controls within cells are removed, preventing separator injection.
     /// Clipboard access remains the application's responsibility.
     pub fn copy_text(&self, target: CopyTarget) -> Option<String> {
         fn plain(text: String) -> String {
-            text.chars().filter(|c| !c.is_control()).collect()
+            text.chars()
+                .filter(|c| !crate::text::is_unsafe(*c))
+                .collect()
         }
         let columns = self.visible_columns();
         let row_text = |index| {
@@ -288,7 +294,11 @@ impl<T> Grid<T> {
         if current != request || !self.page_state().is_some_and(|p| p.loading) {
             return Err(PageError::StaleResponse);
         }
-        let message: String = message.into().chars().filter(|c| !c.is_control()).collect();
+        let message: String = message
+            .into()
+            .chars()
+            .filter(|c| !crate::text::is_unsafe(*c))
+            .collect();
         self.page_error = Some(if message.is_empty() {
             "Unable to load records".into()
         } else {

@@ -259,13 +259,14 @@ impl<T> GridModel<T> {
     }
 
     /// Case-insensitive substring search across all defined formatted columns,
-    /// removing terminal controls as rendering and copying do.
+    /// removing terminal and bidirectional formatting controls as rendering
+    /// and copying do.
     /// Formatting is evaluated for all resident rows when the query changes.
     pub fn set_search(&mut self, query: impl Into<String>) {
         self.search = query
             .into()
             .chars()
-            .filter(|c| !c.is_control())
+            .filter(|c| !crate::text::is_unsafe(*c))
             .collect::<String>()
             .to_lowercase();
         self.apply_sort();
@@ -277,7 +278,7 @@ impl<T> GridModel<T> {
                 || self.columns.iter().any(|column| {
                     (column.format)(row)
                         .chars()
-                        .filter(|c| !c.is_control())
+                        .filter(|c| !crate::text::is_unsafe(*c))
                         .collect::<String>()
                         .to_lowercase()
                         .contains(&self.search)

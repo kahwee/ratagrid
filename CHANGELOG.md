@@ -3,6 +3,11 @@
 ## Unreleased
 
 - Opt-in full-value panels for truncated cells, with configurable hover delay, Enter inspection, scrolling and safe dismissal. Enable the playground with `--cell-details`.
+- Runnable SQLite pagination adapter maps zero-based grid pages to one-based application pages, with global search, optional stable SQL sorting and snapshot-consistent changing totals.
+- Shared text sanitization strips terminal controls and Unicode bidirectional formatting controls from display, search, error messages and copy payloads.
+- Rendering reveals the active row and visible cursor column after viewport resizing, without resetting ordinary wheel scrolling.
+- `Grid::select_row(index)` selects resident insertion indices and reveals sorted/filtered positions across client pages.
+- Adversarial regressions cover unsafe Unicode, separator injection, resize/selection sequences, database query inputs, stale counts and offset overflow.
 
 ## 0.1.0 — 2026-10-04 (UTC)
 

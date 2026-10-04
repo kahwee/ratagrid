@@ -39,6 +39,7 @@ pub use features::{CopyTarget, ExternalFilterError, LoadState};
 mod model;
 mod pagination;
 mod render;
+mod text;
 pub use model::{Column, GridModel, Sort, SortDirection};
 use pagination::{Navigation, Pagination};
 pub use pagination::{PageError, PageRequest, PageState, PaginationMode};
@@ -265,6 +266,34 @@ impl<T> Grid<T> {
 
     pub fn column_width(&self, column: usize) -> Option<u16> {
         self.model.columns.get(column).map(|c| c.width)
+    }
+
+    /// Select a resident row by insertion index (the index into `model().rows()`).
+    /// Reveals its sorted/filtered position, switching client pages if necessary.
+    /// External indices refer only to the loaded page; this never fetches a row.
+    /// Invalid or filtered-out indices leave state unchanged. Bulk marks are unchanged.
+    /// Render afterward to use the current viewport and refresh mouse geometry.
+    pub fn select_row(&mut self, index: usize) -> Option<Action> {
+        if index >= self.model.rows().len() {
+            return None;
+        }
+        let position = (0..self.model.visible_len())
+            .find(|&position| self.model.index_at(position) == Some(index))?;
+        let had_details = self.cell_detail().is_some();
+        self.clear_cell_details();
+        let mut page_changed = false;
+        if let Some(p) = self.pagination.as_mut()
+            && p.mode == PaginationMode::Client
+        {
+            let page = position / p.size.get();
+            page_changed = p.page != page;
+            p.page = page;
+        }
+        self.select_position(position)
+            .or_else(|| {
+                page_changed.then(|| Action::PageChanged(self.page_state().expect("client page")))
+            })
+            .or_else(|| had_details.then_some(Action::CellDetailsChanged))
     }
 
     /// Edit a resident row by insertion index, preserving selection. Owned rows

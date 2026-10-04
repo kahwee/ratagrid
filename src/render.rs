@@ -7,6 +7,7 @@ use unicode_width::UnicodeWidthStr;
 impl<T> Grid<T> {
     pub(super) fn render(&mut self, area: Rect, buffer: &mut Buffer) {
         let area = area.intersection(buffer.area);
+        let resized = self.area.width != area.width || self.area.height != area.height;
         if self.area != area {
             self.hover = None;
             self.clear_cell_details();
@@ -19,6 +20,12 @@ impl<T> Grid<T> {
             .row_offset
             .min(range.len().saturating_sub(self.body_height()));
         self.column_offset = self.column_offset.min(self.max_column_offset());
+        if resized {
+            self.reveal_selected_row();
+            if let Some((_, column)) = self.cursor() {
+                self.reveal_column(column);
+            }
+        }
         self.layout.clear();
         self.retry_button = None;
         let pinned_width = self.pinned_width().min(usize::from(area.width));
@@ -395,17 +402,15 @@ impl<T> Widget for GridWidget<'_, T> {
 }
 
 // Fit by terminal cells, retaining complete graphemes and indicating overflow.
-// Stop after the first overflowing printable grapheme; long strings stay cheap.
+// Sanitization precedes segmentation; clipping stops at the first overflow.
 fn fit_text(text: &str, cells: usize) -> String {
     if cells == 0 {
         return String::new();
     }
     let mut fitted = String::new();
     let mut used = 0;
+    let text = crate::text::sanitize(text);
     for grapheme in text.graphemes(true) {
-        if grapheme.chars().any(char::is_control) {
-            continue;
-        }
         let width = UnicodeWidthStr::width(grapheme);
         if width == 0 {
             continue;
@@ -437,11 +442,8 @@ fn write_clipped(
     style: Style,
 ) {
     let mut x = start;
+    let text = crate::text::sanitize(text);
     for grapheme in text.graphemes(true) {
-        // Do not pass terminal control characters into the output buffer.
-        if grapheme.chars().any(char::is_control) {
-            continue;
-        }
         let width = UnicodeWidthStr::width(grapheme) as i64;
         if width == 0 {
             continue;

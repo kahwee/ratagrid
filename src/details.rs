@@ -345,9 +345,7 @@ impl<T> Grid<T> {
     }
 }
 fn printable(text: &str) -> String {
-    text.graphemes(true)
-        .filter(|g| !g.chars().any(char::is_control))
-        .collect()
+    crate::text::sanitize(text).into_owned()
 }
 // Borrow wrapped slices; rendering stops after the visible lines instead of
 // allocating a string for every line of a potentially very large value.

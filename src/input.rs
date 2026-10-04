@@ -36,7 +36,7 @@ impl<T> Grid<T> {
                             }
                             return Some(Action::SearchEdited);
                         }
-                        KeyCode::Char(c) if !c.is_control() => {
+                        KeyCode::Char(c) if !crate::text::is_unsafe(c) => {
                             self.search_draft.as_mut().expect("search draft").push(c);
                             return Some(Action::SearchEdited);
                         }
@@ -47,7 +47,7 @@ impl<T> Grid<T> {
                     self.search_draft
                         .as_mut()
                         .expect("search draft")
-                        .extend(text.chars().filter(|c| !c.is_control()));
+                        .extend(text.chars().filter(|c| !crate::text::is_unsafe(*c)));
                     return Some(Action::SearchEdited);
                 }
                 // Keep the draft focused; mouse input cannot sort or navigate underneath it.

@@ -20,4 +20,5 @@ unicode-segmentation = "1.12"
 unicode-width = "0.2"
 
 [dev-dependencies]
+rusqlite = { version = "0.40.2", features = ["bundled"] }
 ratatui = { version = "0.30", default-features = false, features = ["crossterm"] }
