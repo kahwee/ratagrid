@@ -89,19 +89,34 @@ all three platforms on every push and PR update.
 
 <!-- github-benchmarks:start -->
 
-Measured 2026-10-05 on GitHub-hosted runners at [`9617519`](https://github.com/kahwee/ratagrid/commit/9617519f39b61bf4bd27b077b717151f0e52ae2e). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/37246316679/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/37246316679-1).
+Measured 2026-10-05 on GitHub-hosted runners at [`8aac658`](https://github.com/kahwee/ratagrid/commit/8aac65850a729aa70f485102a16e46bd75fe4be0). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/37247886299/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/37247886299-1).
 
 | Runner | 1M draw | 1M numeric sort | 1M: 50 large moves + draw | 100M virtual / 50 resident draw | Fresh / warm Cargo stages |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| ubuntu-24.04 (x86_64) | 0.198 ms | 68.707 ms | 24.666 ms | 0.189 ms | 19.58 s / 1.36 s |
-| macos-15 (arm64) | 0.251 ms | 144.953 ms | 25.915 ms | 0.237 ms | 33.99 s / 2.46 s |
-| windows-2025 (AMD64) | 0.360 ms | 150.469 ms | 46.055 ms | 0.345 ms | 42.08 s / 3.39 s |
+| ubuntu-24.04 (x86_64) | 0.143 ms | 178.193 ms | 22.488 ms | 0.138 ms | 27.79 s / 2.02 s |
+| macos-15 (arm64) | 0.107 ms | 172.562 ms | 27.795 ms | 0.099 ms | 39.80 s / 3.27 s |
+| windows-2025 (AMD64) | 0.167 ms | 220.482 ms | 40.457 ms | 0.162 ms | 44.05 s / 3.47 s |
 
 Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
 
-- ubuntu-24.04: This run establishes the frozen baseline.
-- macos-15: This run establishes the frozen baseline.
-- windows-2025: This run establishes the frozen baseline.
+- ubuntu-24.04: Compared with frozen baseline 9617519. 10 possible runtime regression(s).
+- macos-15: Compared with frozen baseline 9617519. 3 possible runtime regression(s).
+- windows-2025: Compared with frozen baseline 9617519. 5 possible runtime regression(s).
+
+Same-runner comparison on **ubuntu-24.04** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
+- `render_selected`: 0.332 → 0.143 ms (-56.8%).
+- `sorted_50_small_updates_and_render`: 15.557 → 7.715 ms (-50.4%).
+- `sorted_50_cross_dataset_and_render`: 22.683 → 22.488 ms (-0.9%).
+
+Same-runner comparison on **macos-15** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
+- `render_selected`: 0.269 → 0.107 ms (-60.0%).
+- `sorted_50_small_updates_and_render`: 29.090 → 11.132 ms (-61.7%).
+- `sorted_50_cross_dataset_and_render`: 28.459 → 27.795 ms (-2.3%).
+
+Same-runner comparison on **windows-2025** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
+- `render_selected`: 0.362 → 0.167 ms (-53.7%).
+- `sorted_50_small_updates_and_render`: 35.950 → 7.847 ms (-78.2%).
+- `sorted_50_cross_dataset_and_render`: 29.158 → 40.457 ms (+38.7%).
 
 Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 
