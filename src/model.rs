@@ -354,8 +354,8 @@ impl<T> GridModel<T> {
     /// Edit one resident record, maintaining stable sorting and selection.
     /// Returns false for an invalid index without calling `update`.
     /// Only the edited row is repositioned: logarithmic comparisons, with up to
-    /// linear index lookup/movement. Only the crossed span of ordering indices
-    /// is shifted; the full dataset is never re-sorted.
+    /// linear index lookup/movement. Small moves shift only the crossed span
+    /// of ordering indices; the full dataset is never re-sorted.
     pub fn update_row(&mut self, index: usize, update: impl FnOnce(&mut T)) -> bool {
         if !self.update_row_in_place(index, update) {
             return false;
@@ -393,22 +393,24 @@ impl<T> GridModel<T> {
         {
             return true;
         }
-        // Search only the side whose neighbor was crossed. Shift that span
-        // with one overlapping copy, instead of remove/insert shifting the
-        // entire vector tail twice. Avoid general-purpose rotation, whose
-        // element-swap path makes large moves more expensive on Windows.
+        // Search only the side whose neighbor was crossed. Small moves copy
+        // just that span. Keep Vec's remove/insert path for large moves: the
+        // general rotation version measured slower for that case on Windows.
         let new = if old > 0 && ordered(self.order[old - 1], index) == Ordering::Greater {
-            let new = self.order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less);
+            self.order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less)
+        } else {
+            old + self.order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less)
+        };
+        if new.abs_diff(old) > self.order.len() / 4 {
+            self.order.remove(old);
+            self.order.insert(new, index);
+        } else if new < old {
             self.order.copy_within(new..old, new + 1);
             self.order[new] = index;
-            new
         } else {
-            let new = old
-                + self.order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less);
             self.order.copy_within(old + 1..new + 1, old);
             self.order[new] = index;
-            new
-        };
+        }
         self.selected_position = self.selected_position.map(|position| {
             if self.selected == Some(index) {
                 new
