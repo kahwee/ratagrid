@@ -99,9 +99,9 @@ Measured 2026-10-05 on GitHub-hosted runners at [`9617519`](https://github.com/k
 
 Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
 
-- ubuntu-24.04: No frozen GitHub baseline yet. 0 possible runtime regression(s).
-- macos-15: No frozen GitHub baseline yet. 0 possible runtime regression(s).
-- windows-2025: No frozen GitHub baseline yet. 0 possible runtime regression(s).
+- ubuntu-24.04: This run establishes the frozen baseline.
+- macos-15: This run establishes the frozen baseline.
+- windows-2025: This run establishes the frozen baseline.
 
 Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 

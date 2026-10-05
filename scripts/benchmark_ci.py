@@ -177,8 +177,12 @@ def publish(source):
                   'Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. '
                   'Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.', ''])
     for report in reports:
-        count = len(report['regressions'])
-        lines.append(f'- {report["runner"]}: {report["comparison"]} {count} possible runtime regression(s).')
+        comparison = report['comparison']
+        if comparison == 'No frozen GitHub baseline yet.':
+            comparison = 'This run establishes the frozen baseline.'
+        elif comparison.startswith('Compared with'):
+            comparison += f' {len(report["regressions"])} possible runtime regression(s).'
+        lines.append(f'- {report["runner"]}: {comparison}')
     lines.extend(['', 'Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. '
                   '[Method, triggers and baseline policy](docs/BENCHMARKS.md).', '', END])
     readme.write_text(original[:original.index(START)] + '\n'.join(lines) + original[original.index(END) + len(END):], encoding='utf-8')
