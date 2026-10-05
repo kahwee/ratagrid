@@ -370,10 +370,7 @@ impl<T> GridModel<T> {
         let old = if self.selected == Some(index) {
             self.selected_position.expect("selected position")
         } else {
-            self.order
-                .iter()
-                .position(|&i| i == index)
-                .expect("resident row")
+            order_position(&self.order, index).expect("resident row")
         };
         let compare = self.columns[sort.column]
             .compare
@@ -551,4 +548,11 @@ fn move_order_index(
         order[new] = index;
     }
     new
+}
+
+// Compile the linear scan independently of the generic updater and movement
+// branches. Its code layout must not grow with either implementation.
+#[inline(never)]
+fn order_position(order: &[usize], index: usize) -> Option<usize> {
+    order.iter().position(|&i| i == index)
 }
