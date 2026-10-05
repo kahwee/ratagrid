@@ -393,24 +393,7 @@ impl<T> GridModel<T> {
         {
             return true;
         }
-        // Search only the side whose neighbor was crossed. Small moves copy
-        // just that span. Keep Vec's remove/insert path for large moves: the
-        // general rotation version measured slower for that case on Windows.
-        let new = if old > 0 && ordered(self.order[old - 1], index) == Ordering::Greater {
-            self.order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less)
-        } else {
-            old + self.order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less)
-        };
-        if new.abs_diff(old) > self.order.len() / 4 {
-            self.order.remove(old);
-            self.order.insert(new, index);
-        } else if new < old {
-            self.order.copy_within(new..old, new + 1);
-            self.order[new] = index;
-        } else {
-            self.order.copy_within(old + 1..new + 1, old);
-            self.order[new] = index;
-        }
+        let new = move_order_index(&mut self.order, old, index, ordered);
         self.selected_position = self.selected_position.map(|position| {
             if self.selected == Some(index) {
                 new
@@ -539,4 +522,34 @@ impl<T> GridModel<T> {
             .selected
             .and_then(|i| self.order.iter().position(|&r| r == i));
     }
+}
+
+// Keep movement out of the hot update function: inlining a larger repositioning
+// implementation changed generated linear-lookup performance on Linux. The
+// unchanged-key path should not depend on which movement strategy is used.
+#[inline(never)]
+fn move_order_index(
+    order: &mut Vec<usize>,
+    old: usize,
+    index: usize,
+    ordered: impl Fn(usize, usize) -> Ordering,
+) -> usize {
+    // Small moves copy only the crossed span. Large moves retain Vec's path,
+    // which measured better than general rotation on Windows.
+    let new = if old > 0 && ordered(order[old - 1], index) == Ordering::Greater {
+        order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less)
+    } else {
+        old + order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less)
+    };
+    if new.abs_diff(old) > order.len() / 4 {
+        order.remove(old);
+        order.insert(new, index);
+    } else if new < old {
+        order.copy_within(new..old, new + 1);
+        order[new] = index;
+    } else {
+        order.copy_within(old + 1..new + 1, old);
+        order[new] = index;
+    }
+    new
 }
