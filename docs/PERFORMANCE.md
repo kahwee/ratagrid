@@ -88,3 +88,39 @@ Avoid selecting an entire large resident dataset before frequent reloads. Use ex
 Rendering sanitizes geometrically growing source chunks and stops after a complete printable grapheme overflows the target width. The final grapheme stays pending because subsequent characters can extend it, including combining marks and emoji joined across removed controls. Each inspected source byte is sanitized once. Short values retain the direct sanitization path. Horizontal clipping also stops at the visible right edge without adding an ellipsis at a viewport boundary.
 
 The grid still receives an owned `String` from each formatter: copying or constructing a huge value can remain linear in its full length. Controls-only prefixes must be scanned to find visible text; one enormous combining cluster must be read in full to preserve the grapheme. Thus this optimization avoids unnecessary hidden-tail sanitation, rather than promising constant-time rendering for every input. Copying, search and full-value inspection continue to process complete values with the same control/bidi policy. Machine and workload changes can change these timings; use the example to measure your environment.
+
+
+## Current main: rendering and sorted updates
+
+Measured October 5, 2026 (UTC) on GitHub-hosted Linux, macOS and Windows runners,
+comparing `6ca93d7` before with `94312da` after on each same machine. Both release
+binaries were built before timing; three process runs per revision alternated
+order. Numbers below are medians of their p50s for one million resident rows,
+nine columns and a 132×34 viewport. Terminal output and external database/network
+work are excluded. [Run and logs](https://github.com/kahwee/ratagrid/actions/runs/37251984791/attempts/1)
+and [permanent raw CSV/JSON](benchmarks/github/runs/37251984791-1).
+
+| Runner | Draw before → after (ms) | 50 small sorted updates + draw (ms) | 50 cross-dataset moves + draw (ms) |
+| --- | ---: | ---: | ---: |
+| Linux x64 | 0.302 → 0.136 | 15.021 → 7.155 | 23.423 → 19.779 |
+| macOS ARM64 | 0.249 → 0.101 | 22.088 → 5.863 | 26.776 → 19.580 |
+| Windows x64 | 0.364 → 0.168 | 36.275 → 6.505 | 28.173 → 28.100 |
+
+Printable ASCII fitting and clipping inspect a bounded prefix and avoid Unicode
+segmentation. An extra printable byte establishes a complete grapheme boundary;
+Unicode and control-containing prefixes keep the existing path. No formatted
+text is cached, so formatters that observe external state still run each frame.
+
+Sorted updates scan ordering indices in vectorizable 64-byte chunks, locating
+the first match inside a matching chunk. Small moves shift only the crossed
+span with an overlapping copy; moves crossing more than a quarter of the order
+retain the original remove/insert path after a Windows comparison exposed a
+rotation slowdown. Lookup and movement remain linear in the worst case, with
+no additional per-row index. Selected positions remain cached.
+
+No operation exceeded the configured regression-warning threshold in the final
+paired suite; three-platform correctness CI also passed. Earlier experiments
+and their warnings remain in the public history. Active filters/search still
+rebuild the filtered/sorted order after each edit; batching edits is a further
+opportunity. Large cross-dataset frames remain above a 60 Hz budget even though
+ordinary drawing and small updates are substantially cheaper.
