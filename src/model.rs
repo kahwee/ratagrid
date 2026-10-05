@@ -524,9 +524,8 @@ impl<T> GridModel<T> {
     }
 }
 
-// Keep movement out of the hot update function: inlining a larger repositioning
-// implementation changed generated linear-lookup performance on Linux. The
-// unchanged-key path should not depend on which movement strategy is used.
+// Keep movement out of the hot update function so the unchanged-key path is
+// less sensitive to inlining and code layout of the movement implementation.
 #[inline(never)]
 fn move_order_index(
     order: &mut Vec<usize>,

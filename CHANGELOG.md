@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Printable ASCII cells use a bounded fitting/clipping path that avoids Unicode
+  segmentation; grapheme and control-containing text keeps the existing policy.
+- Small sorted-row moves copy only the crossed ordering span. Large moves retain
+  the existing remove/insert path after a Windows comparison exposed a slowdown
+  with general slice rotation. Sorting, record selection and memory use retain
+  their existing contracts.
+- Added Linux/macOS/Windows benchmarks on PR opening/readiness, weekly and manual
+  runs, with public README results and permanent raw CSV/JSON. An optional prior
+  revision enables alternating before/after runs on the same hosted machine.
+
 - Added toolchain-aware Rust dependency caching and cancellation of superseded
   CI runs. CI uses smaller debug artifacts; local and release profiles are
   unchanged. Added a reproducible build benchmark and measured report.
