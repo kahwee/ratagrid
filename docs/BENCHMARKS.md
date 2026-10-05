@@ -12,6 +12,15 @@ The dedicated [Benchmarks workflow](../.github/workflows/benchmarks.yml) runs:
 - On demand using Actions → Benchmarks → Run workflow, or
   `gh workflow run benchmarks.yml --ref main`.
 
+For a performance change, set the optional **baseline_ref** input to a prior
+commit (for example, `gh workflow run benchmarks.yml --ref main -f baseline_ref=6ca93d7`).
+This builds both revisions before timing and alternates three runs of each on
+the same hosted machine. Runtime case sets must match. Before CSVs and source
+SHA are retained with the current results, and the README includes the
+one-million-row draw and update deltas. Build timings still describe only the
+current revision. Ordinary runs omit this extra comparison and its compilation
+cost.
+
 Ordinary pushes, additional PR commits and PR reopening do not trigger it.
 Use a manual run on the branch to remeasure an updated PR. Opening a draft does
 not measure it until it becomes ready. GitHub may delay scheduled runs, and

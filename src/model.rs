@@ -354,7 +354,8 @@ impl<T> GridModel<T> {
     /// Edit one resident record, maintaining stable sorting and selection.
     /// Returns false for an invalid index without calling `update`.
     /// Only the edited row is repositioned: logarithmic comparisons, with up to
-    /// linear index lookup/movement. The full dataset is never re-sorted.
+    /// linear index lookup/movement. Only the crossed span of ordering indices
+    /// is shifted; the full dataset is never re-sorted.
     pub fn update_row(&mut self, index: usize, update: impl FnOnce(&mut T)) -> bool {
         if !self.update_row_in_place(index, update) {
             return false;
@@ -392,11 +393,18 @@ impl<T> GridModel<T> {
         {
             return true;
         }
-        self.order.remove(old);
-        let new = self
-            .order
-            .partition_point(|&i| ordered(i, index) == Ordering::Less);
-        self.order.insert(new, index);
+        // Search only the side whose neighbor was crossed. Rotate that span
+        // once, instead of remove/insert shifting the entire vector tail twice.
+        let new = if old > 0 && ordered(self.order[old - 1], index) == Ordering::Greater {
+            let new = self.order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less);
+            self.order[new..=old].rotate_right(1);
+            new
+        } else {
+            let new = old
+                + self.order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less);
+            self.order[old..=new].rotate_left(1);
+            new
+        };
         self.selected_position = self.selected_position.map(|position| {
             if self.selected == Some(index) {
                 new

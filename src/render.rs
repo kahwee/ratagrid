@@ -468,9 +468,27 @@ fn sanitized_prefix(text: &str, cells: usize) -> std::borrow::Cow<'_, str> {
     }
 }
 
+// One printable ASCII byte beyond the fitting prefix proves the last visible
+// character cannot be extended by a combining mark in an uninspected tail.
+// Keep this bounded: long formatter values must not force a whole-string scan.
+fn printable_ascii_prefix(text: &str, cells: usize) -> bool {
+    text.as_bytes()[..text.len().min(cells.saturating_add(1))]
+        .iter()
+        .all(|byte| (b' '..=b'~').contains(byte))
+}
+
 fn fit_text(text: &str, cells: usize) -> String {
     if cells == 0 {
         return String::new();
+    }
+    if printable_ascii_prefix(text, cells) {
+        if text.len() <= cells {
+            return text.to_owned();
+        }
+        let mut fitted = String::with_capacity(cells + 2);
+        fitted.push_str(&text[..cells - 1]);
+        fitted.push('…');
+        return fitted;
     }
     let mut fitted = String::new();
     let mut used = 0;
@@ -508,7 +526,17 @@ fn write_clipped(
 ) {
     let mut x = start;
     let end = end.min(i64::from(area.right()));
-    let text = sanitized_prefix(text, end.saturating_sub(start).max(0) as usize);
+    let cells = end.saturating_sub(start).max(0) as usize;
+    if printable_ascii_prefix(text, cells) {
+        let first = i64::from(area.x).saturating_sub(start).max(0) as usize;
+        for offset in first..cells.min(text.len()) {
+            buffer[((start + offset as i64) as u16, y)]
+                .set_symbol(&text[offset..offset + 1])
+                .set_style(style);
+        }
+        return;
+    }
+    let text = sanitized_prefix(text, cells);
     for grapheme in text.graphemes(true) {
         let width = UnicodeWidthStr::width(grapheme) as i64;
         if width == 0 {
@@ -561,6 +589,18 @@ mod long_text_tests {
         result.extend(std::iter::repeat_n(' ', cells - 1 - used));
         result.push('…');
         result
+    }
+
+    #[test]
+    fn ascii_fitting_preserves_graphemes_at_the_fast_path_boundary() {
+        for length in [0, 1, 19, 20, 21, 127, 128, 1024] {
+            for suffix in ["", "é", "\u{301}", "\x1b\u{301}", "\u{202e}tail"] {
+                let text = format!("{}{suffix}", "a".repeat(length));
+                for cells in [0, 1, 2, 19, 20, 21, 127, 128] {
+                    assert_eq!(fit_text(&text, cells), reference_fit(&text, cells));
+                }
+            }
+        }
     }
 
     #[test]
@@ -662,6 +702,30 @@ mod long_text_tests {
 #[cfg(test)]
 mod long_clipped_tests {
     use super::*;
+
+    #[test]
+    fn ascii_clipping_keeps_offsets_and_style() {
+        let area = Rect::new(3, 4, 4, 1);
+        let style = Style::default().fg(Color::Red).bg(Color::Blue);
+        for start in [-2, 0, 3, 5, 7] {
+            let mut buffer = Buffer::empty(area);
+            write_clipped(&mut buffer, area, 4, start, 6, "abcdefghij", style);
+            for x in area.x..area.right() {
+                let drawn = i64::from(x) >= start && x < 6;
+                let expected = if drawn {
+                    &"abcdefghij"
+                        [(i64::from(x) - start) as usize..(i64::from(x) - start + 1) as usize]
+                } else {
+                    " "
+                };
+                assert_eq!(buffer[(x, 4)].symbol(), expected);
+                if drawn {
+                    assert_eq!(buffer[(x, 4)].fg, Color::Red);
+                    assert_eq!(buffer[(x, 4)].bg, Color::Blue);
+                }
+            }
+        }
+    }
 
     #[test]
     fn horizontal_clipping_skips_partial_graphemes_and_hidden_long_tail() {

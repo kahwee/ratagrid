@@ -112,13 +112,35 @@ def collect(destination):
     }
     subprocess.run(['cargo', 'build', '--release', '--locked', '--offline', '--example', 'playground'], cwd=ROOT, check=True)
     binary = ROOT / 'target/release/examples' / ('playground.exe' if os.name == 'nt' else 'playground')
-    texts = []
+    binaries = {'stress': binary}
+    baseline_ref = os.environ.get('BENCHMARK_BASELINE_REF', '')
+    if baseline_ref:
+        # Build the baseline separately, before either variant is timed. No
+        # concurrent compilation or benchmark processes contaminate samples.
+        subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', '--', 'origin', baseline_ref], cwd=ROOT, check=True)
+        baseline_commit = output(['git', 'rev-parse', 'FETCH_HEAD'])
+        worktree = ROOT / 'target/benchmark-before-source'
+        subprocess.run(['git', 'worktree', 'add', '--detach', str(worktree), baseline_commit], cwd=ROOT, check=True)
+        baseline_target = ROOT / 'target/benchmark-before-target'
+        env = dict(os.environ, CARGO_TARGET_DIR=str(baseline_target))
+        subprocess.run(['cargo', 'fetch', '--locked'], cwd=worktree, env=env, check=True)
+        subprocess.run(['cargo', 'build', '--release', '--locked', '--offline', '--example', 'playground'],
+                       cwd=worktree, env=env, check=True)
+        binaries['stress-before'] = baseline_target / 'release/examples' / binary.name
+    texts = {name: [] for name in binaries}
     for trial in range(1, 4):
-        with (destination / f'stress-{trial}.csv').open('w', encoding='utf-8', newline='') as stream, \
-                (destination / f'stress-{trial}.log').open('w', encoding='utf-8') as log:
-            subprocess.run([str(binary), '--stress'], cwd=ROOT, stdout=stream, stderr=log, check=True)
-        texts.append((destination / f'stress-{trial}.csv').read_text(encoding='utf-8'))
-    report['runtime'] = aggregate(texts)
+        names = list(binaries) if trial % 2 else list(reversed(binaries))
+        for name in names:
+            with (destination / f'{name}-{trial}.csv').open('w', encoding='utf-8', newline='') as stream, \
+                    (destination / f'{name}-{trial}.log').open('w', encoding='utf-8') as log:
+                subprocess.run([str(binaries[name]), '--stress'], cwd=ROOT, stdout=stream, stderr=log, check=True)
+            texts[name].append((destination / f'{name}-{trial}.csv').read_text(encoding='utf-8'))
+    report['runtime'] = aggregate(texts['stress'])
+    if baseline_ref:
+        before = aggregate(texts['stress-before'])
+        if {tuple(r[k] for k in KEYS) for r in before} != {tuple(r[k] for k in KEYS) for r in report['runtime']}:
+            raise ValueError('Before/after runtime cases differ')
+        report['same_runner_before'] = {'source_commit': baseline_commit, 'runtime': before}
     subprocess.run([sys.executable, str(ROOT / 'scripts/benchmark_builds.py'),
                     '--profiles', 'lean-ci', '--samples', '2', '--warm-runs', '1',
                     '--output', str(destination / 'builds.json')], cwd=ROOT, check=True)
@@ -129,6 +151,9 @@ def collect(destination):
     report['comparison'], report['regressions'] = regressions(report, baseline)
     save(destination / 'results.json', report)
     text = f'## {report["runner"]} benchmarks\n\nSource: `{report["source_commit"]}`\n\n{markdown(report)}\n\n{report["comparison"]}\n'
+    if 'same_runner_before' in report:
+        before = dict(report, runtime=report['same_runner_before']['runtime'])
+        text += f'\n### Before on the same runner\n\nSource: `{report["same_runner_before"]["source_commit"]}`\n\n{chr(10).join(markdown(before).splitlines()[:-2])}\n\nBuild rows in the current-revision table are not a before/after build comparison.\n'
     for alert in report['regressions']:
         message = f'{alert["case"]}: {alert["baseline_ms"]:.3f} -> {alert["current_ms"]:.3f} ms'
         text += f'\n- Possible regression: {message}\n'
@@ -161,6 +186,8 @@ def publish(source):
         directory.mkdir(parents=True)
         for filename in ('results.json', 'builds.json', 'stress-1.csv', 'stress-2.csv', 'stress-3.csv'):
             shutil.copyfile(source / f'benchmark-{report["platform"]}' / filename, directory / filename)
+        for csv_path in (source / f'benchmark-{report["platform"]}').glob('stress-before-*.csv'):
+            shutil.copyfile(csv_path, directory / csv_path.name)
         save(PUBLIC / report['platform'] / 'latest.json', report)
         baseline = PUBLIC / report['platform'] / 'baseline.json'
         if not baseline.exists():
@@ -183,6 +210,19 @@ def publish(source):
         elif comparison.startswith('Compared with'):
             comparison += f' {len(report["regressions"])} possible runtime regression(s).'
         lines.append(f'- {report["runner"]}: {comparison}')
+    for report in reports:
+        if 'same_runner_before' in report:
+            baseline = report['same_runner_before']
+            lines.extend(['', f'Same-runner comparison on **{report["runner"]}** against '
+                          f'[`{baseline["source_commit"][:7]}`](https://github.com/kahwee/ratagrid/commit/{baseline["source_commit"]}):'])
+            before = {tuple(row[k] for k in KEYS): row for row in baseline['runtime']}
+            for row in report['runtime']:
+                if row['case'] == 'owned' and row['total_rows'] == '1000000' and row['operation'] in (
+                        'render_selected', 'sorted_50_small_updates_and_render', 'sorted_50_cross_dataset_and_render'):
+                    old = before[tuple(row[k] for k in KEYS)]['p50_ms']
+                    new = row['p50_ms']
+                    lines.append(f'- `{row["operation"]}`: {old:.3f} → {new:.3f} ms '
+                                 f'({(new / old - 1) * 100:+.1f}%).')
     lines.extend(['', 'Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. '
                   '[Method, triggers and baseline policy](docs/BENCHMARKS.md).', '', END])
     readme.write_text(original[:original.index(START)] + '\n'.join(lines) + original[original.index(END) + len(END):], encoding='utf-8')

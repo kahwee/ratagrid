@@ -75,6 +75,9 @@ class ReportingTests(unittest.TestCase):
                 first = baseline.read_text()
                 new = report('linux')
                 new['runtime'][0]['p50_ms'] = 2
+                new['same_runner_before'] = {'source_commit': 'c' * 40, 'runtime': report()['runtime']}
+                for n in range(1, 4):
+                    (source / f'benchmark-linux/stress-before-{n}.csv').write_text(csv_text(1))
                 for platform in bench.PLATFORMS:
                     updated = new if platform == 'linux' else report(platform)
                     updated['run_id'] = '124'
@@ -82,6 +85,8 @@ class ReportingTests(unittest.TestCase):
                 bench.publish(source)
                 self.assertEqual(baseline.read_text(), first)
                 self.assertIn('2.000 ms', readme.read_text())
+                self.assertIn('1.000 → 2.000 ms (+100.0%)', readme.read_text())
+                self.assertTrue((root / 'public/runs/124-1/linux/stress-before-1.csv').exists())
                 new['source_commit'] = 'b' * 40
                 bench.save(source / 'benchmark-linux/results.json', new)
                 with self.assertRaises(ValueError):

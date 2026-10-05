@@ -6,6 +6,11 @@ on:
     # Mondays at 09:17 UTC; avoid the busiest start-of-hour window.
     - cron: '17 9 * * 1'
   workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Optional prior commit/ref for a same-runner before/after runtime comparison
+        required: false
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -43,6 +48,7 @@ jobs:
         env:
           BENCHMARK_PLATFORM: ${{ matrix.platform }}
           BENCHMARK_RUNNER: ${{ matrix.os }}
+          BENCHMARK_BASELINE_REF: ${{ inputs.baseline_ref }}
         run: python scripts/benchmark_ci.py collect --output target/ci-benchmark
       - name: Retain raw measurements and build logs
         if: always()
