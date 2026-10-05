@@ -54,6 +54,12 @@ class Session:
                 self.transcript.extend(chunk)
                 self.stream.feed(chunk)
 
+    def wait_text(self, expected, timeout=5):
+        end = time.monotonic() + timeout
+        while expected not in self.text() and time.monotonic() < end:
+            self.drain(0.05)
+        assert expected in self.text(), f"Missing {expected!r}\n{self.text()}"
+
     def text(self):
         # pyte.display can fail on emoji continuation cells; these are empty strings.
         return "\n".join("".join(self.screen.buffer[y][x].data for x in range(self.width))
@@ -286,7 +292,7 @@ def details_smoke():
 def database_smoke():
     session = Session(binary=ROOT / "target/release/examples/database")
     try:
-        assert "Grid page 0 → application page 1" in session.text()
+        session.wait_text("Grid page 0 → application page 1")
         assert "73 matches" in session.text()
         session.send(b"]", "Grid page 1 → application page 2")
         session.send(b"]" * 6, "Grid page 7 → application page 8")
@@ -309,7 +315,7 @@ def database_smoke():
 def cursor_smoke():
     session = Session(width=90, height=18, binary=ROOT / "target/release/examples/cursor")
     try:
-        assert "Batch 1 · 10 records" in session.text()
+        session.wait_text("Batch 1 · 10 records")
         assert "Job 001" in session.text() and "Job 010" in session.text()
         session.send(b"]", "Batch 2 · 10 records")
         assert "Job 011" in session.text() and "Job 020" in session.text()

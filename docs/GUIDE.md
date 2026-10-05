@@ -86,7 +86,7 @@ Try the browsing controls with `cargo run --locked --example explorer`: search, 
 
 ## Bar chart columns
 
-Available on main, after the published 0.2.0 release. Run
+Available in Ratagrid 0.3.0. Run
 `cargo run --locked --example bar_chart` for a synthetic disk usage table.
 
 Add `.bar_chart(max, value)` to a normal column:
@@ -116,13 +116,13 @@ full-value details. Sorting uses the record comparator, independently of the bar
 
 ## Use it
 
-Install [Ratagrid 0.2.0 from crates.io](https://crates.io/crates/ratagrid/0.2.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.2"` accepts compatible 0.2 releases; use `"=0.2.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.2.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.2.0) identifies its published source.
+Install [Ratagrid 0.3.0 from crates.io](https://crates.io/crates/ratagrid/0.3.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.3"` accepts compatible 0.3 releases; use `"=0.3.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.3.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.3.0) identifies its published source.
 
-Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.2.0/ratagrid/) describes the immutable published crate.
+Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.3.0/ratagrid/) describes the immutable published crate.
 
 ```toml
 [dependencies]
-ratagrid = "0.2"
+ratagrid = "0.3"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -254,7 +254,7 @@ See the [0.2 migration notes](../CHANGELOG.md#020--2026-10-04-utc) for new enum 
 
 ## Optional cell details
 
-Available in Ratagrid 0.2.0; disabled by default.
+Available since Ratagrid 0.2.0; disabled by default.
 
 ```sh
 cargo run --release --locked --example playground -- --cell-details

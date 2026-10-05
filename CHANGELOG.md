@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-10-05 (UTC)
+
+This additive release introduces bar-chart columns and improves rendering and sorted updates. Existing 0.2 APIs remain available; update the dependency to `ratagrid = "0.3"`. Rust 1.99, Ratatui 0.30 and Crossterm 0.29 remain required.
+
 - Printable ASCII cells use a bounded fitting/clipping path that avoids Unicode
   segmentation; grapheme and control-containing text keeps the existing policy.
+- Sorted-row lookup uses fixed-size chunks without adding per-row index storage.
 - Small sorted-row moves copy only the crossed ordering span. Large moves retain
   the existing remove/insert path after a Windows comparison exposed a slowdown
   with general slice rotation. Sorting, record selection and memory use retain
@@ -19,6 +24,8 @@
 - Moved the Pages HTML into a separate template, with generation regressions for
   escaping, Unicode, stale files and invalid placeholders. Shared integration-test
   event/buffer helpers preserve each scenario's fixtures and viewport geometry.
+- Database and cursor terminal smoke checks wait for their initial screen with a
+  bounded timeout, accommodating cold startup without weakening assertions.
 - Added eight real-PTY terminal lifecycle checks for success, application errors
   and panics, including panic unwinding without Ratatui's restoration hook. These
   checks run on Linux and macOS CI.
