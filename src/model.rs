@@ -554,5 +554,42 @@ fn move_order_index(
 // branches. Its code layout must not grow with either implementation.
 #[inline(never)]
 fn order_position(order: &[usize], index: usize) -> Option<usize> {
-    order.iter().position(|&i| i == index)
+    // Match the integer-slice contains strategy from core: independent lane
+    // comparisons can vectorize, unlike a branch for every ordering index.
+    const LANES: usize = 4 * (128 / usize::BITS as usize);
+    let mut chunks = order.chunks_exact(LANES);
+    for (chunk_index, chunk) in chunks.by_ref().enumerate() {
+        if chunk
+            .iter()
+            .fold(false, |found, &row| found | (row == index))
+        {
+            return Some(chunk_index * LANES + chunk.iter().position(|&row| row == index)?);
+        }
+    }
+    let remainder = chunks.remainder();
+    remainder
+        .iter()
+        .position(|&row| row == index)
+        .map(|position| order.len() - remainder.len() + position)
+}
+
+#[cfg(test)]
+mod position_tests {
+    use super::order_position;
+
+    #[test]
+    fn chunked_lookup_matches_first_position_at_chunk_and_tail_boundaries() {
+        for length in 0..=33 {
+            let order: Vec<usize> = (0..length).rev().collect();
+            for index in 0..=length {
+                assert_eq!(
+                    order_position(&order, index),
+                    order.iter().position(|&row| row == index)
+                );
+            }
+        }
+        assert_eq!(order_position(&[5; 33], 5), Some(0));
+        assert_eq!(order_position(&[5; 33], usize::MAX), None);
+        assert_eq!(order_position(&[0, usize::MAX], usize::MAX), Some(1));
+    }
 }
