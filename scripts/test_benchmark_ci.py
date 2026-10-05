@@ -54,6 +54,17 @@ class ReportingTests(unittest.TestCase):
         self.assertIn('skipped', bench.regressions(current, base)[0])
         self.assertEqual(bench.regressions(current, None)[1], [])
 
+    def test_paired_run_takes_precedence_over_historical_runner_variation(self):
+        current = report()
+        current['regressions'] = [{'historical': 'slower host'}]
+        current['same_runner_before'] = {'source_commit': 'b' * 40, 'runtime': copy.deepcopy(current['runtime'])}
+        bench.prefer_same_runner_comparison(current)
+        self.assertIn('same-runner baseline bbbbbbb', current['comparison'])
+        self.assertEqual(current['regressions'], [])
+        self.assertEqual(current['frozen_baseline_regressions'], [{'historical': 'slower host'}])
+        bench.prefer_same_runner_comparison(current)
+        self.assertEqual(current['frozen_baseline_regressions'], [{'historical': 'slower host'}])
+
     def test_publication_requires_complete_matching_reports_and_freezes_baseline(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

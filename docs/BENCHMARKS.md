@@ -70,7 +70,10 @@ replaced by a slower result, so repeated small regressions cannot move the
 reference forward. Publication requires all three platforms to succeed.
 
 A runtime p50 increase raises a workflow warning when it exceeds **both 25% and
-0.05 ms** relative to the frozen baseline. All cases are compared, including
+0.05 ms** relative to the same-runner prior revision when `baseline_ref` is given,
+or the frozen baseline for ordinary runs. Paired reports retain historical
+frozen-baseline signals separately in JSON, because different hosted hardware
+can otherwise obscure the effect of a code change. All cases are compared, including
 sorting, rendering and updates. Build times are reported but are not regression
 gates because compiler/cache/host load vary. A differing runner label,
 architecture, CPU count, toolchain or benchmark method/case set skips comparison

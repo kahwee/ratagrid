@@ -74,6 +74,19 @@ def regressions(report, baseline):
     return f'Compared with frozen baseline {baseline["source_commit"][:7]}.', alerts
 
 
+def prefer_same_runner_comparison(report):
+    """Preserve historical signals, but attribute changes using the paired run."""
+    if 'same_runner_before' not in report:
+        return
+    report.setdefault('frozen_baseline_comparison', report['comparison'])
+    report.setdefault('frozen_baseline_regressions', report['regressions'])
+    before = report['same_runner_before']
+    baseline = dict(report, source_commit=before['source_commit'], runtime=before['runtime'])
+    status, alerts = regressions(report, baseline)
+    report['comparison'] = status.replace('frozen baseline', 'same-runner baseline')
+    report['regressions'] = alerts
+
+
 def markdown(report):
     rows = ['| Workload | Median |', '| --- | ---: |']
     for name, case, total, operation in (
@@ -149,6 +162,7 @@ def collect(destination):
     baseline_path = PUBLIC / report['platform'] / 'baseline.json'
     baseline = json.loads(baseline_path.read_text(encoding='utf-8')) if baseline_path.exists() else None
     report['comparison'], report['regressions'] = regressions(report, baseline)
+    prefer_same_runner_comparison(report)
     save(destination / 'results.json', report)
     text = f'## {report["runner"]} benchmarks\n\nSource: `{report["source_commit"]}`\n\n{markdown(report)}\n\n{report["comparison"]}\n'
     if 'same_runner_before' in report:
@@ -180,12 +194,14 @@ def publish(source):
     run_key = f'{first["run_id"]}-{first["run_attempt"]}'
     # Keep compact, permanent raw CSV/JSON history; bulky build logs stay in artifacts.
     for report in reports:
+        prefer_same_runner_comparison(report)
         directory = PUBLIC / 'runs' / run_key / report['platform']
         if directory.exists():
             raise ValueError(f'Historical run already exists: {directory}')
         directory.mkdir(parents=True)
         for filename in ('results.json', 'builds.json', 'stress-1.csv', 'stress-2.csv', 'stress-3.csv'):
             shutil.copyfile(source / f'benchmark-{report["platform"]}' / filename, directory / filename)
+        save(directory / 'results.json', report)
         for csv_path in (source / f'benchmark-{report["platform"]}').glob('stress-before-*.csv'):
             shutil.copyfile(csv_path, directory / csv_path.name)
         save(PUBLIC / report['platform'] / 'latest.json', report)
@@ -223,7 +239,7 @@ def publish(source):
                     new = row['p50_ms']
                     lines.append(f'- `{row["operation"]}`: {old:.3f} → {new:.3f} ms '
                                  f'({(new / old - 1) * 100:+.1f}%).')
-    lines.extend(['', 'Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. '
+    lines.extend(['', 'Slowdown warnings require both >25% and >0.05 ms; paired runs use the same-runner reference, otherwise the frozen baseline. They are advisory. '
                   '[Method, triggers and baseline policy](docs/BENCHMARKS.md).', '', END])
     readme.write_text(original[:original.index(START)] + '\n'.join(lines) + original[original.index(END) + len(END):], encoding='utf-8')
 
