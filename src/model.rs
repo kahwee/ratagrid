@@ -393,16 +393,20 @@ impl<T> GridModel<T> {
         {
             return true;
         }
-        // Search only the side whose neighbor was crossed. Rotate that span
-        // once, instead of remove/insert shifting the entire vector tail twice.
+        // Search only the side whose neighbor was crossed. Shift that span
+        // with one overlapping copy, instead of remove/insert shifting the
+        // entire vector tail twice. Avoid general-purpose rotation, whose
+        // element-swap path makes large moves more expensive on Windows.
         let new = if old > 0 && ordered(self.order[old - 1], index) == Ordering::Greater {
             let new = self.order[..old].partition_point(|&i| ordered(i, index) == Ordering::Less);
-            self.order[new..=old].rotate_right(1);
+            self.order.copy_within(new..old, new + 1);
+            self.order[new] = index;
             new
         } else {
             let new = old
                 + self.order[old + 1..].partition_point(|&i| ordered(i, index) == Ordering::Less);
-            self.order[old..=new].rotate_left(1);
+            self.order.copy_within(old + 1..new + 1, old);
+            self.order[new] = index;
             new
         };
         self.selected_position = self.selected_position.map(|position| {
