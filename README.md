@@ -88,7 +88,21 @@ not run on ordinary pushes or subsequent PR commits. Correctness CI still checks
 all three platforms on every push and PR update.
 
 <!-- github-benchmarks:start -->
-The first scheduled/manual run will publish hosted-runner runtime and isolated
-build measurements here. Existing [GitHub CI job timings](docs/BUILDS.md#actual-github-workflow-measurements)
-are public; they measure workflow duration rather than grid runtime.
+
+Measured 2026-10-05 on GitHub-hosted runners at [`9617519`](https://github.com/kahwee/ratagrid/commit/9617519f39b61bf4bd27b077b717151f0e52ae2e). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/37246316679/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/37246316679-1).
+
+| Runner | 1M draw | 1M numeric sort | 1M: 50 large moves + draw | 100M virtual / 50 resident draw | Fresh / warm Cargo stages |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ubuntu-24.04 (x86_64) | 0.198 ms | 68.707 ms | 24.666 ms | 0.189 ms | 19.58 s / 1.36 s |
+| macos-15 (arm64) | 0.251 ms | 144.953 ms | 25.915 ms | 0.237 ms | 33.99 s / 2.46 s |
+| windows-2025 (AMD64) | 0.360 ms | 150.469 ms | 46.055 ms | 0.345 ms | 42.08 s / 3.39 s |
+
+Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
+
+- ubuntu-24.04: No frozen GitHub baseline yet. 0 possible runtime regression(s).
+- macos-15: No frozen GitHub baseline yet. 0 possible runtime regression(s).
+- windows-2025: No frozen GitHub baseline yet. 0 possible runtime regression(s).
+
+Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
+
 <!-- github-benchmarks:end -->
