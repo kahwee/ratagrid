@@ -1,0 +1,83 @@
+name: Benchmarks
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  schedule:
+    # Mondays at 09:17 UTC; avoid the busiest start-of-hour window.
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: benchmarks-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+          - os: macos-15
+            platform: macos
+          - os: windows-2025
+            platform: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.99.0
+          components: clippy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch dependencies outside measured builds
+        run: cargo fetch --locked
+      - name: Measure runtime and isolated builds
+        env:
+          BENCHMARK_PLATFORM: ${{ matrix.platform }}
+          BENCHMARK_RUNNER: ${{ matrix.os }}
+        run: python scripts/benchmark_ci.py collect --output target/ci-benchmark
+      - name: Retain raw measurements and build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.platform }}
+          path: target/ci-benchmark
+          if-no-files-found: error
+          retention-days: 90
+  publish:
+    needs: measure
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: benchmark-*
+          path: target/benchmark-artifacts
+      - name: Publish permanent public data and README table
+        run: python scripts/benchmark_ci.py publish --input target/benchmark-artifacts
+      - name: Commit published measurements
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md docs/benchmarks/github
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'docs: publish GitHub benchmark results'
+          git pull --rebase origin main
+          git push origin HEAD:main

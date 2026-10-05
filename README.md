@@ -79,3 +79,16 @@ For a SQLite adapter with global search, one-based application pages, optional s
 For native database cursor/keyset pagination, use `Grid::new_cursor_paged`, handle `Action::CursorPageRequested`, and return rows plus the next token. Try `cargo run --locked --example cursor`; see the [cursor integration guide](docs/PAGINATION.md#native-cursorkeyset-pagination).
 
 [Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Release notes and migration](CHANGELOG.md#020--2026-10-04-utc) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
+
+## GitHub benchmarks
+
+Benchmarks run across Linux, macOS and Windows when a PR opens ready for review,
+when a draft becomes ready, weekly on Mondays at 09:17 UTC, or manually. They do
+not run on ordinary pushes or subsequent PR commits. Correctness CI still checks
+all three platforms on every push and PR update.
+
+<!-- github-benchmarks:start -->
+The first scheduled/manual run will publish hosted-runner runtime and isolated
+build measurements here. Existing [GitHub CI job timings](docs/BUILDS.md#actual-github-workflow-measurements)
+are public; they measure workflow duration rather than grid runtime.
+<!-- github-benchmarks:end -->

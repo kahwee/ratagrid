@@ -38,6 +38,9 @@ jobs:
         if: runner.os != 'Windows'
         with:
           python-version: '3.12'
+      - name: Test benchmark reporting
+        if: runner.os == 'Linux'
+        run: python3 scripts/test_benchmark_ci.py
       - name: Test Pages generation
         if: runner.os == 'Linux'
         run: python3 scripts/test_build_docs.py
