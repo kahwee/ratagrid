@@ -89,35 +89,35 @@ all three platforms on every push and PR update.
 
 <!-- github-benchmarks:start -->
 
-Measured 2026-10-05 on GitHub-hosted runners at [`8aac658`](https://github.com/kahwee/ratagrid/commit/8aac65850a729aa70f485102a16e46bd75fe4be0). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/37247886299/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/37247886299-1).
+Measured 2026-10-05 on GitHub-hosted runners at [`cea33b9`](https://github.com/kahwee/ratagrid/commit/cea33b916e022a7a0aabf91b46ccf1ab0f61ec2a). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/37248873322/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/37248873322-1).
 
 | Runner | 1M draw | 1M numeric sort | 1M: 50 large moves + draw | 100M virtual / 50 resident draw | Fresh / warm Cargo stages |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| ubuntu-24.04 (x86_64) | 0.143 ms | 178.193 ms | 22.488 ms | 0.138 ms | 27.79 s / 2.02 s |
-| macos-15 (arm64) | 0.107 ms | 172.562 ms | 27.795 ms | 0.099 ms | 39.80 s / 3.27 s |
-| windows-2025 (AMD64) | 0.167 ms | 220.482 ms | 40.457 ms | 0.162 ms | 44.05 s / 3.47 s |
+| ubuntu-24.04 (x86_64) | 0.117 ms | 109.772 ms | 45.098 ms | 0.111 ms | 26.38 s / 1.81 s |
+| macos-15 (arm64) | 0.105 ms | 101.625 ms | 25.654 ms | 0.105 ms | 34.62 s / 2.69 s |
+| windows-2025 (AMD64) | 0.168 ms | 201.453 ms | 25.291 ms | 0.164 ms | 43.26 s / 3.40 s |
 
 Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
 
-- ubuntu-24.04: Compared with frozen baseline 9617519. 10 possible runtime regression(s).
-- macos-15: Compared with frozen baseline 9617519. 3 possible runtime regression(s).
-- windows-2025: Compared with frozen baseline 9617519. 5 possible runtime regression(s).
+- ubuntu-24.04: Compared with same-runner baseline 6ca93d7. 9 possible runtime regression(s).
+- macos-15: Compared with same-runner baseline 6ca93d7. 1 possible runtime regression(s).
+- windows-2025: Compared with same-runner baseline 6ca93d7. 0 possible runtime regression(s).
 
 Same-runner comparison on **ubuntu-24.04** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
-- `render_selected`: 0.332 → 0.143 ms (-56.8%).
-- `sorted_50_small_updates_and_render`: 15.557 → 7.715 ms (-50.4%).
-- `sorted_50_cross_dataset_and_render`: 22.683 → 22.488 ms (-0.9%).
+- `render_selected`: 0.284 → 0.117 ms (-58.7%).
+- `sorted_50_small_updates_and_render`: 23.642 → 9.080 ms (-61.6%).
+- `sorted_50_cross_dataset_and_render`: 30.728 → 45.098 ms (+46.8%).
 
 Same-runner comparison on **macos-15** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
-- `render_selected`: 0.269 → 0.107 ms (-60.0%).
-- `sorted_50_small_updates_and_render`: 29.090 → 11.132 ms (-61.7%).
-- `sorted_50_cross_dataset_and_render`: 28.459 → 27.795 ms (-2.3%).
+- `render_selected`: 0.255 → 0.105 ms (-58.7%).
+- `sorted_50_small_updates_and_render`: 27.613 → 9.674 ms (-65.0%).
+- `sorted_50_cross_dataset_and_render`: 25.778 → 25.654 ms (-0.5%).
 
 Same-runner comparison on **windows-2025** against [`6ca93d7`](https://github.com/kahwee/ratagrid/commit/6ca93d7301379ec3564d0f24af9f5b391cb82c69):
-- `render_selected`: 0.362 → 0.167 ms (-53.7%).
-- `sorted_50_small_updates_and_render`: 35.950 → 7.847 ms (-78.2%).
-- `sorted_50_cross_dataset_and_render`: 29.158 → 40.457 ms (+38.7%).
+- `render_selected`: 0.369 → 0.168 ms (-54.6%).
+- `sorted_50_small_updates_and_render`: 34.716 → 7.813 ms (-77.5%).
+- `sorted_50_cross_dataset_and_render`: 26.916 → 25.291 ms (-6.0%).
 
-Slowdown warnings require both >25% and >0.05 ms against the frozen baseline; they are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
+Slowdown warnings require both >25% and >0.05 ms; paired runs use the same-runner reference, otherwise the frozen baseline. They are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 
 <!-- github-benchmarks:end -->
