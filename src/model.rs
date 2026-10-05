@@ -557,8 +557,8 @@ fn order_position(order: &[usize], index: usize) -> Option<usize> {
     // Match the integer-slice contains strategy from core: independent lane
     // comparisons can vectorize, unlike a branch for every ordering index.
     const LANES: usize = 4 * (128 / usize::BITS as usize);
-    let mut chunks = order.chunks_exact(LANES);
-    for (chunk_index, chunk) in chunks.by_ref().enumerate() {
+    let (chunks, remainder) = order.as_chunks::<LANES>();
+    for (chunk_index, chunk) in chunks.iter().enumerate() {
         if chunk
             .iter()
             .fold(false, |found, &row| found | (row == index))
@@ -566,7 +566,6 @@ fn order_position(order: &[usize], index: usize) -> Option<usize> {
             return Some(chunk_index * LANES + chunk.iter().position(|&row| row == index)?);
         }
     }
-    let remainder = chunks.remainder();
     remainder
         .iter()
         .position(|&row| row == index)
