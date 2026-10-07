@@ -106,3 +106,7 @@ Release-mode, in-memory runtime medians from three process runs; terminal I/O an
 Slowdown warnings require both >25% and >0.05 ms; paired runs use the same-runner reference, otherwise the frozen baseline. They are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 
 <!-- github-benchmarks:end -->
+
+## CI maintenance
+
+[GitHub Actions maintenance](.github/ACTIONS.md) covers workflows, parallel checks, action versions, and weekly updates.
