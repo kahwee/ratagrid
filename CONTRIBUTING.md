@@ -16,6 +16,11 @@ python3 scripts/test_terminal_cleanup.py
 
 After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
 
+For workflow ordering, safe parallel groups, action versions, and weekly updates,
+see [GitHub Actions maintenance](.github/ACTIONS.md). When editing clipboard or
+column-layout code, keep the empty-cell, sanitization, filtered-selection, and
+invalid-order regression cases in `tests/features.rs` passing.
+
 For measured CI profile and cache tradeoffs, see the [build report](docs/BUILDS.md).
 Run `python3 scripts/benchmark_builds.py` to reproduce the local experiment.
 

@@ -67,7 +67,8 @@ impl<T> Grid<T> {
     }
 
     /// Reorder using original indices, including hidden columns. Invalid input
-    /// leaves layout and focus unchanged. Pinned columns are displayed first.
+    /// leaves layout and focus unchanged. Length, bounds, and duplicates are
+    /// checked in one pass. Pinned columns are displayed first.
     pub fn set_column_order(&mut self, order: Vec<usize>) -> Result<(), ColumnOrderError> {
         if order.len() != self.model.columns.len() {
             return Err(ColumnOrderError);

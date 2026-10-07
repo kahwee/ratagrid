@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Reduce temporary allocations in owned search by borrowing already-safe text
+  before case normalization.
+- Stream clipboard output into its final string while preserving empty cells,
+  Unicode, control filtering, visible-column order, and filtered/sorted rows.
+- Validate column orders in one pass; malformed orders preserve layout and focus.
+- Run independent reporting/docs checks alongside Clippy and terminal smoke
+  checks alongside rustdoc. Keep Cargo builds ordered; finish all OS jobs on
+  failures and bound each job to 20 minutes.
+- Document clipboard return values, column validation, and maintenance checks.
+
 ## 0.3.0 — 2026-10-05 (UTC)
 
 This additive release introduces bar-chart columns and improves rendering and sorted updates. Existing 0.2 APIs remain available; update the dependency to `ratagrid = "0.3"`. Rust 1.99, Ratatui 0.30 and Crossterm 0.29 remain required.

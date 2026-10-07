@@ -124,3 +124,23 @@ and their warnings remain in the public history. Active filters/search still
 rebuild the filtered/sorted order after each edit; batching edits is a further
 opportunity. Large cross-dataset frames remain above a 60 Hz budget even though
 ordinary drawing and small updates are substantially cheaper.
+
+## Search, copying, and column-order validation
+
+Owned search borrows formatted text that needs no control removal before
+lowercasing it. It still scans formatted values and allocates their lowercase
+representation; formatter costs and whole-dataset filtering remain.
+
+Clipboard copying appends cells directly to the result instead of collecting
+intermediate cell strings, row strings, and selected-row indices. Formatters
+still return owned strings, and the complete clipboard payload must fit in
+memory. Copying remains proportional to the text processed.
+
+Column-order validation checks length, bounds, and duplicates in one pass,
+using one boolean per column. It replaces sorting a cloned order and building
+an expected-order vector: validation is now linear in the number of columns.
+Rejected inputs leave the grid unchanged.
+
+These are implementation and complexity observations, not measured speedups.
+The historical benchmark results above are unchanged. Run a before/after
+benchmark for your workload before assigning a timing or memory percentage.

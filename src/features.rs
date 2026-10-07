@@ -189,6 +189,8 @@ impl<T> Grid<T> {
     /// Full formatted text, never viewport-clipped. Rows use tabs between visible
     /// columns and newlines between records. Terminal controls and bidirectional
     /// formatting controls within cells are removed, preventing separator injection.
+    /// Empty values retain their separators. Returns `None` for invalid targets,
+    /// row copies without visible columns, or no marked rows surviving filtering.
     /// Clipboard access remains the application's responsibility.
     pub fn copy_text(&self, target: CopyTarget) -> Option<String> {
         let columns = self.visible_columns();

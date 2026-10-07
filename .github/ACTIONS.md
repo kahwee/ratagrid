@@ -16,9 +16,9 @@ Independent checks use GitHub Actions [native parallel steps](https://github.blo
 - [ci.yml](workflows/ci.yml), job `check`: formatting, Clippy, benchmark-reporting tests, Pages-generation tests, and both generated-documentation checks.
 - [ci.yml](workflows/ci.yml), job `check`: terminal smoke tests and rustdoc, after the release examples have been built.
 
-The OS matrix runs Linux, macOS, and Windows independently. Cargo compilation commands remain ordered within each job to avoid sharing build locks; the smoke tests execute already-built binaries and write captures separately from rustdoc. Linux-only steps keep their existing platform conditions.
+The OS matrix runs Linux, macOS, and Windows independently, with `fail-fast: false` so one failure does not hide another platform's results. Each job has a 20-minute timeout. Linux-only checks retain their platform conditions.
 
-Steps after a group wait for it to finish. Keep prerequisites before the group and dependent build, package, or deployment work afterward. Do not run commands that overwrite the same build directory or coverage output together. Parallel steps share the job workspace; they do not provide separate machines.
+Steps after a parallel group wait for it to finish. Keep prerequisites before the group and dependent work afterward. Cargo compilation commands remain ordered to avoid build locks; the smoke tests execute already-built binaries and write captures separately from rustdoc. Parallel steps share the job workspace, so do not overlap commands that write the same build directory or coverage output.
 
 ## Action versions
 

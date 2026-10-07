@@ -58,6 +58,8 @@ Ctrl+C emits `CopyRequested(CopyTarget::Cell { row, column })` for the active ce
 
 Call `copy_text(target)` to obtain the full formatted text, independently of viewport clipping. `CopyTarget::Row(index)` is also available for application controls. Rows use visible columns in display order (pinned columns first), separated by tabs; selected rows use filtered/sorted record order, separated by newlines. Marked owned rows may span client pages; filtered-out marks are omitted. Control characters within cells are stripped so a value cannot inject separators or terminal escape sequences.
 
+Empty cell values keep their column and row separators. A valid empty cell returns `Some(String::new())`; `None` means there is no valid copy target, no visible columns for a row copy, or no marked rows remain after filtering. If marks exist but are all filtered out, copying marked rows does not fall back to the active row.
+
 The library never accesses the clipboard. Write the returned text with your application's clipboard backend or terminal integration. The explorer and playground show the payload in their status area for a portable demonstration.
 
 ```rust
@@ -79,7 +81,7 @@ Normal Arabic/Hebrew letters, combining marks, emoji joiners and variation selec
 Column indices always refer to their original definitions, so sorting, actions, cursor access, resizing, and cell flashes keep the same meaning after reordering.
 
 - `set_column_visible(column, false)` hides a column. Focus/cursor move to a visible column if needed. All columns may be hidden; row-level keyboard navigation remains available.
-- `set_column_order(vec![2, 0, 1])` supplies a complete permutation, including hidden columns. Invalid orders return `ColumnOrderError` and leave state unchanged.
+- `set_column_order(vec![2, 0, 1])` supplies a complete permutation, including hidden columns. Missing, extra, duplicate, and out-of-range indices return `ColumnOrderError` without changing layout or cursor state. An empty order is valid only for a grid with no columns.
 - `set_column_pinned(column, true)` fixes the column at the left. Visible pinned columns come first in configured order; unpinned columns scroll in the remaining width. If pins consume the viewport, scrolling has no visible area.
 - `column_order()`, `visible_columns()`, `is_column_visible()`, and `is_column_pinned()` expose layout settings.
 
