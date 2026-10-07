@@ -517,3 +517,45 @@ fn semantic_cell_colors_layer_under_marks_active_selection_and_cursor() {
             .contains(Modifier::REVERSED | Modifier::BOLD)
     );
 }
+
+#[test]
+fn copying_empty_sanitized_cells_preserves_row_and_column_separators() {
+    let mut grid = Grid::new(
+        vec![
+            Column::new("Text", 4, |s: &String| s.clone()),
+            Column::new("Empty", 4, |_: &String| String::new()),
+        ],
+        vec!["\n\t".into(), "\u{202e}".into(), "東京".into()],
+    );
+    grid.toggle_row_selection(0);
+    grid.toggle_row_selection(1);
+    grid.toggle_row_selection(2);
+    assert_eq!(
+        grid.copy_text(CopyTarget::SelectedRows),
+        Some("\t\n\t\n東京\t".into())
+    );
+    assert_eq!(grid.copy_text(CopyTarget::Cell { row: 0, column: 0 }), Some(String::new()));
+    grid.set_search("missing");
+    assert_eq!(grid.copy_text(CopyTarget::SelectedRows), None);
+}
+
+#[test]
+fn invalid_column_orders_preserve_order_and_cursor() {
+    let mut grid = grid();
+    grid.set_column_order(vec![2, 0, 1]).unwrap();
+    draw(&mut grid, Rect::new(0, 0, 28, 6));
+    grid.handle_event(&key(KeyCode::Down));
+    let cursor = grid.cursor();
+    for order in [vec![], vec![0, 1], vec![0, 1, 2, 3], vec![0, 0, 2], vec![0, 1, usize::MAX]] {
+        assert!(grid.set_column_order(order).is_err());
+        assert_eq!(grid.column_order(), [2, 0, 1]);
+        assert_eq!(grid.cursor(), cursor);
+    }
+    for order in [vec![0, 1, 2], vec![0, 2, 1], vec![1, 0, 2], vec![1, 2, 0], vec![2, 0, 1], vec![2, 1, 0]] {
+        grid.set_column_order(order.clone()).unwrap();
+        assert_eq!(grid.column_order(), order);
+    }
+    let mut empty: Grid<()> = Grid::new(vec![], vec![]);
+    assert!(empty.set_column_order(vec![]).is_ok());
+    assert!(empty.set_column_order(vec![0]).is_err());
+}

@@ -191,60 +191,59 @@ impl<T> Grid<T> {
     /// formatting controls within cells are removed, preventing separator injection.
     /// Clipboard access remains the application's responsibility.
     pub fn copy_text(&self, target: CopyTarget) -> Option<String> {
-        fn plain(text: String) -> String {
-            text.chars()
-                .filter(|c| !crate::text::is_unsafe(*c))
-                .collect()
-        }
         let columns = self.visible_columns();
-        let row_text = |index| {
+        let append_row = |index, output: &mut String| {
             let row = self.model.rows().get(index)?;
-            Some(
-                columns
-                    .iter()
-                    .map(|&column| plain((self.model.columns[column].format)(row)))
-                    .collect::<Vec<_>>()
-                    .join("\t"),
-            )
+            for (position, &column) in columns.iter().enumerate() {
+                if position > 0 {
+                    output.push('\t');
+                }
+                let text = (self.model.columns[column].format)(row);
+                output.extend(text.chars().filter(|c| !crate::text::is_unsafe(*c)));
+            }
+            Some(())
         };
         match target {
             CopyTarget::Cell { row, column } => {
                 if !self.is_column_visible(column) {
                     return None;
                 }
-                Some(plain((self.model.columns.get(column)?.format)(
+                let mut text = (self.model.columns.get(column)?.format)(
                     self.model.rows().get(row)?,
-                )))
+                );
+                text.retain(|c| !crate::text::is_unsafe(c));
+                Some(text)
             }
             CopyTarget::Row(row) => {
                 if columns.is_empty() {
-                    None
-                } else {
-                    row_text(row)
-                }
-            }
-            CopyTarget::SelectedRows => {
-                let marked = self.model.selected_indices().next().is_some();
-                let indices: Vec<_> = if marked {
-                    self.model
-                        .order
-                        .iter()
-                        .copied()
-                        .filter(|&i| self.model.is_row_selected(i))
-                        .collect()
-                } else {
-                    vec![self.cursor()?.0]
-                };
-                if indices.is_empty() || columns.is_empty() {
                     return None;
                 }
-                Some(
-                    indices
-                        .into_iter()
-                        .filter_map(row_text)
-                        .collect::<Vec<_>>()
-                        .join("\n"),
-                )
+                let mut output = String::new();
+                append_row(row, &mut output)?;
+                Some(output)
+            }
+            CopyTarget::SelectedRows => {
+                if columns.is_empty() {
+                    return None;
+                }
+                let mut output = String::new();
+                if self.model.selected_indices().next().is_some() {
+                    let mut copied = false;
+                    for &index in &self.model.order {
+                        if !self.model.is_row_selected(index) {
+                            continue;
+                        }
+                        if copied {
+                            output.push('\n');
+                        }
+                        append_row(index, &mut output)?;
+                        copied = true;
+                    }
+                    copied.then_some(output)
+                } else {
+                    append_row(self.cursor()?.0, &mut output)?;
+                    Some(output)
+                }
             }
         }
     }
