@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Remove the redundant Python CLI success test; execute the Pages freshness
+  check directly in CI while retaining generator and reporting edge-case tests.
+
 - Reduce temporary allocations in owned search by borrowing already-safe text
   before case normalization.
 - Stream clipboard output into its final string while preserving empty cells,

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Regression tests for Pages generation; only temporary fixtures are modified."""
-import subprocess
-import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -29,7 +27,6 @@ class PagesBuildTests(unittest.TestCase):
         self.assertNotIn('#[cfg(test)]', page)
         self.assertEqual((self.root / "docs/integration/positions.rs").read_text(encoding="utf-8"), self.source)
         self.assertEqual((self.root / "docs/.nojekyll").read_bytes(), b'')
-        build_docs.build(self.root, check=True)
 
     def test_check_rejects_each_stale_output_without_rewriting_any_file(self):
         for relative in ['docs/index.html', 'docs/integration/positions.rs', 'docs/.nojekyll']:
@@ -63,15 +60,6 @@ class PagesBuildTests(unittest.TestCase):
             build_docs.build(self.root, check=True)
         build_docs.build(self.root)
         self.assertEqual((self.root / "docs/index.html").read_text(encoding="utf-8"), '<article>fn changed() {}</article>')
-        build_docs.build(self.root, check=True)
-
-    def test_cli_check_works_outside_repository(self):
-        result = subprocess.run(
-            [sys.executable, str(build_docs.ROOT / "scripts/build_docs.py"), '--check'],
-            cwd=self.root, capture_output=True, text=True,
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('Pages files are current', result.stdout)
 
 
 if __name__ == "__main__":

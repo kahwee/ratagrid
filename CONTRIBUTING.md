@@ -14,6 +14,12 @@ python3 scripts/test_build_docs.py
 python3 scripts/test_terminal_cleanup.py
 ```
 
+Python is CI/development tooling, not a Ratagrid runtime dependency. Execute
+simple scripts directly; add tests only for edge cases that ordinary execution
+cannot cover. The generator tests check escaping and non-destructive failures;
+benchmark tests check invalid reports and publication rules. CI executes the
+Pages freshness check directly from outside the repository.
+
 After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
 
 For workflow ordering, safe parallel groups, action versions, and weekly updates,

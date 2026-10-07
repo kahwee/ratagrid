@@ -13,12 +13,14 @@ This guide describes the checked-in workflows. Follow each linked YAML file for 
 
 Independent checks use GitHub Actions [native parallel steps](https://github.blog/changelog/2026-06-25-actions-steps-can-now-be-run-in-parallel/). The following groups run concurrently within a job:
 
-- [ci.yml](workflows/ci.yml), job `check`: formatting, Clippy, benchmark-reporting tests, Pages-generation tests, and both generated-documentation checks.
+- [ci.yml](workflows/ci.yml), job `check`: formatting, Clippy, benchmark-reporting edge cases, Pages-generator edge cases, and both generated-documentation checks.
 - [ci.yml](workflows/ci.yml), job `check`: terminal smoke tests and rustdoc, after the release examples have been built.
 
 The OS matrix runs Linux, macOS, and Windows independently, with `fail-fast: false` so one failure does not hide another platform's results. Each job has a 20-minute timeout. Linux-only checks retain their platform conditions.
 
 Steps after a parallel group wait for it to finish. Keep prerequisites before the group and dependent work afterward. Cargo compilation commands remain ordered to avoid build locks; the smoke tests execute already-built binaries and write captures separately from rustdoc. Parallel steps share the job workspace, so do not overlap commands that write the same build directory or coverage output.
+
+Python tests cover generator and reporting edge cases. Simple freshness checks run directly; the Pages check runs from the runner's temporary directory to verify it does not depend on the current working directory.
 
 ## Action versions
 

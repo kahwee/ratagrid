@@ -41,10 +41,10 @@ jobs:
       - parallel:
           - run: cargo fmt --all --check
           - run: cargo clippy --all-targets --locked -- -D warnings
-          - name: Test benchmark reporting
+          - name: Test benchmark reporting edge cases
             if: runner.os == 'Linux'
             run: python3 scripts/test_benchmark_ci.py
-          - name: Test Pages generation
+          - name: Test Pages generator edge cases
             if: runner.os == 'Linux'
             run: python3 scripts/test_build_docs.py
           - name: Check bundled rustdoc guides
@@ -52,7 +52,8 @@ jobs:
             run: python3 scripts/build_rustdoc_guides.py --check
           - name: Check generated Pages files
             if: runner.os == 'Linux'
-            run: python3 scripts/build_docs.py --check
+            working-directory: ${{ runner.temp }}
+            run: python3 "$GITHUB_WORKSPACE/scripts/build_docs.py" --check
       - run: cargo test --all-targets --locked
       - run: cargo test --doc --locked
       - name: Test terminal cleanup on errors and panics
