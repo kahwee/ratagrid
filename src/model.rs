@@ -297,12 +297,8 @@ impl<T> GridModel<T> {
     /// and copying do.
     /// Formatting is evaluated for all resident rows when the query changes.
     pub fn set_search(&mut self, query: impl Into<String>) {
-        self.search = query
-            .into()
-            .chars()
-            .filter(|c| !crate::text::is_unsafe(*c))
-            .collect::<String>()
-            .to_lowercase();
+        let query = query.into();
+        self.search = crate::text::sanitize(&query).to_lowercase();
         self.apply_sort();
     }
 
@@ -310,10 +306,8 @@ impl<T> GridModel<T> {
         self.filter.as_ref().is_none_or(|filter| filter(row))
             && (self.search.is_empty()
                 || self.columns.iter().any(|column| {
-                    (column.format)(row)
-                        .chars()
-                        .filter(|c| !crate::text::is_unsafe(*c))
-                        .collect::<String>()
+                    let text = (column.format)(row);
+                    crate::text::sanitize(&text)
                         .to_lowercase()
                         .contains(&self.search)
                 }))

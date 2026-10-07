@@ -7,7 +7,9 @@ permissions:
   contents: read
 jobs:
   check:
+    timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -30,40 +32,43 @@ jobs:
           key: ${{ matrix.os }}
           cache-bin: false
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      # Formatting is read-only; keep target-writing Cargo checks ordered.
-      - parallel:
-          - run: cargo fmt --all --check
-          - run: cargo clippy --all-targets --locked -- -D warnings
-      - run: cargo test --all-targets --locked
-      - run: cargo test --doc --locked
       - uses: actions/setup-python@v7.0.0
         if: runner.os != 'Windows'
         with:
           python-version: '3.12'
-      # These reporting tests use separate temporary directories.
+      # Read-only source checks and isolated Python tests can overlap Clippy.
+      # Keep target-writing Cargo commands ordered to avoid build-lock contention.
       - parallel:
+          - run: cargo fmt --all --check
+          - run: cargo clippy --all-targets --locked -- -D warnings
           - name: Test benchmark reporting
             if: runner.os == 'Linux'
             run: python3 scripts/test_benchmark_ci.py
           - name: Test Pages generation
             if: runner.os == 'Linux'
             run: python3 scripts/test_build_docs.py
+          - name: Check bundled rustdoc guides
+            if: runner.os == 'Linux'
+            run: python3 scripts/build_rustdoc_guides.py --check
+          - name: Check generated Pages files
+            if: runner.os == 'Linux'
+            run: python3 scripts/build_docs.py --check
+      - run: cargo test --all-targets --locked
+      - run: cargo test --doc --locked
       - name: Test terminal cleanup on errors and panics
         if: runner.os != 'Windows'
         run: python3 scripts/test_terminal_cleanup.py
-      - name: Check bundled rustdoc guides
-        if: runner.os == 'Linux'
-        run: python3 scripts/build_rustdoc_guides.py --check
-      - name: Check generated Pages files
-        if: runner.os == 'Linux'
-        run: python3 scripts/build_docs.py --check
       - name: Install terminal smoke dependency
         if: runner.os == 'Linux'
         run: python3 -m pip install pyte==0.8.2
       - name: Build release examples
         if: runner.os == 'Linux'
         run: cargo build --release --examples --locked
-      - name: Run terminal smoke tests
-        if: runner.os == 'Linux'
-        run: python3 scripts/terminal_smoke.py
-      - run: cargo doc --no-deps --locked
+      # Smoke tests use built executables and write captures under target/playground;
+      # rustdoc writes target/doc, so neither depends on the other.
+      - parallel:
+          - name: Run terminal smoke tests
+            if: runner.os == 'Linux'
+            run: python3 scripts/terminal_smoke.py
+          - name: Build rustdoc
+            run: cargo doc --no-deps --locked
