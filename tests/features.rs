@@ -534,7 +534,10 @@ fn copying_empty_sanitized_cells_preserves_row_and_column_separators() {
         grid.copy_text(CopyTarget::SelectedRows),
         Some("\t\n\t\n東京\t".into())
     );
-    assert_eq!(grid.copy_text(CopyTarget::Cell { row: 0, column: 0 }), Some(String::new()));
+    assert_eq!(
+        grid.copy_text(CopyTarget::Cell { row: 0, column: 0 }),
+        Some(String::new())
+    );
     grid.set_search("missing");
     assert_eq!(grid.copy_text(CopyTarget::SelectedRows), None);
 }
@@ -546,12 +549,25 @@ fn invalid_column_orders_preserve_order_and_cursor() {
     draw(&mut grid, Rect::new(0, 0, 28, 6));
     grid.handle_event(&key(KeyCode::Down));
     let cursor = grid.cursor();
-    for order in [vec![], vec![0, 1], vec![0, 1, 2, 3], vec![0, 0, 2], vec![0, 1, usize::MAX]] {
+    for order in [
+        vec![],
+        vec![0, 1],
+        vec![0, 1, 2, 3],
+        vec![0, 0, 2],
+        vec![0, 1, usize::MAX],
+    ] {
         assert!(grid.set_column_order(order).is_err());
         assert_eq!(grid.column_order(), [2, 0, 1]);
         assert_eq!(grid.cursor(), cursor);
     }
-    for order in [vec![0, 1, 2], vec![0, 2, 1], vec![1, 0, 2], vec![1, 2, 0], vec![2, 0, 1], vec![2, 1, 0]] {
+    for order in [
+        vec![0, 1, 2],
+        vec![0, 2, 1],
+        vec![1, 0, 2],
+        vec![1, 2, 0],
+        vec![2, 0, 1],
+        vec![2, 1, 0],
+    ] {
         grid.set_column_order(order.clone()).unwrap();
         assert_eq!(grid.column_order(), order);
     }

@@ -208,9 +208,8 @@ impl<T> Grid<T> {
                 if !self.is_column_visible(column) {
                     return None;
                 }
-                let mut text = (self.model.columns.get(column)?.format)(
-                    self.model.rows().get(row)?,
-                );
+                let mut text =
+                    (self.model.columns.get(column)?.format)(self.model.rows().get(row)?);
                 text.retain(|c| !crate::text::is_unsafe(c));
                 Some(text)
             }
