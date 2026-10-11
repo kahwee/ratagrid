@@ -47,3 +47,34 @@ Open `http://127.0.0.1:8080/`. The page uses local assets, system fonts and a sm
 The public site is configured to deploy `/docs` from `main`, with HTTPS enforced at the default domain. Verify the live [documentation page](https://kahwee.github.io/ratagrid/) after each deployment; saving the source setting alone does not confirm deployment success.
 
 The site has no custom Pages workflow, external embeds or analytics. Media remains in the Git checkout and is excluded from the Cargo archive. The release skill checks the site and package separately.
+
+## Bar-chart interaction recordings
+
+`bar-chart-scale.gif` and `bar-chart-resize.gif` are separate, focused recordings
+of the runnable `bar_chart` example, using only synthetic disk-usage records.
+The 17-second scale tour filters out the largest row and moves between four-row
+pages: User Library and Backup Library both remain 30/60 GB, or half-width.
+The 14-second resize tour sends real mouse-down, drag and release events to the
+Usage divider, narrowing and widening the column while keeping that proportion.
+
+Like the playground media, these are real PTY input/output rendered as terminal
+cells, not desktop screen recordings. Captions describe the input being sent;
+the grid itself is never drawn from fixture data or reconstructed by the recorder.
+The raw `.ansi` transcripts and timed input `.json` files accompany each GIF.
+They are capture evidence, not standalone ANSI-video files.
+
+```sh
+# Optional capture dependencies in an isolated environment:
+python3 -m venv .venv
+.venv/bin/python -m pip install pyte==0.8.2 Pillow
+cargo build --release --locked --example bar_chart
+.venv/bin/python scripts/record_bar_chart.py
+```
+
+Requires Unix PTYs, `ffmpeg` and a supported monospace font as above. The recorder
+uses an 80-column, 16-row terminal and 5 fps, preserving native text resolution
+instead of shrinking the GIF. It asserts the actual displayed half-width bar
+before and after filtering, pagination and each resize step, and checks a clean
+exit with mouse capture disabled. It exits on unexpected output; inspect the
+GIFs visually after capture, since fonts and rendering can differ by machine.
+The script records the default example; run it again if fixtures/layout change.

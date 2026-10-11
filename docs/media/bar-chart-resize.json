@@ -1,0 +1,134 @@
+{
+  "example": "bar_chart",
+  "columns": 80,
+  "rows": 16,
+  "fps": 5,
+  "seconds": 14,
+  "stages": [
+    {
+      "seconds": 0,
+      "input_hex": "",
+      "caption": "Drag the Usage header edge to resize"
+    },
+    {
+      "seconds": 2,
+      "input_hex": "1b5b3c303b35353b344d",
+      "caption": "Mouse down on the Usage divider"
+    },
+    {
+      "seconds": 2.25,
+      "input_hex": "1b5b3c33323b35333b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 2.5,
+      "input_hex": "1b5b3c33323b35313b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 2.75,
+      "input_hex": "1b5b3c33323b34393b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 3.0,
+      "input_hex": "1b5b3c33323b34373b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 3.25,
+      "input_hex": "1b5b3c33323b34353b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 3.5,
+      "input_hex": "1b5b3c33323b34333b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 3.75,
+      "input_hex": "1b5b3c33323b34313b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 4.0,
+      "input_hex": "1b5b3c33323b33393b344d",
+      "caption": "Narrower column; 30 GB still fills half"
+    },
+    {
+      "seconds": 5,
+      "input_hex": "1b5b3c303b33393b346d",
+      "caption": "Release: the numeric Size column stays readable"
+    },
+    {
+      "seconds": 7,
+      "input_hex": "1b5b3c303b33393b344d",
+      "caption": "Widen the same column again"
+    },
+    {
+      "seconds": 7.25,
+      "input_hex": "1b5b3c33323b34313b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 7.5,
+      "input_hex": "1b5b3c33323b34333b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 7.75,
+      "input_hex": "1b5b3c33323b34353b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 8.0,
+      "input_hex": "1b5b3c33323b34373b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 8.25,
+      "input_hex": "1b5b3c33323b34393b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 8.5,
+      "input_hex": "1b5b3c33323b35313b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 8.75,
+      "input_hex": "1b5b3c33323b35333b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 9.0,
+      "input_hex": "1b5b3c33323b35353b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 9.25,
+      "input_hex": "1b5b3c33323b35373b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 9.5,
+      "input_hex": "1b5b3c33323b35393b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 9.75,
+      "input_hex": "1b5b3c33323b36313b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 10.0,
+      "input_hex": "1b5b3c33323b36333b344d",
+      "caption": "Bars rescale to the new column width"
+    },
+    {
+      "seconds": 11,
+      "input_hex": "1b5b3c303b36333b346d",
+      "caption": "40 cells: 30 GB fills 20 of them"
+    }
+  ]
+}

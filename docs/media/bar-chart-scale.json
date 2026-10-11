@@ -1,0 +1,39 @@
+{
+  "example": "bar_chart",
+  "columns": 80,
+  "rows": 16,
+  "fps": 5,
+  "seconds": 17,
+  "stages": [
+    {
+      "seconds": 0,
+      "input_hex": "",
+      "caption": "30 GB = half of the fixed 60 GB scale"
+    },
+    {
+      "seconds": 3,
+      "input_hex": "2f4c696272617279",
+      "caption": "Filter by Library; Enter applies the search"
+    },
+    {
+      "seconds": 5,
+      "input_hex": "0d",
+      "caption": "No Home row; 30 GB is still half width"
+    },
+    {
+      "seconds": 8,
+      "input_hex": "2f7f7f7f7f7f7f7f0d",
+      "caption": "Clear search: restore all eight synthetic rows"
+    },
+    {
+      "seconds": 11,
+      "input_hex": "5d",
+      "caption": "Next page: Backup Library stays half width"
+    },
+    {
+      "seconds": 14,
+      "input_hex": "5b",
+      "caption": "Previous page: the scale has not changed"
+    }
+  ]
+}

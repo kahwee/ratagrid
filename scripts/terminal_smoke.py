@@ -344,22 +344,32 @@ def cursor_smoke():
 
 
 def bar_chart_smoke():
-    session = Session(width=80, height=12, binary=ROOT / "target/release/examples/bar_chart")
+    session = Session(width=80, height=16, binary=ROOT / "target/release/examples/bar_chart")
+
+    def usage(name, end=54):
+        line = next(line for line in session.text().splitlines() if line[:21].strip() == name)
+        return line[22:end]
+
     try:
         assert "Home" in session.text() and "57.1 GB" in session.text()
-        assert session.text().splitlines()[1][22:54] == "█" * 32
-        session.send(b"\t\t-")  # Focus and shrink Usage by one cell.
-        assert session.text().splitlines()[1][22:53] == "█" * 31
-        session.send(b"/Applications\r", "Applications")
+        assert "Fixed scale: 0-60 GB" in session.text()
+        half = "█" * 16 + " " * 16
+        assert usage("User Library") == half
+        session.send(b"]", "Backup Library")
+        assert usage("Backup Library") == half
+        session.send(b"/Library\r")
         assert "Home" not in session.text()
-        assert session.text().splitlines()[1][22:53] == "████▌" + " " * 26
-        session.resize(26, 6)
-        assert session.text().splitlines()[1][22:26] == "████"
-        session.resize(80, 12)
-        assert "8.4 GB" in session.text()
+        assert usage("User Library") == usage("Backup Library") == half
+        session.send(b"\t\t-")  # Focus and shrink Usage by one cell.
+        assert usage("User Library", 53) == "█" * 15 + "▌" + " " * 15
+        session.resize(26, 16)
+        assert usage("User Library", 26) == "████"  # Clip, do not rescale.
+        session.resize(80, 16)
+        assert "30.0 GB" in session.text()
+        assert usage("User Library", 53) == "█" * 15 + "▌" + " " * 15
     finally:
-        session.close(mouse_capture=False)
-    print("Bar chart terminal smoke passed: bars, numeric labels, column resize, fixed search scale and viewport clipping.")
+        session.close()
+    print("Bar chart terminal smoke passed: fixed scale across pages/search, numeric labels, keyboard column resize, viewport clipping and mouse cleanup.")
 
 
 if __name__ == "__main__":

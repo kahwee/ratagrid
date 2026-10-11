@@ -26,9 +26,51 @@ cargo run --release --locked --example playground -- --cell-details
 
 Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. Escape closes the panel; Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel. The mouse wheel over the panel also scrolls it. This option is disabled by default. [Library configuration](docs/GUIDE.md#optional-cell-details).
 
-In 0.3.0, a column can render a horizontal bar with `.bar_chart(max, value)`.
-Try `cargo run --locked --example bar_chart` for synthetic disk usage with
-colored bars and a separate size column. See [bar chart columns](docs/GUIDE.md#bar-chart-columns).
+## Bar chart columns
+
+Ratagrid 0.3.0 includes horizontal bar columns. Try the keyboard-and-mouse demo:
+
+```sh
+cargo run --locked --example bar_chart
+```
+
+The demo uses synthetic disk usage, colored bars, a separate **Size** column and
+four rows per page. Every bar uses the same application-supplied **60 GB** maximum,
+including after searching or changing pages. Resize **Usage** with its right-hand
+separator, or focus its header with Tab and press `-` / `+`.
+
+Add `.bar_chart(max, value)` to a normal formatted column:
+
+```rust
+use ratagrid::{Column, Grid};
+use std::num::NonZeroUsize;
+
+const SCALE_GB: f64 = 60.0;
+let grid = Grid::new(
+    vec![
+        Column::new("Usage", 33, |gb: &f64| format!("{gb:.1} GB"))
+            .bar_chart(SCALE_GB, |gb| *gb)
+            .sortable(|a, b| a.total_cmp(b)),
+        Column::new("Size", 12, |gb: &f64| format!("{gb:.1} GB"))
+            .sortable(|a, b| a.total_cmp(b)),
+    ],
+    vec![57.1, 13.3, 8.4, 3.1, 0.2], // Synthetic GB values.
+).with_pagination(NonZeroUsize::new(4).unwrap());
+```
+
+Choose the scale in your application, such as a fixed capacity or the maximum
+across the full dataset. Do not recompute it from the filtered rows or current
+page: the same value should keep the same proportion of the column. Resizing
+changes the available drawing width; horizontal scrolling clips the bar.
+
+The `Column::new` formatter still provides text for search, copy payloads and
+optional full-value details. Sorting is configured separately with `.sortable`,
+using the underlying record values. Keep visible numbers in a neighboring column.
+See [bar chart columns](docs/GUIDE.md#bar-chart-columns) for styling and edge cases.
+
+![Fixed bar scale during search and pagination](docs/media/bar-chart-scale.gif)
+
+![Bar width follows column resizing](docs/media/bar-chart-resize.gif)
 
 ## Use with Ratatui
 
