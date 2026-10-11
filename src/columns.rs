@@ -103,6 +103,7 @@ impl<T> Grid<T> {
         if self
             .cursor_column
             .is_some_and(|column| !self.is_column_visible(column))
+            || (self.cursor_column.is_none() && self.model.selected_index().is_some())
         {
             self.cursor_column = first;
         }

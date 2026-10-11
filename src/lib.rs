@@ -320,6 +320,7 @@ impl<T> Grid<T> {
             self.model.update_row(index, update)
         };
         if updated {
+            self.clamp_page();
             self.hover = None;
             self.clear_cell_details();
         }
