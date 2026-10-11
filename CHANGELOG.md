@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 0.3.1 — 2026-10-11 (UTC)
+
+This patch fixes two grid-state recovery bugs without changing the public API.
+Rust 1.99, Ratatui 0.30 and Crossterm 0.29 remain required.
+
+- Clamp client pagination immediately after an updated row changes an active
+  search or filter. Page state and bulk page selection no longer depend on a
+  subsequent render when the last page becomes empty.
+- Restore the cell cursor when columns are shown again after every column was
+  hidden. Existing row selection regains cell copy/navigation without another
+  selection event; unselected rows and focused-header navigation stay unchanged.
+- Add four state-recovery regression tests, including filtered updates before
+  drawing, empty results, visible column order and focused-header preservation.
+- Expand the runnable bar-chart example with mouse resizing, fixed-capacity
+  scale, four-row pagination and equal-valued records on different pages. Add
+  real terminal-output GIFs, reproducible capture scripts and scale assertions.
+- Correct the example guide's stale unreleased-feature label and document
+  bar-chart formatting, numeric sorting and the application-owned scale.
+
 - Remove the redundant Python CLI success test; execute the Pages freshness
   check directly in CI while retaining generator and reporting edge-case tests.
 
