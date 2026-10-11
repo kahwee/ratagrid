@@ -75,7 +75,7 @@ See [bar chart columns](docs/GUIDE.md#bar-chart-columns) for styling and edge ca
 ## Use with Ratatui
 
 ```toml
-ratagrid = "0.3"
+ratagrid = "0.3.1"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
