@@ -16,6 +16,8 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.12'
@@ -25,8 +27,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source_sha="$(git rev-parse HEAD)"
+          test "$source_sha" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$source_sha" "origin/main"
           gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&per_page=100" > "$RUNNER_TEMP/ci.json"
-          jq -e --arg sha "$source_sha" '[.workflow_runs[] | select(.head_sha == $sha and .conclusion == "success" and (.event == "push" or .event == "pull_request"))] | length > 0' "$RUNNER_TEMP/ci.json"
+          jq -e --arg sha "$source_sha" '[.workflow_runs[] | select(.head_sha == $sha and .conclusion == "success" and .event == "push" and .head_branch == "main")] | length > 0' "$RUNNER_TEMP/ci.json"
       - name: Create a source release without moving the tag
         env:
           GH_TOKEN: ${{ github.token }}
