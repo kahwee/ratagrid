@@ -1,6 +1,7 @@
 """Check immutable release metadata without compiling or publishing."""
 from pathlib import Path
 import sys
+import re
 import tomllib
 
 
@@ -9,6 +10,8 @@ def validate(manifest, lock, tag):
     version = package["version"]
     if package.get("publish") is False:
         raise ValueError("Package disables registry publication")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        raise ValueError("Only stable crate versions are supported")
     if tag != "v" + version:
         raise ValueError("Tag must match Cargo.toml version")
     roots = [p for p in lock["package"] if p["name"] == package["name"] and "source" not in p]

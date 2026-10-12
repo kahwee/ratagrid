@@ -1,16 +1,15 @@
 # PROPOSAL ONLY. Access approval is required before activation.
 name: Publish crate
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
 permissions:
   contents: read
 concurrency:
-  group: crate-${{ github.event.release.tag_name }}
+  group: crate-${{ github.ref_name }}
   cancel-in-progress: false
 jobs:
   publish:
-    if: '!github.event.release.prerelease'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -20,13 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-python@v7.0.0
         with:
           python-version: '3.12'
       - name: Validate manifest, lock and tag
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           python3 scripts/test_check_release.py
           python3 scripts/check-release.py "$RELEASE_TAG"
