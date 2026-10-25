@@ -63,11 +63,11 @@ impl<T> Grid<T> {
     /// owned data. External data emits a new request, resets to page one, and
     /// discards the old count; the application applies the query globally.
     pub fn set_search(&mut self, query: impl Into<String>) -> Option<Action> {
-        let query: String = query
-            .into()
-            .chars()
-            .filter(|c| !crate::text::is_unsafe(*c))
-            .collect();
+        let query = query.into();
+        let query = match crate::text::sanitize(&query) {
+            std::borrow::Cow::Borrowed(_) => query,
+            std::borrow::Cow::Owned(cleaned) => cleaned,
+        };
         if query == self.search_query {
             return None;
         }
