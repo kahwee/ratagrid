@@ -131,19 +131,19 @@ all three platforms on every push and PR update.
 
 <!-- github-benchmarks:start -->
 
-Measured 2026-10-19 on GitHub-hosted runners at [`ed30622`](https://github.com/kahwee/ratagrid/commit/ed306229552433d4a0c7cd3cbcadcf626f583051). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/39285388921/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/39285388921-1).
+Measured 2026-10-26 on GitHub-hosted runners at [`e2fee5f`](https://github.com/kahwee/ratagrid/commit/e2fee5f2cf47400f9aa3306717777ba2484b4779). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/40355678181/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/40355678181-1).
 
 | Runner | 1M draw | 1M numeric sort | 1M: 50 large moves + draw | 100M virtual / 50 resident draw | Fresh / warm Cargo stages |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| ubuntu-24.04 (x86_64) | 0.143 ms | 214.369 ms | 19.688 ms | 0.137 ms | 29.00 s / 2.04 s |
-| macos-15 (arm64) | 0.106 ms | 88.323 ms | 19.220 ms | 0.101 ms | 30.10 s / 2.01 s |
-| windows-2025 (AMD64) | 0.166 ms | 218.298 ms | 26.804 ms | 0.159 ms | 47.85 s / 3.45 s |
+| ubuntu-24.04 (x86_64) | 0.119 ms | 117.033 ms | 28.428 ms | 0.111 ms | 27.03 s / 1.85 s |
+| macos-15 (arm64) | 0.109 ms | 98.078 ms | 20.355 ms | 0.101 ms | 35.97 s / 2.77 s |
+| windows-2025 (AMD64) | 0.164 ms | 234.690 ms | 27.985 ms | 0.160 ms | 46.63 s / 3.50 s |
 
 Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
 
-- ubuntu-24.04: Compared with frozen baseline 9617519. 10 possible runtime regression(s).
+- ubuntu-24.04: Compared with frozen baseline 9617519. 11 possible runtime regression(s).
 - macos-15: Compared with frozen baseline 9617519. 0 possible runtime regression(s).
-- windows-2025: Compared with frozen baseline 9617519. 1 possible runtime regression(s).
+- windows-2025: Compared with frozen baseline 9617519. 5 possible runtime regression(s).
 
 Slowdown warnings require both >25% and >0.05 ms; paired runs use the same-runner reference, otherwise the frozen baseline. They are advisory. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 
