@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Add `append_rows` to owned grids and models. Filter only incoming records,
+  sort and merge new visible indices, and preserve existing selection and marks.
+  Already ordered arrivals avoid merging the old ordering.
+- Add `retain_rows` with stable record selection, remapped bulk marks and immediate
+  client-page clamping. Reuse filtered/sorted order without formatting or sorting
+  unchanged records; predicate panics leave the model unchanged.
+- Reject structural changes to external grids with `ExternalRowsError` before
+  evaluating input. Preserve animations on append and clear them on removal.
+- Add `Column::searchable` and `Column::search_text` for excluding expensive fields
+  and providing search aliases independently of display/copy formatting.
+- Extend generated pagination tests with append and retention, and add focused
+  identity, callback-count, panic, search-policy and source-ownership regressions.
+- Extend the live-update benchmark with filtered append and expiration workloads.
+
 ## 0.4.0 — 2026-10-28 (UTC)
 
 Existing 0.3 APIs remain available. Update the dependency to `ratagrid = "0.4"`.

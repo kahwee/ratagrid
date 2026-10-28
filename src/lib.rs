@@ -39,6 +39,8 @@ mod input;
 pub use columns::{ColumnOrderError, ColumnState, GridLayout, LayoutError};
 pub use features::{CopyTarget, ExternalFilterError, LoadState};
 mod model;
+mod owned;
+pub use owned::ExternalRowsError;
 mod pagination;
 mod paging;
 mod render;

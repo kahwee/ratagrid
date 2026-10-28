@@ -32,3 +32,22 @@ Use individual updates for sparse changes, especially when ordering barely
 moves. Batches rebuild all owned filtering and sorting, so they are not always
 faster for small edits. Hashed IDs trade a temporary map of selected keys for
 one replacement scan; equality-only IDs remain available without a Hash bound.
+
+## Unreleased append and retention APIs
+
+Measured 2026-10-28 with the same Linux x86_64 / Rust 1.99.0 methodology.
+[Raw CSV](linux-streaming.csv) includes all scenarios. These comparisons keep an
+active Unicode query, numeric sorting and keyed selection in both strategies.
+The replacement strategy includes constructing the replacement vector inside the
+measured interval; it then rebuilds filtering, ordering and identity selection.
+The new API avoids those replacement operations.
+
+| Operation at 100,000 rows | Replace dataset | New API |
+| --- | ---: | ---: |
+| Append 1,000 matching, already ordered rows | 25.934 ms | 0.213 ms |
+| Retain half the matching records | 12.066 ms | 0.272 ms |
+
+These are favorable streaming workloads: ordered appends use the tail path, and
+retention reuses unchanged search/sort results. Interleaved arrivals require a
+merge, and retention allocates a temporary map of resident insertion indices.
+The measurements do not imply these speedups for every dataset or filter.

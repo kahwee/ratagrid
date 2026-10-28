@@ -59,12 +59,12 @@ fn generated_sort_filter_edit_and_page_sequences_match_reference_before_and_afte
         )
         .with_pagination(NonZeroUsize::new(5).unwrap());
         let mut seed = initial_seed;
-        let mut covered = [false; 9];
+        let mut covered = [false; 11];
         for step in 0..750 {
             seed = seed
                 .wrapping_mul(6364136223846793005)
                 .wrapping_add(1442695040888963407);
-            let operation = ((seed >> 32) % 9) as usize;
+            let operation = ((seed >> 32) % 11) as usize;
             covered[operation] = true;
             let index = (seed >> 8) as usize % (reference.rows.len() + 3);
             match operation {
@@ -136,10 +136,35 @@ fn generated_sort_filter_edit_and_page_sequences_match_reference_before_and_afte
                         reference.page = position / reference.size;
                     }
                 }
-                _ => {
+                8 => {
                     reference.rows = (0..seed % 59).map(|n| (n % 17) as i64).rev().collect();
                     grid.replace_rows(reference.rows.clone());
                     reference.selected = None;
+                    reference.clamp();
+                }
+                9 => {
+                    let incoming: Vec<i64> = (0..seed % 7)
+                        .map(|i| ((seed.wrapping_add(i)) % 23) as i64)
+                        .collect();
+                    assert_eq!(grid.append_rows(incoming.clone()).unwrap(), incoming.len());
+                    reference.rows.extend(incoming);
+                }
+                _ => {
+                    let divisor = 2 + (seed % 5) as i64;
+                    reference.selected = reference.selected.and_then(|index| {
+                        (reference.rows[index] % divisor != 0).then(|| {
+                            reference.rows[..index]
+                                .iter()
+                                .filter(|&&row| row % divisor != 0)
+                                .count()
+                        })
+                    });
+                    let before = reference.rows.len();
+                    reference.rows.retain(|row| row % divisor != 0);
+                    assert_eq!(
+                        grid.retain_rows(|row| row % divisor != 0).unwrap(),
+                        before - reference.rows.len()
+                    );
                     reference.clamp();
                 }
             }

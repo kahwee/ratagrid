@@ -32,7 +32,7 @@ Applications own focus between widgets. Forward navigation keys only to the focu
 
 Press `/` to open query entry. Enter commits, Escape cancels, Backspace removes a grapheme, and forwarded paste events append plain text. While entry is open, grid mouse and navigation commands do not act underneath it. Applications must route input to the grid before processing their own shortcuts while `is_searching()` is true; `search_draft()` exposes the draft for custom UI. Starting, typing, cancelling, or committing an unchanged query emits `Action::SearchEdited` for redraws.
 
-For owned data, `set_search("ada")` performs a Unicode-lowercase substring match across all defined formatted columns, including hidden columns. Terminal controls and bidirectional formatting controls are removed from formatted values before matching, consistently with display and copying. Empty text clears search. `set_filter(|record| record.duration > 500)` adds a typed predicate, and `clear_filter()` removes it without clearing search. Both filters combine. Filtering happens before sorting and pagination and retains the active record and marks even if they are hidden. Hidden active records cannot be activated with Enter.
+For owned data, `set_search("ada")` performs a Unicode-lowercase substring match across searchable columns (all columns by default), including hidden columns. Terminal controls and bidirectional formatting controls are removed from formatted values before matching, consistently with display and copying. Empty text clears search. `set_filter(|record| record.duration > 500)` adds a typed predicate, and `clear_filter()` removes it without clearing search. Both filters combine. Filtering happens before sorting and pagination and retains the active record and marks even if they are hidden. Hidden active records cannot be activated with Enter.
 
 ```rust
 use ratagrid::{Column, Grid};
@@ -51,6 +51,32 @@ assert_eq!(grid.model().rows().len(), 3);
 For an external grid, `set_search(query)` emits `PageRequested` (or `CursorPageRequested` in cursor mode), resets to page one and unknown total, and invalidates pending work. Capture an owned copy of `search_query()` immediately with that request. The source must filter globally before sorting and paging. Return the original request with its response so outdated work is rejected. `set_filter` and `clear_filter` return `ExternalFilterError` rather than filtering only the current page. If your source returns a count, use `set_total_rows` and handle its fresh request as described in [pagination](crate::guides::pagination).
 
 The explorer source supports full text search across its 120 records. The 100M virtual playground source supports `id:NUMBER` as an indexed exact-ID query; unsupported queries produce a retryable source error instead of scanning 100M synthetic rows.
+
+### Choose searchable columns and text
+
+**Unreleased on main.** `Column::searchable(false)` excludes a column from owned
+search entirely, including both display and search-format callbacks. This is
+useful for large payloads and computed values. Visibility is independent: a hidden
+column remains searchable unless explicitly excluded.
+
+`Column::search_text(callback)` replaces the displayed value as the column's
+search source. Use it for aliases, status codes or inexpensive raw values while
+keeping rich display formatting. It follows the same Unicode-lowercase and
+control-sanitization policy. It does not change rendering, copying, cell details,
+sorting, or an explicit `searchable(false)` setting.
+
+```rust
+use ratagrid::{Column, Grid};
+let columns = vec![Column::new("Status", 12, |_: &u64| "Running".into())
+    .search_text(|_| "running executing active".into())];
+let mut grid = Grid::new(columns, vec![1]);
+grid.set_search("ACTIVE");
+assert_eq!(grid.model().visible_len(), 1);
+```
+
+If every column is excluded, nonempty searches have no matches; clearing the
+query restores all rows allowed by the typed filter. External sources own their
+search policy and never invoke these callbacks to filter the resident page.
 
 ## Copy actions
 

@@ -33,6 +33,8 @@ pub struct Column<T> {
     pub(crate) title: String,
     pub(crate) width: u16,
     pub(crate) format: Formatter<T>,
+    searchable: bool,
+    search_text: Option<Formatter<T>>,
     pub(crate) compare: Option<Comparator<T>>,
     pub(crate) external_sortable: bool,
     pub(crate) cell_style: Option<CellStyle<T>>,
@@ -50,11 +52,32 @@ impl<T> Column<T> {
             title: title.into(),
             width: width.max(4),
             format: Box::new(format),
+            searchable: true,
+            search_text: None,
             compare: None,
             external_sortable: false,
             cell_style: None,
             bar_chart: None,
         }
+    }
+
+    /// Include this column in owned search (enabled by default).
+    /// Hidden columns remain searchable unless explicitly excluded. Excluded
+    /// columns never call their display or search formatter while searching.
+    /// External sources own their search policy and ignore this setting.
+    pub fn searchable(mut self, searchable: bool) -> Self {
+        self.searchable = searchable;
+        self
+    }
+
+    /// Supply search text separately from the displayed/copied value, for
+    /// example an unformatted identifier or aliases for a status label.
+    /// Text follows the normal case-insensitive, control-sanitized search policy.
+    /// This does not re-enable a column excluded with [`Self::searchable`].
+    /// External sources own their search policy and do not invoke this callback.
+    pub fn search_text(mut self, text: impl Fn(&T) -> String + 'static) -> Self {
+        self.search_text = Some(Box::new(text));
+        self
     }
 
     /// Render a horizontal bar instead of the formatted text in each data cell.
@@ -66,8 +89,9 @@ impl<T> Column<T> {
     /// non-finite maximum render empty. Eighth-cell blocks represent fractions;
     /// values smaller than one eighth of a cell render empty.
     /// The application chooses the maximum, so filtering and paging do not
-    /// silently rescale bars. The formatter remains the text used for search,
-    /// copying and full-value details; sorting still uses the comparator.
+    /// silently rescale bars. The formatter supplies copying and full-value
+    /// details, and search unless overridden by [`Self::search_text`]. Sorting
+    /// still uses the comparator.
     ///
     /// ```
     /// use ratagrid::Column;
@@ -334,7 +358,8 @@ impl<T> GridModel<T> {
         self.apply_sort();
     }
 
-    /// Case-insensitive substring search across all defined formatted columns,
+    /// Case-insensitive substring search across searchable columns, using their
+    /// custom search text when configured, otherwise their display formatter,
     /// removing terminal and bidirectional formatting controls as rendering
     /// and copying do.
     /// Formatting is evaluated for all resident rows when the query changes.
@@ -348,7 +373,10 @@ impl<T> GridModel<T> {
         self.filter.as_ref().is_none_or(|filter| filter(row))
             && (self.search.is_empty()
                 || self.columns.iter().any(|column| {
-                    let text = (column.format)(row);
+                    if !column.searchable {
+                        return false;
+                    }
+                    let text = (column.search_text.as_ref().unwrap_or(&column.format))(row);
                     crate::text::sanitize(&text)
                         .to_lowercase()
                         .contains(&self.search)
@@ -581,6 +609,127 @@ impl<T> GridModel<T> {
             }),
         };
         true
+    }
+
+    /// Append owned records, returning the number added (including filtered-out rows).
+    /// Existing insertion indices, active selection and bulk marks stay attached
+    /// to their records without requiring row IDs. Only new rows are filtered.
+    /// For a sorted model, sort the new visible rows and merge them into the
+    /// existing order, retaining insertion-order ties in both directions.
+    /// An empty iterator is a no-op.
+    pub fn append_rows(&mut self, rows: impl IntoIterator<Item = T>) -> usize {
+        let rows: Vec<T> = rows.into_iter().collect();
+        let count = rows.len();
+        if count == 0 {
+            return 0;
+        }
+        let start = self.rows.len();
+        self.rows.extend(rows);
+        let mut added: Vec<usize> = (start..self.rows.len())
+            .filter(|&index| self.matches_filter(&self.rows[index]))
+            .collect();
+        if let Some(sort) = self.sort {
+            let compare = self.columns[sort.column]
+                .compare
+                .as_ref()
+                .expect("sortable column");
+            let ordered = |a: usize, b: usize| {
+                let result = compare(&self.rows[a], &self.rows[b]);
+                match sort.direction {
+                    SortDirection::Ascending => result,
+                    SortDirection::Descending => result.reverse(),
+                }
+            };
+            added.sort_by(|&a, &b| ordered(a, b));
+            if !added.is_empty()
+                && self
+                    .order
+                    .last()
+                    .is_none_or(|&last| ordered(last, added[0]) != Ordering::Greater)
+            {
+                self.order.extend(added);
+            } else if !added.is_empty() {
+                let mut merged = Vec::with_capacity(self.order.len() + added.len());
+                let mut old = self.order.iter().copied().peekable();
+                let mut new = added.into_iter().peekable();
+                while let (Some(&a), Some(&b)) = (old.peek(), new.peek()) {
+                    if ordered(a, b) != Ordering::Greater {
+                        merged.push(a);
+                        old.next();
+                    } else {
+                        merged.push(b);
+                        new.next();
+                    }
+                }
+                merged.extend(old);
+                merged.extend(new);
+                self.order = merged;
+                self.selected_position = self
+                    .selected
+                    .and_then(|index| order_position(&self.order, index));
+            }
+        } else {
+            self.order.extend(added);
+        }
+        count
+    }
+
+    /// Remove owned rows for which `keep` returns false, returning the count removed.
+    /// The predicate runs once per resident row in insertion order, including
+    /// filtered-out rows. Remaining records retain sorting, filtering, active
+    /// selection and bulk marks without needing IDs; removed selections clear.
+    /// Insertion indices compact, so discard cached row indices after removal.
+    /// Uses O(resident rows) temporary index storage; existing formatters and
+    /// comparators are not called. A predicate panic leaves the model unchanged.
+    pub fn retain_rows(&mut self, mut keep: impl FnMut(&T) -> bool) -> usize {
+        let mut remaining = 0;
+        let remap: Vec<usize> = self
+            .rows
+            .iter()
+            .map(|row| {
+                if keep(row) {
+                    let next = remaining;
+                    remaining += 1;
+                    next
+                } else {
+                    usize::MAX
+                }
+            })
+            .collect();
+        let removed = self.rows.len() - remaining;
+        if removed == 0 {
+            return 0;
+        }
+        let mut index = 0;
+        self.rows.retain(|_| {
+            let keep = remap[index] != usize::MAX;
+            index += 1;
+            keep
+        });
+        self.order.retain_mut(|index| {
+            *index = remap[*index];
+            *index != usize::MAX
+        });
+        self.selected = self
+            .selected
+            .and_then(|index| (remap[index] != usize::MAX).then_some(remap[index]));
+        self.selected_position = self
+            .selected
+            .and_then(|index| order_position(&self.order, index));
+        if self.selected.is_none() {
+            self.selected_id = None;
+        }
+        self.marked = self
+            .marked
+            .iter()
+            .map(|&index| remap[index])
+            .filter(|&index| index != usize::MAX)
+            .collect();
+        self.marked_ids = std::mem::take(&mut self.marked_ids)
+            .into_iter()
+            .filter_map(|(index, key)| (remap[index] != usize::MAX).then_some((remap[index], key)))
+            .collect();
+        removed
     }
 
     /// Replace records, preserving the active sort and selection when a unique

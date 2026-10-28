@@ -59,7 +59,8 @@ impl<T> Grid<T> {
         Action::SearchEdited
     }
 
-    /// Search all defined formatted columns (Unicode lowercase substring) for
+    /// Search enabled columns (Unicode lowercase substring), using custom search
+    /// text when configured and display formatting otherwise, for
     /// owned data. External data emits a new request, resets to page one, and
     /// discards the old count; the application applies the query globally.
     pub fn set_search(&mut self, query: impl Into<String>) -> Option<Action> {

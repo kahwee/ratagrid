@@ -94,6 +94,57 @@ fn main() {
                 },
             );
         }
+        for incremental in [false, true] {
+            report(
+                if incremental {
+                    "append_filtered_1000"
+                } else {
+                    "replace_to_append_filtered_1000"
+                },
+                n,
+                || {
+                    let mut grid = model(n).with_hashed_row_id(|n| *n);
+                    grid.set_search("東京");
+                    grid.toggle_sort(0);
+                    grid.select(0);
+                    let start = Instant::now();
+                    if incremental {
+                        grid.append_rows(n as i64..n as i64 + 1000);
+                    } else {
+                        let mut rows = grid.rows().to_vec();
+                        rows.extend(n as i64..n as i64 + 1000);
+                        grid.replace_rows(rows);
+                    }
+                    let elapsed = start.elapsed();
+                    let _ = black_box(grid);
+                    elapsed
+                },
+            );
+            report(
+                if incremental {
+                    "retain_filtered_half"
+                } else {
+                    "replace_to_retain_filtered_half"
+                },
+                n,
+                || {
+                    let mut grid = model(n).with_hashed_row_id(|n| *n);
+                    grid.set_search("東京");
+                    grid.toggle_sort(0);
+                    grid.select(0);
+                    let start = Instant::now();
+                    if incremental {
+                        grid.retain_rows(|n| n % 2 == 0);
+                    } else {
+                        let rows = grid.rows().iter().copied().filter(|n| n % 2 == 0).collect();
+                        grid.replace_rows(rows);
+                    }
+                    let elapsed = start.elapsed();
+                    let _ = black_box(grid);
+                    elapsed
+                },
+            );
+        }
         report("unicode_search", n, || {
             let mut grid = model(n);
             let start = Instant::now();

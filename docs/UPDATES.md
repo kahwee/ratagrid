@@ -60,6 +60,43 @@ and is useful when repeated ordering movements would cost more. The
 [`live_updates` benchmark](https://github.com/kahwee/ratagrid/blob/main/examples/live_updates.rs) measures both strategies
 as well as identity restoration and Unicode search.
 
+## Append and expire owned records
+
+**Unreleased on main.** `append_rows(records)` adds records without replacing the
+dataset. It filters only incoming rows, sorts their visible indices and merges
+them into existing ordering. Already ordered tail arrivals use an append path.
+Existing insertion indices, cursor selection and bulk marks remain attached to
+their records even without a row-ID callback. The return count includes incoming
+records hidden by filtering or search.
+
+`retain_rows(predicate)` removes records that fail the predicate. It evaluates
+every resident row once in insertion order, including hidden records. Surviving
+selection and bulk marks are remapped to their new insertion indices; removed
+selection clears permanently. It retains existing visible ordering without
+rerunning search formatting or sort comparators. Temporary index storage is
+O(resident rows). If the predicate panics, no rows have been removed yet.
+
+```rust
+use ratagrid::{Column, Grid};
+let mut grid = Grid::new(vec![Column::new("ID", 8, |n: &u64| n.to_string())], vec![1, 2]);
+grid.select_row(1);
+assert_eq!(grid.append_rows([3, 4]).unwrap(), 2);
+assert_eq!(grid.retain_rows(|id| *id >= 2).unwrap(), 1);
+assert_eq!(grid.model().selected(), Some(&2));
+assert_eq!(grid.model().selected_index(), Some(0));
+```
+
+After removal, discard cached insertion indices in application code. Client page
+counts and page clamping update immediately, before rendering. Append preserves
+cell flashes; removal clears them to avoid highlighting the wrong record.
+Empty appends and retention without removals preserve interaction state. Both
+operations close stale cell details when the dataset changes; render again before
+handling mouse input. These APIs are also available directly on `GridModel`.
+
+External grids reject both operations with `ExternalRowsError` before consuming
+an iterator or invoking a predicate. Change the source and reload its page instead;
+locally adding or deleting records could invalidate its totals and cursor tokens.
+
 ## Drive animation from your event loop
 
 Ratagrid owns no timer or event loop. After marking a cell with `flash_cell(row_index, column_index, duration)`, call `advance_animations(elapsed_frame_time)` before drawing. Use `is_animating()` to choose a shorter event polling interval, and redraw after the final advance even when it returns false, so the base style is restored. The playground polls at 30 ms while animating and 100 ms otherwise.

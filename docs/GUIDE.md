@@ -111,8 +111,9 @@ Values below zero render empty and values above the maximum fill the bar.
 Non-finite values or a non-positive/non-finite maximum render empty; values
 smaller than one eighth of a terminal cell also render empty.
 
-The original formatter supplies text for search, clipboard and optional
-full-value details. Sorting uses the record comparator, independently of the bar.
+The original formatter supplies text for clipboard and optional full-value
+details, and for search unless a custom search callback is configured. Sorting
+uses the record comparator, independently of the bar.
 
 ## Use it
 
