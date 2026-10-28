@@ -33,7 +33,7 @@ moves. Batches rebuild all owned filtering and sorting, so they are not always
 faster for small edits. Hashed IDs trade a temporary map of selected keys for
 one replacement scan; equality-only IDs remain available without a Hash bound.
 
-## Unreleased append and retention APIs
+## Append and retention APIs
 
 Measured 2026-10-28 with the same Linux x86_64 / Rust 1.99.0 methodology.
 [Raw CSV](linux-streaming.csv) includes all scenarios. These comparisons keep an

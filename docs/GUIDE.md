@@ -117,13 +117,13 @@ uses the record comparator, independently of the bar.
 
 ## Use it
 
-Use the [Ratagrid 0.4.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.4.0) with Ratatui 0.30 and Crossterm 0.29. Registry publication is pending, so use the Git tag dependency below and retain Cargo.lock for reproducible builds.
+Use the [Ratagrid 0.5.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.5.0) with Ratatui 0.30 and Crossterm 0.29. Registry publication is pending, so use the Git tag dependency below and retain Cargo.lock for reproducible builds.
 
-Repository guides and the live site follow main. The latest published registry version is [0.3.1](https://crates.io/crates/ratagrid/0.3.1), with its [versioned API reference](https://docs.rs/ratagrid/0.3.1/ratagrid/). The 0.4.0 docs.rs build awaits registry publication.
+Repository guides and the live site follow main. The latest published registry version is [0.3.1](https://crates.io/crates/ratagrid/0.3.1), with its [versioned API reference](https://docs.rs/ratagrid/0.3.1/ratagrid/). The 0.5.0 docs.rs build awaits registry publication.
 
 ```toml
 [dependencies]
-ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.4.0" }
+ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.5.0" }
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -163,11 +163,16 @@ ordering once per batch. `with_hashed_row_id` reduces repeated selection scans,
 and saved layouts let applications persist column presentation. The
 [update guide](UPDATES.md) and [feature guide](FEATURES.md) cover these 0.4 APIs.
 
-On unreleased main, `append_rows` adds incoming records and `retain_rows` removes
+In 0.5.0, `append_rows` adds incoming records and `retain_rows` removes
 expired records without replacing the dataset. Selections survive on retained
 records, and client pagination updates immediately. Search can exclude expensive
 columns or use custom aliases through `Column::searchable` and
-`Column::search_text`. These additions are not in the v0.4.0 tag.
+`Column::search_text`. These additions are included in the v0.5.0 tag.
+
+Also in 0.5.0, `write_csv` streams filtered, current-page or selected records to an
+application-owned writer. `autosize_columns` fits visible columns using a bounded
+Unicode-aware sample. See the [report example](../examples/report.rs) and
+[feature guide](FEATURES.md) for the full contracts.
 
 
 The playground's **Boost** button changes Latency, Delta and Memory in the selected row. See [updates and animation](UPDATES.md) for the example and event-loop integration.

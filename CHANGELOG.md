@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.5.0 — 2026-10-28 (UTC)
+
+Existing 0.4 APIs remain available. Rust 1.99, Ratatui 0.30 and Crossterm 0.29
+remain required. This is a GitHub source release; registry publication is pending.
+Use the `v0.5.0` Git tag dependency shown in the README.
+
 - Add streaming `write_csv` with filtered, current-page and explicit-selection
   scopes. Preserve visible column order, quote multiline Unicode values, and
   propagate writer errors. External grids export resident data only and reject

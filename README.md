@@ -28,21 +28,21 @@ Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. 
 
 ## Changing datasets and search
 
-The 0.4.0 source release includes batch edits (`update_rows`), optional hashed row
+The 0.5.0 source release includes batch edits (`update_rows`), optional hashed row
 identity (`with_hashed_row_id`) and saved column layouts (`save_layout` /
 `restore_layout`). See [updates](docs/UPDATES.md) and [selection/layouts](docs/FEATURES.md).
 
-**Unreleased on main:** streaming `write_csv` exports filtered, current-page or
+**New in 0.5.0:** streaming `write_csv` exports filtered, current-page or
 selected records; `autosize_columns` fits visible columns with a bounded sample.
 See the [report example](examples/report.rs) and [feature guide](docs/FEATURES.md).
 
-Also on main: `append_rows` ingests incoming records without replacing
+Also new in 0.5.0: `append_rows` ingests incoming records without replacing
 the dataset; `retain_rows` expires records while preserving surviving selection.
 `Column::searchable(false)` excludes expensive fields, and `Column::search_text`
-provides search aliases independently of display formatting. These APIs are not
-in the v0.4.0 tag; use the checkout above to try them.
+provides search aliases independently of display formatting. These APIs are
+included in the v0.5.0 source release.
 [Behavior and examples](docs/UPDATES.md#append-and-expire-owned-records) ·
-[Measured workloads](docs/benchmarks/live-updates/README.md#unreleased-append-and-retention-apis).
+[Measured workloads](docs/benchmarks/live-updates/README.md#append-and-retention-apis).
 
 ## Bar chart columns
 
@@ -92,12 +92,12 @@ See [bar chart columns](docs/GUIDE.md#bar-chart-columns) for styling and edge ca
 
 ## Use with Ratatui
 
-Version 0.4.0 is a GitHub source release; crates.io publication and its docs.rs
+Version 0.5.0 is a GitHub source release; crates.io publication and its docs.rs
 build are pending. Use the release tag below. The latest registry release remains
 [0.3.1](https://crates.io/crates/ratagrid/0.3.1).
 
 ```toml
-ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.4.0" }
+ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.5.0" }
 ratatui = "0.30"
 crossterm = "0.29"
 ```

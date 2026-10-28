@@ -54,7 +54,7 @@ The explorer source supports full text search across its 120 records. The 100M v
 
 ### Choose searchable columns and text
 
-**Unreleased on main.** `Column::searchable(false)` excludes a column from owned
+**Added in 0.5.0.** `Column::searchable(false)` excludes a column from owned
 search entirely, including both display and search-format callbacks. This is
 useful for large payloads and computed values. Visibility is independent: a hidden
 column remains searchable unless explicitly excluded.
@@ -179,7 +179,7 @@ A successful restore closes details and cancels resizing. Render again before
 handling mouse input. Layout snapshots intentionally exclude source requests,
 filters and sort state, which remain application decisions.
 
-## Streaming CSV reports (unreleased)
+## Streaming CSV reports (0.5.0)
 
 `Grid::write_csv` writes to any `std::io::Write`, returning the number of data
 records written. `CsvOptions::default()` includes headers and all filtered,
@@ -209,7 +209,7 @@ failures propagate and can leave partial output. Applications own file dialogs,
 atomic replacement and any type conversions. See [`report`](../examples/report.rs)
 for a complete stdout integration.
 
-## Bounded column autosizing (unreleased)
+## Bounded column autosizing (0.5.0)
 
 Call `grid.autosize_columns(100, 40)` to size visible columns from their headers
 and at most the first 100 filtered/sorted resident rows, capped at 40 terminal

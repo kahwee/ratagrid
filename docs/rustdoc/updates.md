@@ -61,7 +61,7 @@ as well as identity restoration and Unicode search.
 
 ## Append and expire owned records
 
-**Unreleased on main.** `append_rows(records)` adds records without replacing the
+**Added in 0.5.0.** `append_rows(records)` adds records without replacing the
 dataset. It filters only incoming rows, sorts their visible indices and merges
 them into existing ordering. Already ordered tail arrivals use an append path.
 Existing insertion indices, cursor selection and bulk marks remain attached to
