@@ -18,6 +18,9 @@ Rust 1.99, Ratatui 0.30 and Crossterm 0.29 remain required.
 - Add `save_layout` / `restore_layout`, `GridLayout`, `ColumnState` and
   `LayoutError` for application-owned persistence. Validate complete snapshots
   before changing widths, visibility, order or pinning.
+- Add 3,000 generated pagination operations across four fixed seeds, checking
+  sorting, filtering, search, edits, page jumps, page sizes, selection and row
+  replacement against an independent model before and after rendering.
 - Add generated operation-sequence checks against an independent model, collision
   and callback-count tests, layout interaction regressions, and a reproducible
   `live_updates` benchmark covering 10,000 and 100,000 rows.
