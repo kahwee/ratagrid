@@ -24,7 +24,20 @@ with record data; single-row updates do not refresh unrelated records.
 
 ## Validation
 
-Use Rust 1.99 or newer. Run the [playground](README.md#run-it) to check interactions, then validate your change:
+Use Rust 1.99 or newer. The complete local check is:
+
+```sh
+python3 scripts/release_check.py check
+```
+
+On Linux, use a Python environment with `pyte==0.8.2` for terminal smoke tests;
+[the release runbook](docs/RELEASING.md#setup-and-availability) has setup commands.
+The helper does not publish, install tools or rewrite generated files. Run it
+once after finishing a change; after subsequent edits, repeat affected checks.
+
+For focused development, run the [playground](README.md#run-it) and the relevant
+commands below. The helper also covers release-tool tests, generator freshness,
+benchmark-report tests and the Linux terminal smoke suite:
 
 ```sh
 cargo fmt --all --check
@@ -44,7 +57,8 @@ cannot cover. The generator tests check escaping and non-destructive failures;
 benchmark tests check invalid reports and publication rules. CI executes the
 Pages freshness check directly from outside the repository.
 
-After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release instructions](.agents/skills/ratagrid-release/SKILL.md) for publication.
+After changing bundled guides, run `python3 scripts/build_rustdoc_guides.py` and its `--check` mode. The Pages template is `scripts/templates/pages.html`. After changing it or the Pages integration source, run `python3 scripts/build_docs.py` and `python3 scripts/build_docs.py --check`. Commit the generated files with their sources. See [media and terminal checks](docs/MEDIA.md) for optional capture tooling and [release runbook](docs/RELEASING.md) for human-readable commands, and the
+[release skill](.agents/skills/ratagrid-release/SKILL.md) for agent-assisted publication.
 
 For workflow ordering, safe parallel groups, action versions, and weekly updates,
 see [GitHub Actions maintenance](.github/ACTIONS.md). When editing clipboard or
@@ -79,3 +93,14 @@ focus, or an event loop.
 For a feature request, describe a concrete application and the interaction it needs. For bugs, include terminal, operating system, Rust version, and reproduction steps. Do not include private data.
 
 Contributions are licensed under the project's MIT license.
+
+## Documentation and release maintenance
+
+Keep `AGENTS.md` short and link to this guide instead of duplicating procedures.
+New APIs go in Unreleased until a tagged release contains them. Update README
+feature discovery and the relevant guides together; keep published installation
+instructions distinct from features that exist only on main. Release tooling lives
+in `scripts/release_check.py`, with refusal-case regressions in
+`scripts/test_release_check.py`. Its `package` command verifies a clean artifact
+and records evidence without uploading or tagging. Follow the release runbook
+before changing versions or publishing.

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Add a concise root `AGENTS.md`, a human release runbook and a streamlined
+  release skill. A shared helper runs local checks or verifies clean package
+  contents, source identity and checksums without uploading or creating tags.
+- Test release refusal cases in CI, document source-versus-registry releases and
+  surface new main-only APIs in the README and integration guide.
+- Refresh the Rust toolchain action to the current stable commit, update inactive
+  proposal pins, check Actions daily with Dependabot and remove duplicate Python
+  setup from CI. Keep compiler versions and publication permissions unchanged.
+
 - Add `append_rows` to owned grids and models. Filter only incoming records,
   sort and merge new visible indices, and preserve existing selection and marks.
   Already ordered arrivals avoid merging the old ordering.

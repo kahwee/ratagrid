@@ -26,6 +26,20 @@ cargo run --release --locked --example playground -- --cell-details
 
 Shrink Workload, then hover a data cell for 500 ms or click it and press Enter. Escape closes the panel; Up/Down, PageUp/PageDown and Home/End scroll a keyboard-opened panel. The mouse wheel over the panel also scrolls it. This option is disabled by default. [Library configuration](docs/GUIDE.md#optional-cell-details).
 
+## Changing datasets and search
+
+The 0.4.0 source release includes batch edits (`update_rows`), optional hashed row
+identity (`with_hashed_row_id`) and saved column layouts (`save_layout` /
+`restore_layout`). See [updates](docs/UPDATES.md) and [selection/layouts](docs/FEATURES.md).
+
+**Unreleased on main:** `append_rows` ingests incoming records without replacing
+the dataset; `retain_rows` expires records while preserving surviving selection.
+`Column::searchable(false)` excludes expensive fields, and `Column::search_text`
+provides search aliases independently of display formatting. These APIs are not
+in the v0.4.0 tag; use the checkout above to try them.
+[Behavior and examples](docs/UPDATES.md#append-and-expire-owned-records) ·
+[Measured workloads](docs/benchmarks/live-updates/README.md#unreleased-append-and-retention-apis).
+
 ## Bar chart columns
 
 Ratagrid 0.3.0 includes horizontal bar columns. Try the keyboard-and-mouse demo:
@@ -156,3 +170,10 @@ Slowdown warnings require both >25% and >0.05 ms; paired runs use the same-runne
 ## CI maintenance
 
 [GitHub Actions maintenance](.github/ACTIONS.md) covers workflows, parallel checks, action versions, and weekly updates.
+
+## Maintaining and releasing
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md). The [release runbook](docs/RELEASING.md)
+and [agent release skill](.agents/skills/ratagrid-release/SKILL.md) share one local
+check/package helper and explain versioning, CI, publication and recovery. See
+[GitHub Actions maintenance](.github/ACTIONS.md) for verified action references.

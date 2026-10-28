@@ -158,6 +158,18 @@ Render before forwarding mouse events and redraw after each event: hit-testing u
 
 Call `grid.update_row(index, |record| { /* change fields */ })` from a button or other event handler, then `grid.flash_cell(index, column, duration)` to highlight a changed cell. Owned data retains its sorting and selection. The application drives fades with `advance_animations(elapsed)`.
 
+For feeds that edit many records, `update_rows(indices, callback)` rebuilds owned
+ordering once per batch. `with_hashed_row_id` reduces repeated selection scans,
+and saved layouts let applications persist column presentation. The
+[update guide](UPDATES.md) and [feature guide](FEATURES.md) cover these 0.4 APIs.
+
+On unreleased main, `append_rows` adds incoming records and `retain_rows` removes
+expired records without replacing the dataset. Selections survive on retained
+records, and client pagination updates immediately. Search can exclude expensive
+columns or use custom aliases through `Column::searchable` and
+`Column::search_text`. These additions are not in the v0.4.0 tag.
+
+
 The playground's **Boost** button changes Latency, Delta and Memory in the selected row. See [updates and animation](UPDATES.md) for the example and event-loop integration.
 
 ![Animated cell updates](screenshots/updates.gif)

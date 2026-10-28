@@ -1,3 +1,4 @@
 interface:
   display_name: "Ratagrid Release"
-  short_description: "Help with Ratagrid Release tasks"
+  short_description: "Prepare, verify, publish or resume Ratagrid releases"
+  default_prompt: "Use $ratagrid-release to carry out the requested Ratagrid release steps, verify the exact source commit and report each publication destination separately."

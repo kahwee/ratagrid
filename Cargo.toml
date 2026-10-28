@@ -9,7 +9,7 @@ repository = "https://github.com/kahwee/ratagrid"
 readme = "README.md"
 homepage = "https://kahwee.github.io/ratagrid/"
 documentation = "https://docs.rs/ratagrid"
-exclude = ["docs/screenshots/**", "docs/benchmarks/**", "docs/media/**", "docs/index.html", "docs/integration/**", "docs/.nojekyll", ".github/**", ".agents/**", "scripts/**"]
+exclude = ["AGENTS.md", "docs/RELEASING.md", "docs/screenshots/**", "docs/benchmarks/**", "docs/media/**", "docs/index.html", "docs/integration/**", "docs/.nojekyll", ".github/**", ".agents/**", "scripts/**"]
 keywords = ["ratatui", "tui", "table", "grid", "sorting"]
 categories = ["command-line-interface"]
 
