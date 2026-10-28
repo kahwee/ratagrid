@@ -33,7 +33,9 @@ pub mod guides {
 
 mod columns;
 mod details;
+mod export;
 pub use details::{CellDetail, CellDetailsOptions};
+pub use export::{CsvOptions, CsvScope};
 mod features;
 mod input;
 pub use columns::{ColumnOrderError, ColumnState, GridLayout, LayoutError};

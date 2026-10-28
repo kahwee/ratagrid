@@ -59,6 +59,53 @@ impl std::fmt::Display for ColumnOrderError {
 impl std::error::Error for ColumnOrderError {}
 
 impl<T> Grid<T> {
+    /// Fit visible columns to headers and at most `max_rows` filtered/sorted
+    /// resident rows. Widths include the separator, are at least four cells,
+    /// and are capped at `max_width.max(4)`. Zero rows measures only headers.
+    ///
+    /// Uses terminal Unicode widths after control sanitization. Hidden columns
+    /// are untouched. Loading/failed sources measure headers only. No fetching
+    /// occurs. Returns the number of changed widths; saved layouts capture them.
+    /// All formatting completes before widths change, even if a formatter panics.
+    pub fn autosize_columns(&mut self, max_rows: usize, max_width: u16) -> usize {
+        use unicode_width::UnicodeWidthStr;
+        let sample = if matches!(self.load_state(), LoadState::Loading | LoadState::Error(_)) {
+            0
+        } else {
+            max_rows
+        };
+        let widths: Vec<_> = self
+            .visible_columns()
+            .into_iter()
+            .map(|index| {
+                let column = &self.model.columns[index];
+                let mut width = UnicodeWidthStr::width(text::sanitize(&column.title).as_ref());
+                for &row in self.model.order.iter().take(sample) {
+                    let value = (column.format)(&self.model.rows()[row]);
+                    width = width.max(UnicodeWidthStr::width(text::sanitize(&value).as_ref()));
+                }
+                (
+                    index,
+                    width
+                        .saturating_add(1)
+                        .clamp(4, usize::from(max_width.max(4))) as u16,
+                )
+            })
+            .collect();
+        let mut changed = 0;
+        for (index, width) in widths {
+            if self.model.columns[index].width != width {
+                self.model.columns[index].width = width;
+                changed += 1;
+            }
+        }
+        if changed != 0 {
+            self.columns_changed();
+            self.column_offset = self.column_offset.min(self.max_column_offset());
+        }
+        changed
+    }
+
     /// Capture widths, visibility, order and pinning for application persistence.
     pub fn save_layout(&self) -> GridLayout {
         GridLayout {

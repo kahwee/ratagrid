@@ -32,7 +32,11 @@ The 0.4.0 source release includes batch edits (`update_rows`), optional hashed r
 identity (`with_hashed_row_id`) and saved column layouts (`save_layout` /
 `restore_layout`). See [updates](docs/UPDATES.md) and [selection/layouts](docs/FEATURES.md).
 
-**Unreleased on main:** `append_rows` ingests incoming records without replacing
+**Unreleased on main:** streaming `write_csv` exports filtered, current-page or
+selected records; `autosize_columns` fits visible columns with a bounded sample.
+See the [report example](examples/report.rs) and [feature guide](docs/FEATURES.md).
+
+Also on main: `append_rows` ingests incoming records without replacing
 the dataset; `retain_rows` expires records while preserving surviving selection.
 `Column::searchable(false)` excludes expensive fields, and `Column::search_text`
 provides search aliases independently of display formatting. These APIs are not

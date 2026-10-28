@@ -178,3 +178,48 @@ assert!(grid.is_column_visible(0));
 A successful restore closes details and cancels resizing. Render again before
 handling mouse input. Layout snapshots intentionally exclude source requests,
 filters and sort state, which remain application decisions.
+
+## Streaming CSV reports (unreleased)
+
+`Grid::write_csv` writes to any `std::io::Write`, returning the number of data
+records written. `CsvOptions::default()` includes headers and all filtered,
+sorted resident rows, across client-side pages. `CsvScope::CurrentPage` exports
+just the page; `CsvScope::Selected` exports explicit bulk marks that pass the
+filter, without falling back to the active row. Hidden columns are omitted;
+pinning and configured column order are respected. Values use full display
+formatting, independently of search aliases.
+
+```rust
+use ratagrid::{Column, CsvOptions, Grid};
+let grid = Grid::new(vec![Column::new("Value", 8, |n: &u32| n.to_string())], vec![42]);
+let mut output = Vec::new();
+assert_eq!(grid.write_csv(&mut output, CsvOptions::default()).unwrap(), 1);
+assert_eq!(output, b"\"Value\"\r\n\"42\"\r\n");
+```
+
+CSV quotes every field, doubles embedded quotes and uses CRLF record endings.
+Tabs and embedded newlines are retained; other terminal and bidirectional
+formatting controls are removed. With no visible columns, nothing is written.
+An empty dataset may emit a header. External grids export only resident data:
+loading returns `WouldBlock`, and a failed page returns `Other`, before writing.
+Ratagrid never fetches additional pages for exports.
+
+Use a `BufWriter` for files. Export streams one formatted cell at a time; writer
+failures propagate and can leave partial output. Applications own file dialogs,
+atomic replacement and any type conversions. See [`report`](../examples/report.rs)
+for a complete stdout integration.
+
+## Bounded column autosizing (unreleased)
+
+Call `grid.autosize_columns(100, 40)` to size visible columns from their headers
+and at most the first 100 filtered/sorted resident rows, capped at 40 terminal
+cells. The result counts changed widths. Widths include the separator and are
+at least four cells, even when a smaller cap is supplied. Zero sampled rows
+measures headers only; loading and failed external pages also use headers only.
+Hidden columns and their formatters are skipped. Unicode width and control
+sanitization match terminal rendering. New widths are included in `save_layout`.
+
+Sampling bounds formatter calls, not the length or cost of each formatted value.
+Autosizing is explicit, so applications choose when to recompute widths after
+updates. All formatting finishes before any width changes; a formatter panic
+leaves existing widths intact.

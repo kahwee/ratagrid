@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Add streaming `write_csv` with filtered, current-page and explicit-selection
+  scopes. Preserve visible column order, quote multiline Unicode values, and
+  propagate writer errors. External grids export resident data only and reject
+  loading/failed pages before writing.
+- Add bounded `autosize_columns`: sample filtered rows, measure terminal Unicode
+  widths, skip hidden columns and preserve minimum/maximum widths. Complete
+  formatting before changing widths, and include results in saved layouts.
+- Add a noninteractive report example and regression coverage for CSV escaping,
+  pagination, selection, source states, writer failures and autosizing limits.
+
 - Add a concise root `AGENTS.md`, a human release runbook and a streamlined
   release skill. A shared helper runs local checks or verifies clean package
   contents, source identity and checksums without uploading or creating tags.

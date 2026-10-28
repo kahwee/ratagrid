@@ -14,6 +14,7 @@ Your application owns terminal setup, focus, source I/O and clipboard writes.
 
 | Target | Purpose | Input / source |
 | --- | --- | --- |
+| [report](report.rs) | Streaming CSV export and bounded Unicode column sizing | No terminal; synthetic filtered report on stdout |
 | [quickstart](quickstart.rs) | Smallest complete integration; suitable for copying into a new app | Keyboard, three owned integer rows |
 | [positions](positions.rs) | Self-contained integration with layout, numeric sorting, cell colors and stable IDs | Keyboard + mouse, synthetic cents and basis points |
 | [bar_chart](bar_chart.rs) | Colored horizontal bars with a fixed 60 GB scale, separate Size column and four-row pagination | Keyboard + mouse, synthetic disk usage; Ratagrid 0.3.0 |
