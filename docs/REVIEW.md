@@ -43,12 +43,12 @@ The [performance report](PERFORMANCE.md) and raw CSV predate this cleanup and re
 - Added `.sortable_external()` for source-only columns, avoiding unused comparator callbacks. Owned grids safely ignore source-only sortability.
 - Replaced the entire README embedded in rustdoc with a focused crate overview and explicit links. Rustdoc no longer depends on repository-relative screenshot URLs.
 - Excluded screenshots, benchmark captures, CI files and smoke scripts from the Cargo archive.
-- Added the Unix terminal smoke test to Linux CI and expanded the then-current Rust 1.88 job to all targets (historical; current CI pins Rust 1.99.0).
+- Added the Unix terminal smoke test to Linux CI and expanded the then-current Rust 1.88 job to all targets (historical; current CI pins Rust 1.99.1).
 - Removed generated ignore-file commentary and consolidated the development changelog; the 0.1.0 changelog records those changes.
 
 ## Verification
 
-The original cleanup passed 41 tests and three doc examples. Subsequent changes add coverage for row IDs, reload visibility, cell navigation and unknown totals. That historical cleanup passed Clippy with warnings denied, Rust 1.88 all-target checks, rustdoc with warnings denied, Cargo package verification and the real-terminal smoke test. The current checkout requires Rust 1.99.0; see the [0.1.0 validation report](PUBLIC_READINESS.md). GitHub's Linux/macOS/Windows workflow remains the cross-platform check; local verification ran on Linux.
+The original cleanup passed 41 tests and three doc examples. Subsequent changes add coverage for row IDs, reload visibility, cell navigation and unknown totals. That historical cleanup passed Clippy with warnings denied, Rust 1.88 all-target checks, rustdoc with warnings denied, Cargo package verification and the real-terminal smoke test. The current checkout selects Rust 1.99.1 with a Rust 1.99 minimum; see the [0.1.0 validation report](PUBLIC_READINESS.md). GitHub's Linux/macOS/Windows workflow remains the cross-platform check; local verification ran on Linux.
 
 ## Next cleanup order
 

@@ -11,7 +11,7 @@ rustup component add rustfmt clippy rust-src rust-analyzer
 cargo fetch --locked
 ```
 
-`rust-toolchain.toml` selects Rust 1.99.0 and installs rustfmt and Clippy.
+`rust-toolchain.toml` selects Rust 1.99.1 and installs rustfmt and Clippy.
 `rust-src` and `rust-analyzer` provide standard-library source and editor support;
 configure your editor to use rust-analyzer. A native C compiler/linker is needed
 for the SQLite examples and tests (Xcode Command Line Tools on macOS, Visual

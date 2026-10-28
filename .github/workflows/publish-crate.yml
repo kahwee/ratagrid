@@ -1,4 +1,3 @@
-# PROPOSAL ONLY. Access approval is required before activation.
 name: Publish crate
 on:
   push:
@@ -10,6 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    if: github.event.sender.type == 'User'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -25,7 +25,7 @@ jobs:
           ref: ${{ github.ref_name }}
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: '3.12'
+          python-version: '3.15.2'
       - name: Validate manifest, lock and tag
         env:
           RELEASE_TAG: ${{ github.ref_name }}
@@ -41,14 +41,13 @@ jobs:
           git merge-base --is-ancestor "$source_sha" "origin/main"
           gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$source_sha&per_page=100" > "$RUNNER_TEMP/ci.json"
           jq -e --arg sha "$source_sha" '[.workflow_runs[] | select(.head_sha == $sha and .conclusion == "success" and .event == "push" and .head_branch == "main")] | length > 0' "$RUNNER_TEMP/ci.json"
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
-          toolchain: 1.99.0
+          toolchain: 1.99.1
           components: rustfmt, clippy
       - name: Verify package
         run: |
-          cargo package --locked --list
-          cargo publish --locked --dry-run
+          python3 scripts/release_check.py package
       - name: Authenticate with crates.io
         id: auth
         uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6

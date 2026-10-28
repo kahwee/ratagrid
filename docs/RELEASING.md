@@ -13,11 +13,13 @@ checks and verifies packages; it never commits, pushes, tags or uploads.
 3. Run `python3 scripts/release_check.py check`.
 4. Commit and push through the repository's normal rules; wait for CI on that SHA.
 5. From that clean commit, run `python3 scripts/release_check.py package`.
-6. Publish the requested destinations and verify them separately.
+6. After external trust and release coordination are complete, push the tested
+   version tag. Monitor automatic crate publication; create the requested GitHub
+   source release separately and verify every destination.
 
 ## Setup and availability
 
-Use the pinned Rust toolchain and Python 3.11+ (CI uses 3.12). On Linux, run the
+Use the pinned Rust 1.99.1 toolchain and Python 3.11+ (CI uses tested 3.15.2). On Linux, run the
 helper with Python that has the terminal smoke dependency installed:
 
 ```sh
@@ -45,6 +47,13 @@ candidate, or choose the next unused patch for compatible fixes / minor for new
 public APIs or breaking pre-1.0 changes. Review compatibility; green tests alone
 are not a semver decision. If a version already names different source, choose a
 new version. Never move its tag or overwrite a published package.
+
+GitHub v0.5.0 is immutable at `e8e89b0314b6637102525097fdc5da2cc005be27`.
+Registry 0.5.0 and docs.rs build 5044579 are verified from that source, with package
+SHA-256 `9378bfefd91db996b9d040679479b1706f556c472efc71ea0700c564328e4a8f`.
+Main prepares compatible maintenance version 0.5.1. Hold its tag/upload until the
+release owner confirms the external trusted binding and releases the coordination gate.
+Never describe a prepared package or workflow activation as publication.
 
 GitHub and Cargo authentication are independent. Use the configured credential
 provider, Cargo login store, or securely configured registry token. A login on
@@ -95,7 +104,7 @@ Do not rerun the benchmark collection workflow just for a release.
 `package` rejects dirty source and conflicting local tags, runs
 `cargo publish --locked --dry-run --registry crates-io` once, then validates the
 archive against Git. The manifest, lockfile, license, source, bundled guides and
-VCS commit must match. Development instructions, scripts, media and generated
+VCS commit must match. Agent/release instructions, scripts, media and generated
 site files stay out of the crate. Review the remaining content for private data.
 Evidence is written to `target/release-preflight.json` (or the configured Cargo
 target directory), including source SHA and package SHA-256. This is a prepared
@@ -107,13 +116,19 @@ Write release notes to an ignored location such as `target/release-notes.md`.
 Include the problem solved, API changes, migration notes, measured limitations,
 CI URL, source SHA and actual publication status.
 
-For crates.io, inspect `/api/v1/crates/ratagrid/<version>` first. If absent and the
-upload is requested, run `cargo publish --locked --registry crates-io` from the
-same clean commit. Afterward, verify the exact registry version and checksum,
-download its archive, and compare its VCS SHA and SHA-256 with the preflight
-report. Query before retrying an uncertain upload. Check
-`https://docs.rs/ratagrid/<version>/ratagrid/` separately; pending builds are not
-available documentation.
+The active tag-only publisher needs a separately configured crates.io trusted
+publisher for owner `kahwee`, repository `ratagrid`, workflow `publish-crate.yml`,
+and a blank environment. Confirm that prerequisite and the immutable tested source
+before pushing a release tag. Do not change credentials or trust as a release shortcut.
+
+A new stable `v*` tag from a user account starts the crate publisher. It validates
+manifest/lock/tag agreement, exact-source successful main CI and the clean package
+before official short-lived OIDC authentication. Branch pushes, pull requests and
+manual dispatches never trigger publication. Do not duplicate its upload manually.
+After an uncertain run, inspect the exact registry version and checksum before
+retrying. Download the archive and compare its VCS SHA and SHA-256 with the preflight
+report; check `https://docs.rs/ratagrid/<version>/ratagrid/` separately. Pending
+builds are not available documentation.
 
 For GitHub, set `release_version` to the validated manifest version, inspect both
 local and remote tag state, then create only missing objects:
@@ -142,9 +157,13 @@ another destination is blocked; do not delete/yank to make the release appear at
 
 ## Automation boundaries
 
-[CI](../.github/workflows/ci.yml) and [benchmarks](../.github/workflows/benchmarks.yml)
-are active. Files under `.github/release-proposals/` are inactive designs; moving
-them into workflows requires explicit approval of publication permissions and,
-for crates.io trusted publishing, its authentication setup. The release skill and
-helper work today without activating those proposals. Check Action updates using
-[the maintenance guide](../.github/ACTIONS.md).
+[CI](../.github/workflows/ci.yml), [benchmarks](../.github/workflows/benchmarks.yml)
+and the [tag-only crate publisher](../.github/workflows/publish-crate.yml) are active.
+The publisher has top-level `contents: read` and only `contents: read`, `actions: read`,
+`id-token: write` on its job, with no GitHub environment or long-lived registry secret.
+Its external binding is configured separately; activation does not verify an upload.
+
+The source-release proposal stays inactive in `.github/release-proposals/`.
+GitHub source releases remain a separate authorized step. Preserve existing
+three-OS checks, Pages settings and benchmark publication permissions. See
+[Actions maintenance](../.github/ACTIONS.md) for tested pins and runtimes.

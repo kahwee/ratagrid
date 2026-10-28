@@ -30,7 +30,8 @@ See [GitHub's event reference](https://docs.github.com/en/actions/reference/work
 ## Measurements
 
 All events measure `ubuntu-24.04` (x64), `macos-15` (Apple Silicon) and
-`windows-2025` (x64), with Rust 1.99.0. OS labels are fixed rather than `latest`;
+`windows-2025` (x64), with Rust 1.99.1 selected for future runs. Recorded reports
+retain their original compiler metadata, including Rust 1.99.0. OS labels are fixed rather than `latest`;
 GitHub still updates their images and can vary hardware and load. Standard
 hosted runners are [free for public repositories](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 

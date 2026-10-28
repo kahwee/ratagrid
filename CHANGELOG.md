@@ -4,11 +4,23 @@
 
 No changes yet.
 
+## 0.5.1 — 2026-10-28 (UTC)
+
+Prepared maintenance release; publication remains pending. The public 0.5 APIs
+and Rust 1.99 minimum are unchanged. Never reuse the immutable 0.5.0 tag.
+
+- Update Unicode width to 0.2.3 and development SQLite to rusqlite 0.41.0;
+  refresh compatible locked dependencies.
+- Use Rust 1.99.1, tested Python 3.15.2 and durable SHA-pinned Actions.
+- Enable the approved future-tag-only crates.io workflow with exact-source CI
+  and clean package verification before short-lived OIDC authentication.
+- Streamline the README and clarify source, registry and release coordination.
+
 ## 0.5.0 — 2026-10-28 (UTC)
 
 Existing 0.4 APIs remain available. Rust 1.99, Ratatui 0.30 and Crossterm 0.29
-remain required. This is a GitHub source release; registry publication is pending.
-Use the `v0.5.0` Git tag dependency shown in the README.
+remain required. The immutable `v0.5.0` source is published on GitHub and crates.io,
+with its version-specific docs.rs build verified.
 
 - Add streaming `write_csv` with filtered, current-page and explicit-selection
   scopes. Preserve visible column order, quote multiline Unicode values, and

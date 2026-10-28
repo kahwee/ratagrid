@@ -7,3 +7,5 @@
 - Run `python3 scripts/release_check.py check` for the complete local checks. Follow `CONTRIBUTING.md` for focused development checks.
 - Follow `.agents/skills/ratagrid-release/SKILL.md` for releases and `docs/RELEASING.md` for commands. Publish only requested destinations, from the exact commit that passed CI; never move a release tag.
 - Preserve user edits and concurrent commits. Keep credentials out of files, logs and chat. Keep Action references current using `.github/ACTIONS.md`.
+
+The tag-only crate publisher requires exact-source main CI and a clean verified package before OIDC. Registry trust is external. Main pushes do not upload; never duplicate an in-progress upload or activate the separate source-release proposal.

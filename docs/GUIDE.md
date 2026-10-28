@@ -6,7 +6,7 @@ a self-contained mouse integration.
 
 ## Try it
 
-Run these commands in your terminal. Rust 1.99.0 is required; [rustup](https://rustup.rs) is one way to install it. The public checkout can be cloned over HTTPS.
+Run these commands in your terminal. Rust 1.99.1 is required; [rustup](https://rustup.rs) is one way to install it. The public checkout can be cloned over HTTPS.
 
 For a new checkout:
 
@@ -117,13 +117,15 @@ uses the record comparator, independently of the bar.
 
 ## Use it
 
-Use the [Ratagrid 0.5.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.5.0) with Ratatui 0.30 and Crossterm 0.29. Registry publication is pending, so use the Git tag dependency below and retain Cargo.lock for reproducible builds.
-
-Repository guides and the live site follow main. The latest published registry version is [0.3.1](https://crates.io/crates/ratagrid/0.3.1), with its [versioned API reference](https://docs.rs/ratagrid/0.3.1/ratagrid/). The 0.5.0 docs.rs build awaits registry publication.
+Use published Ratagrid 0.5.0 with Ratatui 0.30 and Crossterm 0.29, and retain
+Cargo.lock for reproducible builds. The [GitHub source tag](https://github.com/kahwee/ratagrid/releases/tag/v0.5.0),
+[crate](https://crates.io/crates/ratagrid/0.5.0) and
+[versioned API reference](https://docs.rs/ratagrid/0.5.0/ratagrid/) are available.
+Main prepares compatible 0.5.1 dependency/tooling maintenance; it is not yet released.
 
 ```toml
 [dependencies]
-ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.5.0" }
+ratagrid = "0.5"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -262,7 +264,7 @@ The grid supports single-column sorting, keyed cursor/row selection, ranges, fil
 
 See [contributing](../CONTRIBUTING.md) for required checks and generated documentation, [media tooling](MEDIA.md) for terminal smoke tests, and the historical [adversarial review](REVIEW.md) for reproduced defects and remaining limits.
 
-GitHub Actions tests Rust 1.99.0 on Linux, macOS and Windows. Linux also runs the real-terminal smoke test.
+GitHub Actions tests Rust 1.99.1 on Linux, macOS and Windows. Linux also runs the real-terminal smoke test.
 
 ## License
 
