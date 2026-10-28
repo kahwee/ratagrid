@@ -53,6 +53,22 @@ class ReleaseChecks(unittest.TestCase):
             with self.subTest(status=status, tag=tag), self.assertRaises(ValueError):
                 release.validate_source(status, SHA, tag)
 
+    def test_publish_archive_location_prefers_staging_over_old_artifacts(self):
+        target = Path(self.directory.name)
+        with self.assertRaisesRegex(ValueError, 'did not produce'):
+            release.package_archive(target, VERSION)
+        legacy = target / 'package' / f'ratagrid-{VERSION}.crate'
+        legacy.parent.mkdir()
+        legacy.write_bytes(b'older artifact')
+        self.assertEqual(release.package_archive(target, VERSION), legacy)
+        staged = legacy.parent / 'tmp-registry' / legacy.name
+        staged.parent.mkdir()
+        staged.write_bytes(b'current publish artifact')
+        self.assertEqual(release.package_archive(target, VERSION), staged)
+        # An archive for another version must never be substituted.
+        with self.assertRaisesRegex(ValueError, 'did not produce'):
+            release.package_archive(target, '9.9.9')
+
     def test_valid_package_records_checksum_and_no_upload(self):
         self.write()
         report = self.inspect()

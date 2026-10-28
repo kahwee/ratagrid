@@ -105,6 +105,15 @@ def inspect_archive(archive, version, sha, source):
             'files': len(files), 'registry_upload': False}
 
 
+def package_archive(target, version):
+    """Cargo 1.99 stages publish archives in tmp-registry; older Cargo used package/."""
+    name = f'ratagrid-{version}.crate'
+    for path in [target / 'package' / 'tmp-registry' / name, target / 'package' / name]:
+        if path.is_file():
+            return path
+    raise ValueError(f'Cargo did not produce the expected archive: {name}')
+
+
 def package():
     manifest = tomllib.loads((ROOT / 'Cargo.toml').read_text())
     version = manifest['package']['version']
@@ -117,7 +126,7 @@ def package():
     run('cargo', 'publish', '--locked', '--dry-run', '--registry', 'crates-io')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--locked', '--format-version=1'], cwd=ROOT))
     target = Path(metadata['target_directory'])
-    archive = target / 'package' / f'ratagrid-{version}.crate'
+    archive = package_archive(target, version)
     report = inspect_archive(archive, version, sha, lambda name: git('show', f'{sha}:{name}'))
     output = target / 'release-preflight.json'
     output.write_text(json.dumps(report, indent=2) + '\n')

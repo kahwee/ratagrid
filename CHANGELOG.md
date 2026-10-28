@@ -20,6 +20,8 @@ Use the `v0.5.0` Git tag dependency shown in the README.
 - Add a noninteractive report example and regression coverage for CSV escaping,
   pagination, selection, source states, writer failures and autosizing limits.
 
+- Fix release verification to locate Cargo 1.99 staged publish archives before
+  older package artifacts, with regression coverage for archive selection.
 - Add a concise root `AGENTS.md`, a human release runbook and a streamlined
   release skill. A shared helper runs local checks or verifies clean package
   contents, source identity and checksums without uploading or creating tags.
