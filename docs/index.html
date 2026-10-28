@@ -20,9 +20,9 @@ version = "0.4.0"
 edition = "2024"
 
 [dependencies]
-ratagrid = "0.4.0"
+ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.4.0" }
 ratatui = "0.30"
-crossterm = "0.29"</code></pre><p class="note">Install Ratagrid from <a href="https://crates.io/crates/ratagrid/0.4.0">crates.io</a>. Use <code>=0.4.0</code> for this exact release and retain Cargo.lock. This site follows main; the <a href="https://docs.rs/ratagrid/0.4.0/ratagrid/">versioned API reference</a> follows the published crate.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">//! Synthetic positions: integer minor units and basis points, never real accounts.
+crossterm = "0.29"</code></pre><p class="note">Ratagrid 0.4.0 is a <a href="https://github.com/kahwee/ratagrid/releases/tag/v0.4.0">GitHub source release</a>; crates.io publication and the 0.4.0 docs.rs build are pending. Use the Git tag above and retain Cargo.lock. The latest registry release remains <a href="https://crates.io/crates/ratagrid/0.3.1">0.3.1</a>, with its <a href="https://docs.rs/ratagrid/0.3.1/ratagrid/">published API reference</a>.</p><button type="button" id="copy-example">Copy Rust example</button><span id="copy-status" role="status" aria-live="polite"></span><details><summary>Show full Rust source</summary><pre><code id="rust-example">//! Synthetic positions: integer minor units and basis points, never real accounts.
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,

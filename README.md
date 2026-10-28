@@ -74,8 +74,12 @@ See [bar chart columns](docs/GUIDE.md#bar-chart-columns) for styling and edge ca
 
 ## Use with Ratatui
 
+Version 0.4.0 is a GitHub source release; crates.io publication and its docs.rs
+build are pending. Use the release tag below. The latest registry release remains
+[0.3.1](https://crates.io/crates/ratagrid/0.3.1).
+
 ```toml
-ratagrid = "0.4.0"
+ratagrid = { git = "https://github.com/kahwee/ratagrid", tag = "v0.4.0" }
 ratatui = "0.30"
 crossterm = "0.29"
 ```
