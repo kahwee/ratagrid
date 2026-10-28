@@ -85,6 +85,81 @@ fn a_sorted_edit_uses_logarithmic_comparisons_instead_of_a_full_sort() {
         "an already ordered row needs only neighbor checks"
     );
 }
+
+#[test]
+fn filtered_edits_match_full_rebuild_with_search_stable_ties_and_hidden_selection() {
+    for (filter, query) in [(true, ""), (false, "other 1"), (true, "other 1")] {
+        for direction in 0..3 {
+            let rows: Vec<i64> = (0..31).map(|n| n % 7).collect();
+            let mut model = GridModel::new(columns(), rows.clone());
+            let mut reference = GridModel::new(columns(), rows);
+            for grid in [&mut model, &mut reference] {
+                grid.select(3);
+                grid.set_selected_indices([0, 3, 8]);
+                if filter {
+                    grid.set_filter(|n| n % 2 == 0);
+                }
+                grid.set_search(query);
+                for _ in 0..direction {
+                    grid.toggle_sort(0);
+                }
+            }
+            for step in 0..300 {
+                let edited = (step * 13) % 31;
+                let value = (step as i64 * 3) % 23;
+                assert!(model.update_row(edited, |n| *n = value));
+                reference.update_row(edited, |n| *n = value);
+                // Reapplying search independently rebuilds the complete ordering.
+                reference.set_search(query);
+                assert_eq!(model.visible_len(), reference.visible_len());
+                for position in 0..=reference.visible_len() {
+                    assert_eq!(model.index_at(position), reference.index_at(position));
+                }
+                assert_eq!(model.selected_index(), Some(3));
+                assert_eq!(model.selected_position(), reference.selected_position());
+                assert_eq!(model.selected_indices().collect::<Vec<_>>(), vec![0, 3, 8]);
+            }
+        }
+    }
+}
+
+#[test]
+fn filtered_edits_evaluate_only_the_changed_record() {
+    let formats = Rc::new(Cell::new(0));
+    let predicates = Rc::new(Cell::new(0));
+    let comparisons = Rc::new(Cell::new(0));
+    let formatted = formats.clone();
+    let compared = comparisons.clone();
+    let filtered = predicates.clone();
+    let column = Column::new("Value", 12, move |n: &i64| {
+        formatted.set(formatted.get() + 1);
+        format!("value {n}")
+    })
+    .sortable(move |a, b| {
+        compared.set(compared.get() + 1);
+        a.cmp(b)
+    });
+    let mut model = GridModel::new(vec![column], (0..65_536).collect());
+    model.set_filter(move |n| {
+        filtered.set(filtered.get() + 1);
+        *n >= 0
+    });
+    model.set_search("value");
+    model.toggle_sort(0);
+    model.select(0);
+    for value in [100_000, -1, 10] {
+        formats.set(0);
+        predicates.set(0);
+        comparisons.set(0);
+        model.update_row(0, |n| *n = value);
+        assert_eq!(predicates.get(), 1);
+        assert_eq!(formats.get(), usize::from(value >= 0));
+        assert!(comparisons.get() <= 20);
+        assert_eq!(model.selected_index(), Some(0));
+        assert_eq!(model.selected_position().is_some(), value >= 0);
+    }
+    assert!(!model.update_row(usize::MAX, |_| panic!("invalid updater called")));
+}
 #[test]
 fn a_cell_fade_follows_its_record_and_restores_selection_style_exactly() {
     let mut grid = Grid::new(columns(), vec![10, 20, 30]);

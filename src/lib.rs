@@ -19,6 +19,8 @@
 //! See the bundled [feature guide](guides::features),
 //! [pagination guide](guides::pagination), and [updates guide](guides::updates).
 
+#![forbid(unsafe_code)]
+
 /// Integration guides bundled with the crate, independent of repository access.
 pub mod guides {
     #[doc = include_str!("../docs/rustdoc/features.md")]
@@ -34,7 +36,7 @@ mod details;
 pub use details::{CellDetail, CellDetailsOptions};
 mod features;
 mod input;
-pub use columns::ColumnOrderError;
+pub use columns::{ColumnOrderError, ColumnState, GridLayout, LayoutError};
 pub use features::{CopyTarget, ExternalFilterError, LoadState};
 mod model;
 mod pagination;
@@ -163,6 +165,7 @@ struct CellFlash {
 }
 
 /// Interactive grid state plus its framework-independent model.
+#[must_use]
 pub struct Grid<T> {
     model: GridModel<T>,
     details: details::DetailsState,
@@ -325,6 +328,48 @@ impl<T> Grid<T> {
             self.clear_cell_details();
         }
         updated
+    }
+
+    /// Edit multiple resident rows, refreshing ordering and page state once.
+    /// Indices refer to insertion order. Invalid indices are skipped; repeated
+    /// indices are edited repeatedly. Returns the number of valid edits.
+    /// Owned grids rebuild filtering/sorting once; external pages keep source
+    /// order. Callback panics do not roll back edits. Persist changes in your app.
+    ///
+    /// ```
+    /// use ratagrid::{Column, Grid};
+    /// let mut grid = Grid::new(vec![Column::new("Value", 8, |n: &i32| n.to_string())], vec![1, 2, 3]);
+    /// assert_eq!(grid.update_rows([0, 2], |_, n| *n += 10), 2);
+    /// assert_eq!(grid.model().rows(), &[11, 2, 13]);
+    /// ```
+    pub fn update_rows(
+        &mut self,
+        indices: impl IntoIterator<Item = usize>,
+        update: impl FnMut(usize, &mut T),
+    ) -> usize {
+        let updated = if self.is_external() {
+            self.model.update_rows_in_place(indices, update)
+        } else {
+            self.model.update_rows(indices, update)
+        };
+        if updated > 0 {
+            self.clamp_page();
+            self.hover = None;
+            self.clear_cell_details();
+        }
+        updated
+    }
+
+    /// Restore selection using a single scan and a temporary selected-key hash map.
+    /// See [`GridModel::with_hashed_row_id`] for complexity and duplicate handling.
+    pub fn with_hashed_row_id<K: Eq + std::hash::Hash + 'static>(
+        self,
+        row_id: impl Fn(&T) -> K + 'static,
+    ) -> Self {
+        Self {
+            model: self.model.with_hashed_row_id(row_id),
+            ..self
+        }
     }
 
     /// Highlight a cell, following its record across sorting and client pages.

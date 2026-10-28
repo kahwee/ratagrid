@@ -116,13 +116,13 @@ full-value details. Sorting uses the record comparator, independently of the bar
 
 ## Use it
 
-Install [Ratagrid 0.3.1 from crates.io](https://crates.io/crates/ratagrid/0.3.1) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.3.1"` accepts compatible 0.3 releases; use `"=0.3.1"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.3.1 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.3.1) identifies its published source.
+Install [Ratagrid 0.4.0 from crates.io](https://crates.io/crates/ratagrid/0.4.0) with Ratatui 0.30 and Crossterm 0.29. `ratagrid = "0.4.0"` accepts compatible 0.4 releases; use `"=0.4.0"` to require this exact version and retain your application's Cargo.lock for reproducible builds. The [0.4.0 GitHub release](https://github.com/kahwee/ratagrid/releases/tag/v0.4.0) identifies its published source.
 
-Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.3.1/ratagrid/) describes the immutable published crate.
+Repository guides and the live site follow main. The versioned [API reference](https://docs.rs/ratagrid/0.4.0/ratagrid/) describes the immutable published crate.
 
 ```toml
 [dependencies]
-ratagrid = "0.3.1"
+ratagrid = "0.4.0"
 ratatui = "0.30"
 crossterm = "0.29"
 ```

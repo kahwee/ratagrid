@@ -1,6 +1,52 @@
 //! Column presentation keeps original indices stable for sorting and actions.
 use super::*;
 
+/// One column in a saved layout, in display order (including hidden columns).
+/// The insertion index and title identify the original schema. Applications
+/// should also version their saved schema if column meanings change.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ColumnState {
+    pub column: usize,
+    pub title: String,
+    pub width: u16,
+    pub visible: bool,
+    pub pinned: bool,
+}
+
+/// Plain data for application-owned persistence; no storage or serialization
+/// dependency is imposed. Columns must match the receiving grid's schema.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[must_use]
+pub struct GridLayout {
+    pub columns: Vec<ColumnState>,
+}
+
+/// A saved layout was rejected without changing the grid.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LayoutError {
+    /// Missing, duplicate, or out-of-range column indices.
+    InvalidColumns,
+    /// The saved title differs from the current column at this insertion index.
+    SchemaMismatch { column: usize },
+    /// Widths must be at least four terminal cells.
+    InvalidWidth { column: usize },
+}
+
+impl std::fmt::Display for LayoutError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidColumns => f.write_str("layout must contain each column exactly once"),
+            Self::SchemaMismatch { column } => {
+                write!(f, "layout schema differs at column {column}")
+            }
+            Self::InvalidWidth { column } => {
+                write!(f, "column {column} width must be at least four")
+            }
+        }
+    }
+}
+impl std::error::Error for LayoutError {}
+
 /// Invalid column order. Supply each original column index exactly once.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ColumnOrderError;
@@ -13,6 +59,62 @@ impl std::fmt::Display for ColumnOrderError {
 impl std::error::Error for ColumnOrderError {}
 
 impl<T> Grid<T> {
+    /// Capture widths, visibility, order and pinning for application persistence.
+    pub fn save_layout(&self) -> GridLayout {
+        GridLayout {
+            columns: self
+                .column_order
+                .iter()
+                .map(|&column| ColumnState {
+                    column,
+                    title: self.model.columns[column].title.clone(),
+                    width: self.model.columns[column].width,
+                    visible: self.column_visible[column],
+                    pinned: self.column_pinned[column],
+                })
+                .collect(),
+        }
+    }
+
+    /// Validate the complete snapshot before applying it. A rejected snapshot
+    /// preserves widths, order, focus and the current interaction state.
+    /// A successful restore closes cell details and cancels resizing; render
+    /// again before handling mouse input. Row data, sorting and selection remain.
+    pub fn restore_layout(&mut self, layout: &GridLayout) -> Result<(), LayoutError> {
+        if layout.columns.len() != self.model.columns.len() {
+            return Err(LayoutError::InvalidColumns);
+        }
+        let mut seen = vec![false; self.model.columns.len()];
+        for state in &layout.columns {
+            let Some(present) = seen.get_mut(state.column) else {
+                return Err(LayoutError::InvalidColumns);
+            };
+            if *present {
+                return Err(LayoutError::InvalidColumns);
+            }
+            *present = true;
+            if state.title != self.model.columns[state.column].title {
+                return Err(LayoutError::SchemaMismatch {
+                    column: state.column,
+                });
+            }
+            if state.width < 4 {
+                return Err(LayoutError::InvalidWidth {
+                    column: state.column,
+                });
+            }
+        }
+        for state in &layout.columns {
+            self.model.columns[state.column].width = state.width;
+            self.column_visible[state.column] = state.visible;
+            self.column_pinned[state.column] = state.pinned;
+        }
+        self.column_order = layout.columns.iter().map(|state| state.column).collect();
+        self.columns_changed();
+        self.column_offset = self.column_offset.min(self.max_column_offset());
+        Ok(())
+    }
+
     /// Original column indices in configured order, including hidden columns.
     pub fn column_order(&self) -> &[usize] {
         &self.column_order

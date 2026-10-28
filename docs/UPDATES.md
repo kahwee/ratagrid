@@ -30,9 +30,35 @@ if grid.update_row(index, |job| job.latency_ms += 50) {
 
 `update_row` changes typed data, so formatting on the next render shows the new values. It returns false for an invalid row without calling the update closure. `GridModel::index_at(position)` maps a sorted position to a resident row index.
 
-Owned grids preserve selection, maintain the active global sort and retain stable ties in both directions. They reposition only the edited row, using logarithmic comparator calls and up to linear index lookup/movement. Updating an unsorted row requires no ordering scan. A changed sort key can move a row out of the current viewport or client page; navigation still follows the selected record.
+Owned grids preserve selection, maintain the active global sort and retain stable ties in both directions. They reposition only the edited row, using logarithmic comparator calls and up to linear index lookup/movement. Updating an unsorted, unfiltered row requires no ordering scan. A changed sort key can move a row out of the current viewport or client page; navigation still follows the selected record.
+
+With search or filtering active, only the edited record is re-evaluated. Rows can enter or leave the results without filtering or sorting the entire dataset again. Selection remains attached to its resident record, even while that record is hidden. Filters, formatters, and comparators should depend on record data. If a callback depends on external state that changes, reapply the filter or model search to rebuild all results.
 
 External grids update only the current resident page, preserving the source's order and skipping local comparators. The edit is local: persist it through your API/database, then reload the page if server ordering or totals have changed. External navigation clears animations. With a row ID callback, selection is restored if the next accepted page contains the selected ID exactly once; otherwise selection clears. Application value tweens must also be cancelled when a page is replaced; the playground demonstrates this.
+
+## Apply a live-feed batch
+
+`Grid::update_rows` and `GridModel::update_rows` accept resident insertion indices
+and an `FnMut(index, &mut record)` callback. Valid indices are visited in iterator
+order, duplicates are edited repeatedly, and invalid indices are skipped. The
+return value counts valid edits, including repeats. An empty or invalid-only batch
+does not rebuild ordering or change interaction state.
+
+```rust
+use ratagrid::{Column, Grid};
+let mut grid = Grid::new(vec![Column::new("Value", 10, |n: &i64| n.to_string())], vec![10, 20, 30]);
+assert_eq!(grid.update_rows([0, 2], |_, n| *n += 5), 2);
+assert_eq!(grid.model().rows(), &[15, 20, 35]);
+```
+
+Owned batches rebuild filtering and stable sorting once, then refresh client page
+state once. External batches preserve source order and never invoke local
+comparators. Keyed active and marked selections track edits to their IDs. This
+is not a transaction: a callback panic does not roll back previous edits.
+Use single-row updates for small changes; a batch does one full filter/sort pass
+and is useful when repeated ordering movements would cost more. The
+[`live_updates` benchmark](https://github.com/kahwee/ratagrid/blob/main/examples/live_updates.rs) measures both strategies
+as well as identity restoration and Unicode search.
 
 ## Drive animation from your event loop
 

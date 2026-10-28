@@ -22,6 +22,7 @@ Your application owns terminal setup, focus, source I/O and clipboard writes.
 | [database](database.rs) | SQLite adapter with global search/sort, one-based application pages and changing totals | Keyboard, bundled in-memory SQLite |
 | [cursor](cursor.rs) | Native keyset pagination, opaque tokens and indexed traversal | Keyboard + mouse, synthetic ordered in-memory index |
 | [playground](playground.rs) | Interactive scenarios, cell details, themes, animation and performance tools | Keyboard + mouse; see the [playground guide](../docs/PLAYGROUND.md) |
+| [live_updates](live_updates.rs) | Batch edits, hashed selection restoration and Unicode search comparisons | No terminal; CSV medians over five samples |
 | [long_cells](long_cells.rs) | Repeatable long-string rendering benchmark; prints CSV | No terminal; see the [performance report](../docs/PERFORMANCE.md) |
 
 Use arrows to move, Tab + Enter to sort, `/` to search and `q` to quit.

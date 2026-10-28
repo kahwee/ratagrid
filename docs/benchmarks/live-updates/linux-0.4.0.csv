@@ -1,0 +1,15 @@
+scenario,rows,median_ms
+sequential_1000,10000,2.479240
+batch_1000,10000,0.148618
+equality_restore_500,10000,3.920476
+hashed_restore_500,10000,0.256827
+filtered_edit_incremental,10000,0.002202
+filtered_edit_full_refresh,10000,1.974171
+unicode_search,10000,2.034325
+sequential_1000,100000,19.817456
+batch_1000,100000,1.675143
+equality_restore_500,100000,42.055357
+hashed_restore_500,100000,2.192703
+filtered_edit_incremental,100000,0.018970
+filtered_edit_full_refresh,100000,22.233777
+unicode_search,100000,20.795606

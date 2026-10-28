@@ -2,16 +2,17 @@ use ratatui_core::style::Style;
 use std::{
     any::Any,
     cmp::Ordering,
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
+    hash::Hash,
     rc::Rc,
 };
 
 type RowKey<T> = Box<dyn Fn(&T) -> Box<dyn Any>>;
-type KeyMatches<T> = Box<dyn Fn(&T, &dyn Any) -> bool>;
+type RestoreKeys<T> = Box<dyn Fn(&[T], &[&dyn Any]) -> Vec<Option<usize>>>;
 
 struct RowIdentity<T> {
     key: RowKey<T>,
-    matches: KeyMatches<T>,
+    restore: RestoreKeys<T>,
 }
 
 type Formatter<T> = Box<dyn Fn(&T) -> String>;
@@ -27,6 +28,7 @@ type RowFilter<T> = Box<dyn Fn(&T) -> bool>;
 type Comparator<T> = Box<dyn Fn(&T, &T) -> Ordering>;
 
 /// A typed column. Sorting compares records, independently of their display text.
+#[must_use]
 pub struct Column<T> {
     pub(crate) title: String,
     pub(crate) width: u16,
@@ -120,6 +122,7 @@ pub struct Sort {
 /// Framework-independent ordering and selection over owned records.
 ///
 /// Selection refers to an insertion index, so sorting never selects a different record.
+#[must_use]
 pub struct GridModel<T> {
     pub(crate) columns: Vec<Column<T>>,
     rows: Vec<T>,
@@ -163,9 +166,59 @@ impl<T> GridModel<T> {
         let extract = Rc::clone(&row_id);
         self.identity = Some(RowIdentity {
             key: Box::new(move |row| Box::new(extract(row))),
-            matches: Box::new(move |row, key| {
-                key.downcast_ref::<K>()
-                    .is_some_and(|key| row_id(row) == *key)
+            restore: Box::new(move |rows, keys| {
+                keys.iter()
+                    .map(|key| {
+                        let key = key.downcast_ref::<K>()?;
+                        let mut matches = rows
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, row)| row_id(row) == *key);
+                        let (index, _) = matches.next()?;
+                        matches.next().is_none().then_some(index)
+                    })
+                    .collect()
+            }),
+        });
+        self.refresh_selected_id();
+        self.refresh_marked_ids();
+        self
+    }
+
+    /// Preserve selection with an expected linear-time scan on replacement.
+    /// Unlike [`Self::with_row_id`], keys must implement [`Hash`] as well as `Eq`.
+    /// Only selected keys are indexed temporarily: O(selected keys) extra memory.
+    /// Missing or duplicate IDs clear the corresponding selection. Hash collisions
+    /// are resolved by equality; they never select the wrong record.
+    pub fn with_hashed_row_id<K: Eq + Hash + 'static>(
+        mut self,
+        row_id: impl Fn(&T) -> K + 'static,
+    ) -> Self {
+        let row_id = Rc::new(row_id);
+        let extract = Rc::clone(&row_id);
+        self.identity = Some(RowIdentity {
+            key: Box::new(move |row| Box::new(extract(row))),
+            restore: Box::new(move |rows, keys| {
+                let mut wanted: HashMap<&K, (bool, Option<usize>)> = keys
+                    .iter()
+                    .filter_map(|key| key.downcast_ref::<K>())
+                    .map(|key| (key, (false, None)))
+                    .collect();
+                if !wanted.is_empty() {
+                    for (index, row) in rows.iter().enumerate() {
+                        if let Some((seen, position)) = wanted.get_mut(&row_id(row)) {
+                            *position = if *seen { None } else { Some(index) };
+                            *seen = true;
+                        }
+                    }
+                }
+                keys.iter()
+                    .map(|key| {
+                        key.downcast_ref::<K>()
+                            .and_then(|key| wanted.get(key))
+                            .and_then(|(_, index)| *index)
+                    })
+                    .collect()
             }),
         });
         self.refresh_selected_id();
@@ -184,35 +237,24 @@ impl<T> GridModel<T> {
     fn restore_selection(&mut self) {
         self.selected = None;
         self.selected_position = None;
-        if let (Some(identity), Some(key)) = (&self.identity, &self.selected_id) {
-            let mut matches = self
-                .rows
+        self.marked.clear();
+        if let Some(identity) = &self.identity {
+            let keys: Vec<&dyn Any> = self
+                .selected_id
                 .iter()
-                .enumerate()
-                .filter(|(_, row)| (identity.matches)(row, key.as_ref()));
-            if let Some((index, _)) = matches.next()
-                && matches.next().is_none()
-            {
-                self.selected = Some(index);
+                .chain(self.marked_ids.values())
+                .map(|key| key.as_ref())
+                .collect();
+            let restored = (identity.restore)(&self.rows, &keys);
+            let marked_start = usize::from(self.selected_id.is_some());
+            if marked_start != 0 {
+                self.selected = restored[0];
             }
+            self.marked
+                .extend(restored.into_iter().skip(marked_start).flatten());
         }
         if self.selected.is_none() {
             self.selected_id = None;
-        }
-        self.marked.clear();
-        if let Some(identity) = &self.identity {
-            for key in self.marked_ids.values() {
-                let mut matches = self
-                    .rows
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, row)| (identity.matches)(row, key.as_ref()));
-                if let Some((index, _)) = matches.next()
-                    && matches.next().is_none()
-                {
-                    self.marked.insert(index);
-                }
-            }
         }
         self.refresh_marked_ids();
     }
@@ -350,12 +392,15 @@ impl<T> GridModel<T> {
     /// Only the edited row is repositioned: logarithmic comparisons, with up to
     /// linear index lookup/movement. Small moves shift only the crossed span
     /// of ordering indices; the full dataset is never re-sorted.
+    /// With search or filtering active, only the edited row is re-evaluated.
+    /// Callbacks must reflect record data; reset the filter/search to refresh
+    /// results when callback behavior depends on changed external state.
     pub fn update_row(&mut self, index: usize, update: impl FnOnce(&mut T)) -> bool {
         if !self.update_row_in_place(index, update) {
             return false;
         }
         if self.filter.is_some() || !self.search.is_empty() {
-            self.apply_sort();
+            self.update_filtered_order(index);
             return true;
         }
         let Some(sort) = self.sort else {
@@ -397,6 +442,68 @@ impl<T> GridModel<T> {
             }
         });
         true
+    }
+
+    /// Edit a batch of resident insertion indices, rebuilding ordering once.
+    /// Invalid indices are ignored; repeated indices are edited repeatedly in
+    /// iterator order. Returns the number of valid edits (including repeats).
+    /// The callback receives the insertion index and mutable record. This is not
+    /// a transaction: callback panics do not roll back earlier edits.
+    /// Prefer [`Self::update_row`] for isolated edits; a batch performs one full
+    /// filter/sort pass, rather than repeated index movements for a large feed.
+    pub fn update_rows(
+        &mut self,
+        indices: impl IntoIterator<Item = usize>,
+        update: impl FnMut(usize, &mut T),
+    ) -> usize {
+        let updated = self.update_rows_in_place(indices, update);
+        if updated > 0 {
+            self.apply_sort();
+        }
+        updated
+    }
+
+    pub(crate) fn update_rows_in_place(
+        &mut self,
+        indices: impl IntoIterator<Item = usize>,
+        mut update: impl FnMut(usize, &mut T),
+    ) -> usize {
+        let mut updated = 0;
+        for index in indices {
+            if self.update_row_in_place(index, |row| update(index, row)) {
+                updated += 1;
+            }
+        }
+        updated
+    }
+
+    fn update_filtered_order(&mut self, index: usize) {
+        let visible = self.matches_filter(&self.rows[index]);
+        if let Some(old) = order_position(&self.order, index) {
+            self.order.remove(old);
+        }
+        if visible {
+            let new = if let Some(sort) = self.sort {
+                let compare = self.columns[sort.column]
+                    .compare
+                    .as_ref()
+                    .expect("sortable column");
+                self.order.partition_point(|&other| {
+                    let result = compare(&self.rows[other], &self.rows[index]);
+                    let result = match sort.direction {
+                        SortDirection::Ascending => result,
+                        SortDirection::Descending => result.reverse(),
+                    };
+                    result.then(other.cmp(&index)) == Ordering::Less
+                })
+            } else {
+                self.order.partition_point(|&other| other < index)
+            };
+            self.order.insert(new, index);
+        }
+        self.selected_position = self
+            .selected
+            .and_then(|selected| order_position(&self.order, selected));
     }
 
     pub(crate) fn update_row_in_place(

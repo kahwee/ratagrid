@@ -75,7 +75,7 @@ See [bar chart columns](docs/GUIDE.md#bar-chart-columns) for styling and edge ca
 ## Use with Ratatui
 
 ```toml
-ratagrid = "0.3.1"
+ratagrid = "0.4.0"
 ratatui = "0.30"
 crossterm = "0.29"
 ```
@@ -120,7 +120,7 @@ For a SQLite adapter with global search, one-based application pages, optional s
 
 For native database cursor/keyset pagination, use `Grid::new_cursor_paged`, handle `Action::CursorPageRequested`, and return rows plus the next token. Try `cargo run --locked --example cursor`; see the [cursor integration guide](docs/PAGINATION.md#native-cursorkeyset-pagination).
 
-[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Release notes and migration](CHANGELOG.md#031--2026-10-11-utc) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
+[Feature guide](docs/FEATURES.md) · [Pagination](docs/PAGINATION.md) · [Release notes and migration](CHANGELOG.md#040--2026-10-28-utc) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
 
 ## GitHub benchmarks
 

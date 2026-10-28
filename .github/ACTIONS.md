@@ -28,10 +28,10 @@ Versions below match the current workflow and composite-action references. SHA-p
 
 | Action | Reference |
 | --- | --- |
-| [Swatinem/rust-cache](https://github.com/Swatinem/rust-cache) | `6323deb102c322ba6fcbdcafc7e3dddab59af2b6` |
+| [Swatinem/rust-cache](https://github.com/Swatinem/rust-cache) | `d1527c8f67ef9af357290475d4af4b0fab8f12e0` |
 | [actions/checkout](https://github.com/actions/checkout) | `v7.0.1` |
 | [actions/download-artifact](https://github.com/actions/download-artifact) | `v8.0.2` |
-| [actions/setup-python](https://github.com/actions/setup-python) | `v7.0.0` |
+| [actions/setup-python](https://github.com/actions/setup-python) | `v7.1.0` |
 | [actions/upload-artifact](https://github.com/actions/upload-artifact) | `v7.0.2` |
 | [dtolnay/rust-toolchain](https://github.com/dtolnay/rust-toolchain) | `89b12181fb390509a0842a86cc55eeb8eb928c1d` |
 

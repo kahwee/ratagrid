@@ -24,7 +24,7 @@ assert_eq!(grid.select_row(2), Some(Action::SelectionChanged(2)));
 assert_eq!(grid.model().selected_index(), Some(2));
 ```
 
-Only keys for the active and marked records are stored. The existing equality-only ID contract is preserved: restoring each selected key scans replacement rows to detect duplicates. Large marked selections can make reloads expensive; no ID index is allocated for every resident record.
+Only keys for the active and marked records are stored. The equality-only `with_row_id` contract is preserved: restoring each selected key scans replacement rows to detect duplicates. For large selections, use `.with_hashed_row_id(|record| record.id)` with an `Eq + Hash` key. It scans replacement rows once, using a temporary hash map containing only selected keys: expected O(rows + selected keys) key-matching work and O(selected keys) extra memory, plus O(selected keys × log(selected keys)) to rebuild the ordered selection sets. Hash collisions are checked with equality. Missing and duplicated IDs are dropped with the same rules as the equality-only API. Both paths run synchronously.
 
 ## Search and typed filtering
 
@@ -128,3 +128,27 @@ assert!(grid.cell_details_options().is_some());
 ```
 
 Hovering a truncated data cell for the configured delay opens its value. Enter opens a keyboard panel for the cursor cell; Escape closes it without clearing selection. Up/Down, PageUp/PageDown, Home/End and the mouse wheel over the panel scroll its content. Header Enter still sorts and values that fit still activate their row. Handle `Action::CellDetailsChanged` by redrawing, and defer application navigation shortcuts while `is_inspecting_cell()` is true. `cell_detail()` exposes the current snapshot. `set_cell_details(None)` disables inspection.
+
+## Persist column layouts
+
+`save_layout()` returns a `GridLayout` containing each column's original index,
+title, width, visibility and pinning in configured order. Save these plain fields
+using your application's storage and serialization format. `restore_layout(&saved)`
+validates every column before applying anything; malformed indices, a changed
+title, or widths below four return `LayoutError` without changing the grid.
+Applications should version their schema when column meanings change, including
+changes that reuse the same titles and indices. Row data, sorting and selection
+are separate from layout persistence.
+
+```rust
+use ratagrid::{Column, Grid};
+let mut grid = Grid::new(vec![Column::new("ID", 8, |n: &u64| n.to_string())], vec![1]);
+let saved = grid.save_layout();
+grid.set_column_visible(0, false);
+grid.restore_layout(&saved).unwrap();
+assert!(grid.is_column_visible(0));
+```
+
+A successful restore closes details and cancels resizing. Render again before
+handling mouse input. Layout snapshots intentionally exclude source requests,
+filters and sort state, which remain application decisions.

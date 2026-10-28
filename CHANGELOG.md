@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-10-28 (UTC)
+
+Existing 0.3 APIs remain available. Update the dependency to `ratagrid = "0.4"`.
+Rust 1.99, Ratatui 0.30 and Crossterm 0.29 remain required.
+
+- Add `Grid::update_rows` and `GridModel::update_rows`: apply live-feed batches
+  with one owned filter/sort pass and one grid page-state refresh. External pages
+  preserve source order. Invalid indices are skipped; repeated indices are edited
+  repeatedly in iterator order. Callbacks are not transactional.
+- Add opt-in `with_hashed_row_id` to restore active and bulk selection with one
+  replacement scan and a temporary map of selected keys. Preserve the existing
+  equality-only API and missing/duplicate-ID behavior; resolve hash collisions
+  with equality.
+- Add `save_layout` / `restore_layout`, `GridLayout`, `ColumnState` and
+  `LayoutError` for application-owned persistence. Validate complete snapshots
+  before changing widths, visibility, order or pinning.
+- Add generated operation-sequence checks against an independent model, collision
+  and callback-count tests, layout interaction regressions, and a reproducible
+  `live_updates` benchmark covering 10,000 and 100,000 rows.
+
+- Update filtered/searchable owned rows incrementally, evaluating only the edited
+  record and using logarithmic sort comparisons. Preserve stable ties, hidden
+  selection, bulk selection, and client pagination recovery.
+- Forbid unsafe library code and warn when constructed grids, models, or columns
+  are discarded. Document Rust toolchain, editor, and native compiler setup.
+
 ## 0.3.1 — 2026-10-11 (UTC)
 
 This patch fixes two grid-state recovery bugs without changing the public API.

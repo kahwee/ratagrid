@@ -1,5 +1,29 @@
 # Contributing
 
+## Rust essentials
+
+Install Rust with [rustup](https://rustup.rs/), then run these commands from the
+repository root:
+
+```sh
+rustup show
+rustup component add rustfmt clippy rust-src rust-analyzer
+cargo fetch --locked
+```
+
+`rust-toolchain.toml` selects Rust 1.99.0 and installs rustfmt and Clippy.
+`rust-src` and `rust-analyzer` provide standard-library source and editor support;
+configure your editor to use rust-analyzer. A native C compiler/linker is needed
+for the SQLite examples and tests (Xcode Command Line Tools on macOS, Visual
+Studio Build Tools with C++ on Windows, or your Linux distribution's build tools).
+
+Library code forbids `unsafe`. Keep builders' returned values: `Column`,
+`GridModel`, and `Grid` are `must_use` so accidentally discarded configurations
+produce a compiler warning. Keep filters, formatters, and comparators consistent
+with record data; single-row updates do not refresh unrelated records.
+
+## Validation
+
 Use Rust 1.99 or newer. Run the [playground](README.md#run-it) to check interactions, then validate your change:
 
 ```sh
