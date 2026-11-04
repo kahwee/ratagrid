@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-No changes yet.
+- Update development SQLite to rusqlite 0.41.1 and compatible compiler/logging
+  dependencies; preserve the public API, Rust minimum and publication hold.
 
 ## 0.5.1 — 2026-10-28 (UTC)
 
