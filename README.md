@@ -68,13 +68,13 @@ prepared release. [Method, triggers and baseline policy](docs/BENCHMARKS.md).
 
 <!-- github-benchmarks:start -->
 
-Measured 2026-11-02 on GitHub-hosted runners at [`5c5966e`](https://github.com/kahwee/ratagrid/commit/5c5966e5214d394916b166d0ff12145148e8ca9d). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/41509940274/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/41509940274-1).
+Measured 2026-11-09 on GitHub-hosted runners at [`72227dd`](https://github.com/kahwee/ratagrid/commit/72227dd79052717dba16e9bc20b3ebc648d360b4). [Workflow and logs](https://github.com/kahwee/ratagrid/actions/runs/42686377073/attempts/1) · [Raw CSV/JSON](docs/benchmarks/github/runs/42686377073-1).
 
 | Runner | 1M draw | 1M numeric sort | 1M: 50 large moves + draw | 100M virtual / 50 resident draw | Fresh / warm Cargo stages |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| ubuntu-24.04 (x86_64) | 0.155 ms | 201.474 ms | 19.821 ms | 0.139 ms | 31.56 s / 2.54 s |
-| macos-15 (arm64) | 0.103 ms | 118.454 ms | 19.350 ms | 0.099 ms | 38.91 s / 3.46 s |
-| windows-2025 (AMD64) | 0.166 ms | 198.968 ms | 29.169 ms | 0.158 ms | 50.54 s / 4.45 s |
+| ubuntu-24.04 (x86_64) | 0.141 ms | 224.030 ms | 19.983 ms | 0.137 ms | 33.21 s / 2.65 s |
+| macos-15 (arm64) | 0.134 ms | 166.459 ms | 22.410 ms | 0.132 ms | 39.69 s / 3.90 s |
+| windows-2025 (AMD64) | 0.163 ms | 243.305 ms | 29.602 ms | 0.164 ms | 52.72 s / 4.40 s |
 
 Release-mode, in-memory runtime medians from three process runs; terminal I/O and real database/network work excluded. Build timings cover Clippy, tests, doctests and rustdoc with pre-fetched dependencies; setup and release compilation excluded. Fresh/warm build figures are medians of two runs each. Compare within a platform; hosted hardware/load varies.
 

@@ -1,0 +1,149 @@
+{
+  "measured_at_utc": "2026-11-09T19:50:44.264548+00:00",
+  "source_commit": "72227dd79052717dba16e9bc20b3ebc648d360b4",
+  "cargo_lock_sha256": "be6e49b6a51308d1563d14f3a27ec015fc8a8e6aa8280328cb0236e373d27b5f",
+  "platform": "macOS-15.8.2-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "logical_cpus": 3,
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.1",
+  "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+  "profiles": {
+    "baseline": {
+      "CARGO_PROFILE_DEV_DEBUG": "2",
+      "CARGO_PROFILE_TEST_DEBUG": "2",
+      "CARGO_INCREMENTAL": "1"
+    },
+    "lean-ci": {
+      "CARGO_PROFILE_DEV_DEBUG": "1",
+      "CARGO_PROFILE_TEST_DEBUG": "1",
+      "CARGO_INCREMENTAL": "0"
+    }
+  },
+  "selected_profiles": [
+    "lean-ci"
+  ],
+  "requested_samples": 2,
+  "requested_warm_runs": 1,
+  "stages": {
+    "clippy": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "tests": [
+      "cargo",
+      "test",
+      "--all-targets",
+      "--locked",
+      "--offline"
+    ],
+    "doctests": [
+      "cargo",
+      "test",
+      "--doc",
+      "--locked",
+      "--offline"
+    ],
+    "rustdoc": [
+      "cargo",
+      "doc",
+      "--no-deps",
+      "--locked",
+      "--offline"
+    ]
+  },
+  "method": "Sequential fresh target directories; alternating profile order; warm repeats keep every artifact. Registry already populated; offline. Release and setup excluded unless requested.",
+  "trials": [
+    {
+      "profile": "lean-ci",
+      "sample": 1,
+      "runs": [
+        {
+          "cache": "cold",
+          "repeat": 0,
+          "seconds": {
+            "clippy": 14.4509,
+            "tests": 17.7622,
+            "doctests": 1.4702,
+            "rustdoc": 4.8137
+          },
+          "total_seconds": 38.497,
+          "artifact_bytes": 348078675
+        },
+        {
+          "cache": "warm",
+          "repeat": 1,
+          "seconds": {
+            "clippy": 0.4178,
+            "tests": 2.5755,
+            "doctests": 1.9676,
+            "rustdoc": 0.1329
+          },
+          "total_seconds": 5.0938,
+          "artifact_bytes": 348078675
+        }
+      ]
+    },
+    {
+      "profile": "lean-ci",
+      "sample": 2,
+      "runs": [
+        {
+          "cache": "cold",
+          "repeat": 0,
+          "seconds": {
+            "clippy": 19.8286,
+            "tests": 16.8442,
+            "doctests": 1.1272,
+            "rustdoc": 3.0884
+          },
+          "total_seconds": 40.8884,
+          "artifact_bytes": 348078675
+        },
+        {
+          "cache": "warm",
+          "repeat": 1,
+          "seconds": {
+            "clippy": 0.1963,
+            "tests": 1.4713,
+            "doctests": 0.9681,
+            "rustdoc": 0.0748
+          },
+          "total_seconds": 2.7105,
+          "artifact_bytes": 348078675
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "lean-ci": {
+      "cold": {
+        "samples": 2,
+        "median_seconds": 39.6927,
+        "median_artifact_bytes": 348078675.0,
+        "median_stage_seconds": {
+          "clippy": 17.1397,
+          "tests": 17.3032,
+          "doctests": 1.2987,
+          "rustdoc": 3.951
+        }
+      },
+      "warm": {
+        "samples": 2,
+        "median_seconds": 3.9021,
+        "median_artifact_bytes": 348078675.0,
+        "median_stage_seconds": {
+          "clippy": 0.307,
+          "tests": 2.0234,
+          "doctests": 1.4678,
+          "rustdoc": 0.1038
+        }
+      }
+    }
+  }
+}
