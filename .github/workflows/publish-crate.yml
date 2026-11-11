@@ -84,7 +84,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           python3 -I - <<'PYTHON'
-          import hashlib, json, os, pathlib, re, tarfile
+          import gzip, hashlib, io, json, os, pathlib, re, tarfile
           root = pathlib.Path(os.environ['RUNNER_TEMP'])
           artifact = root / 'verified-crate'
           evidence = json.loads((artifact / 'release-preflight.json').read_text())
@@ -99,7 +99,11 @@ jobs:
           assert hashlib.sha256(archive.read_bytes()).hexdigest() == evidence['sha256']
           destination = root / 'crate-publish'
           destination.mkdir()
-          with tarfile.open(archive) as package:
+          # Bound expansion before tar headers and extended records are parsed.
+          with gzip.open(archive, 'rb') as compressed:
+              expanded = compressed.read(128 * 1024 * 1024 + 1)
+          assert len(expanded) <= 128 * 1024 * 1024
+          with tarfile.open(fileobj=io.BytesIO(expanded), mode='r:') as package:
               seen, total = set(), 0
               for member in package:
                   name = member.name.rstrip('/') if member.isdir() else member.name
@@ -114,6 +118,9 @@ jobs:
                   assert '..' not in parts and not member.name.startswith('/')
                   assert member.isfile() or member.isdir(), 'Links and devices forbidden'
               package.extractall(destination, filter='data')
+          # Cargo reserves this generated filename when repackaging. Preserve
+          # the original archive, but let Cargo regenerate its manifest copy.
+          (destination / ('ratagrid-' + version) / 'Cargo.toml.orig').unlink(missing_ok=True)
           # Cargo runs from this clean parent, so packaged .cargo configs and
           # toolchain overrides are never loaded. --no-verify prohibits builds.
           (destination / 'manifest-path').write_text(str(destination / ('ratagrid-' + version) / 'Cargo.toml'))

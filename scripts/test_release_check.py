@@ -153,6 +153,9 @@ class PublishingBoundaryTests(unittest.TestCase):
                     else:
                         entry.size = len(MANIFEST)
                         package.addfile(entry, io.BytesIO(MANIFEST))
+                        original = tarfile.TarInfo('ratagrid-1.2.3/Cargo.toml.orig')
+                        original.size = len(MANIFEST)
+                        package.addfile(original, io.BytesIO(MANIFEST))
                 evidence = {'version': VERSION, 'sha': SHA,
                             'sha256': hashlib.sha256(archive.read_bytes()).hexdigest()}
                 if case == 'digest':
@@ -167,6 +170,7 @@ class PublishingBoundaryTests(unittest.TestCase):
                 self.assertEqual(result.returncode == 0, case == 'valid', result.stderr)
                 if case == 'valid':
                     self.assertEqual((root / 'crate-publish/ratagrid-1.2.3/Cargo.toml').read_bytes(), MANIFEST)
+                    self.assertFalse((root / 'crate-publish/ratagrid-1.2.3/Cargo.toml.orig').exists())
 
 
 if __name__ == '__main__':
