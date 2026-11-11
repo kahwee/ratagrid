@@ -1,4 +1,9 @@
 """Release guard regressions: refuse dirty, mismatched or altered artifacts."""
+import hashlib
+import os
+import subprocess
+import sys
+import textwrap
 import importlib.util
 import io
 import json
@@ -111,6 +116,61 @@ class ReleaseChecks(unittest.TestCase):
             self.write()
             with self.subTest(replacement=replacement), self.assertRaises(ValueError):
                 self.inspect()
+
+
+class PublishingBoundaryTests(unittest.TestCase):
+    def workflow(self):
+        return (release.ROOT / '.github/workflows/publish-crate.yml').read_text()
+
+    def test_builds_and_repository_scripts_have_no_oidc(self):
+        verify, publish = self.workflow().split('  publish:\n', 1)
+        self.assertNotIn('id-token: write', verify)
+        self.assertIn('needs: verify', publish)
+        self.assertIn('id-token: write', publish)
+        self.assertNotIn('actions/checkout', publish)
+        self.assertNotIn('scripts/', publish)
+        self.assertIn('cargo +1.99.1 publish --locked --no-verify --registry crates-io', publish)
+        self.assertIn('CARGO_HOME: ${{ runner.temp }}/publish-cargo-home', publish)
+
+    def test_artifact_validation_rejects_links_paths_and_digest_mismatch(self):
+        workflow = self.workflow()
+        code = textwrap.dedent(workflow.split("python3 -I - <<'PYTHON'\n", 1)[1].split('          PYTHON', 1)[0])
+        for case in ('valid', 'symlink', 'traversal', 'digest', 'sha', 'tag'):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                artifact = root / 'verified-crate'
+                artifact.mkdir()
+                archive = artifact / 'ratagrid-1.2.3.crate'
+                with tarfile.open(archive, 'w:gz') as package:
+                    name = 'ratagrid-1.2.3/Cargo.toml'
+                    if case == 'traversal':
+                        name = 'ratagrid-1.2.3/../../escaped'
+                    entry = tarfile.TarInfo(name)
+                    if case == 'symlink':
+                        entry.type = tarfile.SYMTYPE
+                        entry.linkname = '/tmp/other'
+                        package.addfile(entry)
+                    else:
+                        entry.size = len(MANIFEST)
+                        package.addfile(entry, io.BytesIO(MANIFEST))
+                        original = tarfile.TarInfo('ratagrid-1.2.3/Cargo.toml.orig')
+                        original.size = len(MANIFEST)
+                        package.addfile(original, io.BytesIO(MANIFEST))
+                evidence = {'version': VERSION, 'sha': SHA,
+                            'sha256': hashlib.sha256(archive.read_bytes()).hexdigest()}
+                if case == 'digest':
+                    evidence['sha256'] = '0' * 64
+                if case == 'sha':
+                    evidence['sha'] = 'b' * 40
+                (artifact / 'release-preflight.json').write_text(json.dumps(evidence))
+                env = dict(os.environ, RUNNER_TEMP=temporary, SOURCE_SHA=SHA,
+                           RELEASE_TAG='v9.9.9' if case == 'tag' else 'v' + VERSION)
+                result = subprocess.run([sys.executable, '-I', '-'], input=code,
+                                        text=True, capture_output=True, env=env)
+                self.assertEqual(result.returncode == 0, case == 'valid', result.stderr)
+                if case == 'valid':
+                    self.assertEqual((root / 'crate-publish/ratagrid-1.2.3/Cargo.toml').read_bytes(), MANIFEST)
+                    self.assertFalse((root / 'crate-publish/ratagrid-1.2.3/Cargo.toml.orig').exists())
 
 
 if __name__ == '__main__':

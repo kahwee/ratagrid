@@ -126,8 +126,10 @@ manifest/lock/tag agreement, exact-source successful main CI and the clean packa
 before official short-lived OIDC authentication. Branch pushes, pull requests and
 manual dispatches never trigger publication. Do not duplicate its upload manually.
 After an uncertain run, inspect the exact registry version and checksum before
-retrying. Download the archive and compare its VCS SHA and SHA-256 with the preflight
-report; check `https://docs.rs/ratagrid/<version>/ratagrid/` separately. Pending
+retrying. The publisher repackages the verified source using Cargo `--no-verify`; its
+registry archive checksum or Cargo-generated VCS metadata may differ from the
+preflight archive. Verify the published source and normalized manifest against
+the retained verified artifact rather than assuming byte-identical archives; check `https://docs.rs/ratagrid/<version>/ratagrid/` separately. Pending
 builds are not available documentation.
 
 For GitHub, set `release_version` to the validated manifest version, inspect both
@@ -159,8 +161,10 @@ another destination is blocked; do not delete/yank to make the release appear at
 
 [CI](../.github/workflows/ci.yml), [benchmarks](../.github/workflows/benchmarks.yml)
 and the [tag-only crate publisher](../.github/workflows/publish-crate.yml) are active.
-The publisher has top-level `contents: read` and only `contents: read`, `actions: read`,
-`id-token: write` on its job, with no GitHub environment or long-lived registry secret.
+Verification uses a read-only job without OIDC. A separate fresh publisher has
+only `contents: read` and `id-token: write`, without a checkout, repository scripts
+or package build execution. It consumes the verified artifact with isolated Cargo
+configuration and `--no-verify`. There is no GitHub environment or long-lived registry secret.
 Its external binding is configured separately; activation does not verify an upload.
 
 The source-release proposal stays inactive in `.github/release-proposals/`.

@@ -220,3 +220,36 @@ fn sorted_sampling_and_export_share_order_and_resized_hit_testing() {
     grid.handle_event(&support::click(5, 0));
     assert_eq!(grid.model().sort().unwrap().column, 1);
 }
+
+#[test]
+fn exports_neutralize_spreadsheet_formulas_after_sanitization() {
+    use ratagrid::CopyTarget;
+    for value in [
+        "=1+1",
+        "+SUM(A1)",
+        "-1",
+        "@SUM(A1)",
+        "\t\r=1",
+        "\u{202e} =1",
+    ] {
+        let mut grid = Grid::new(
+            vec![Column::new("=header", 12, |s: &String| s.clone())],
+            vec![value.to_owned()],
+        );
+        grid.toggle_row_selection(0);
+        let (_, text) = csv(&grid, CsvScope::Filtered);
+        assert!(text.starts_with("\"'=header\"\r\n\"'"), "{text:?}");
+        for target in [
+            CopyTarget::Cell { row: 0, column: 0 },
+            CopyTarget::Row(0),
+            CopyTarget::SelectedRows,
+        ] {
+            assert!(grid.copy_text(target).unwrap().starts_with('\''));
+        }
+    }
+    let grid = Grid::new(
+        vec![Column::new("Name", 12, |s: &String| s.clone())],
+        vec!["normal = text".to_owned()],
+    );
+    assert_eq!(grid.copy_text(CopyTarget::Row(0)).unwrap(), "normal = text");
+}

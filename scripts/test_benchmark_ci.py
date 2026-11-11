@@ -32,6 +32,19 @@ def report(platform='linux'):
 
 
 class ReportingTests(unittest.TestCase):
+    def test_workflow_blocks_baseline_runs_before_write_job(self):
+        workflow = (Path(__file__).resolve().parent.parent / '.github/workflows/benchmarks.yml').read_text()
+        publish_job = workflow.split('  publish:\n', 1)[1]
+        condition = next(line for line in publish_job.splitlines() if line.startswith('    if:'))
+        self.assertIn("inputs.baseline_ref == ''", condition)
+        self.assertIn("github.ref == 'refs/heads/main'", condition)
+        self.assertIn("github.event_name != 'pull_request'", condition)
+
+    def test_baseline_runs_cannot_publish_even_with_missing_artifacts(self):
+        with patch.dict(bench.os.environ, {'BENCHMARK_BASELINE_REF': 'refs/pull/1/head'}):
+            with self.assertRaisesRegex(ValueError, 'artifact-only'):
+                bench.publish(Path('/missing/artifacts'))
+
     def test_median_and_incomplete_trials(self):
         self.assertEqual(bench.aggregate([csv_text(n) for n in [1, 100, 3]])[0]['p50_ms'], 3)
         for inputs in ([csv_text(1)] * 2, [csv_text(1)] * 2 + [HEADER],

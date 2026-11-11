@@ -179,6 +179,8 @@ def collect(destination):
 
 
 def publish(source):
+    if os.environ.get('BENCHMARK_BASELINE_REF'):
+        raise ValueError('Baseline comparisons are artifact-only and cannot be published')
     reports = [json.loads(p.read_text(encoding='utf-8')) for p in sorted(source.glob('benchmark-*/results.json'))]
     if len(reports) != 3 or {r['platform'] for r in reports} != set(PLATFORMS):
         raise ValueError('Publish requires all three successful platform reports')
