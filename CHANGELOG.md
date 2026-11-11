@@ -2,18 +2,18 @@
 
 ## Unreleased
 
+## 0.5.1 — 2026-11-11 (UTC)
+
+Maintenance and security fixes. The public 0.5 APIs and Rust 1.99 minimum
+are unchanged.
+
 - Separate crate verification/builds from OIDC publishing; keep manual baseline
   benchmark comparisons artifact-only, outside the automated write job.
 - Neutralize spreadsheet formulas in CSV headers/values and copied cells, bound
   retained source-error messages, and remove predictable temporary-file test I/O.
 
 - Update development SQLite to rusqlite 0.41.1 and compatible compiler/logging
-  dependencies; preserve the public API, Rust minimum and publication hold.
-
-## 0.5.1 — 2026-10-28 (UTC)
-
-Prepared maintenance release; publication remains pending. The public 0.5 APIs
-and Rust 1.99 minimum are unchanged. Never reuse the immutable 0.5.0 tag.
+  dependencies; preserve the public API and Rust minimum.
 
 - Update Unicode width to 0.2.3 and development SQLite to rusqlite 0.41.0;
   refresh compatible locked dependencies.
