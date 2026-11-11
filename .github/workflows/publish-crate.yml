@@ -101,7 +101,7 @@ jobs:
           destination.mkdir()
           with tarfile.open(archive) as package:
               seen, total = set(), 0
-              for member in package.getmembers():
+              for member in package:
                   name = member.name.rstrip('/') if member.isdir() else member.name
                   parts = name.split('/')
                   assert all(part not in ('', '.', '..') for part in parts)
