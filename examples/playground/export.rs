@@ -32,6 +32,10 @@ fn escape(text: &str) -> String {
         .replace('"', "&quot;")
 }
 pub(super) fn snapshot(buffer: &Buffer, path: &PathBuf) -> io::Result<()> {
+    fs::write(path, svg_document(buffer))
+}
+
+fn svg_document(buffer: &Buffer) -> String {
     let cell_width = 10;
     let cell_height = 20;
     let padding = 24;
@@ -97,7 +101,7 @@ pub(super) fn snapshot(buffer: &Buffer, path: &PathBuf) -> io::Result<()> {
         }
     }
     svg.push_str("</g></svg>\n");
-    fs::write(path, svg)
+    svg
 }
 
 #[cfg(test)]
@@ -119,10 +123,7 @@ mod tests {
                 .bg(Color::Rgb(12, 18, 28))
                 .add_modifier(Modifier::REVERSED | Modifier::BOLD),
         );
-        let path = std::env::temp_dir().join(format!("ratagrid-export-{}.svg", std::process::id()));
-        snapshot(&buffer, &path).unwrap();
-        let svg = fs::read_to_string(&path).unwrap();
-        fs::remove_file(path).unwrap();
+        let svg = svg_document(&buffer);
         assert!(svg.contains("width=\"100%\" height=\"100%\" fill=\"#f6f8fc\""));
         assert!(svg.contains("x=\"34\" y=\"24\" width=\"10\" height=\"20\" fill=\"#69e7c1\""));
         assert!(svg.contains("fill=\"#0c121c\" textLength=\"10\" lengthAdjust=\"spacingAndGlyphs\" font-weight=\"bold\">B</text>"));

@@ -575,3 +575,21 @@ fn invalid_column_orders_preserve_order_and_cursor() {
     assert!(empty.set_column_order(vec![]).is_ok());
     assert!(empty.set_column_order(vec![0]).is_err());
 }
+
+#[test]
+fn source_error_storage_is_bounded_after_sanitization() {
+    let mut grid = Grid::new_paged(columns(), 4, NonZeroUsize::new(4).unwrap());
+    let request = grid.page_request().unwrap();
+    grid.set_page_error(request, format!("\n{}", "界".repeat(100_000)))
+        .unwrap();
+    match grid.load_state() {
+        LoadState::Error(message) => {
+            assert_eq!(message.chars().count(), 1024);
+            assert_eq!(message.len(), 3072);
+        }
+        state => panic!("unexpected state: {state:?}"),
+    }
+    for _ in 0..3 {
+        assert!(line(&draw(&mut grid, Rect::new(0, 0, 30, 6)), 1).contains("Retry"));
+    }
+}

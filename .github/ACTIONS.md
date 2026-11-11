@@ -34,10 +34,14 @@ for durable SHA pins.
 
 ## Publishing boundary
 
-The crate workflow has top-level `contents: read`; its publishing job has only
-`contents: read`, `actions: read`, `id-token: write`, with no GitHub environment.
-Stable metadata agreement, exact-source successful main CI and the clean package
-verifier must pass before OIDC authentication. External registry trust must match
+The crate workflow has top-level `contents: read`. Its verification job has
+`contents: read` and `actions: read`, never OIDC. Metadata validation, exact-source
+main CI and package builds run there. The dependent publisher runs on a fresh
+runner with only `contents: read` and `id-token: write`, with no checkout or
+repository scripts. It verifies the artifact digest, extracts regular files only,
+and invokes Cargo from a clean parent with isolated configuration and
+`--no-verify`, so package code is never executed with OIDC authority.
+There is no GitHub environment. External registry trust must match
 `kahwee/ratagrid`, `publish-crate.yml`, blank environment. No branch, PR or manual
 publishing trigger is enabled. Activation does not backfill existing tags.
 

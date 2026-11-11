@@ -98,7 +98,7 @@ assert_eq!(grid.copy_text(CopyTarget::Row(0)).as_deref(), Some("123456"));
 
 Ratagrid strips Unicode control characters (`char::is_control`, C0/C1 including tab, newline, carriage return and ESC) and the Unicode `Bidi_Control` set: U+061C, U+200E–U+200F, U+202A–U+202E, and U+2066–U+2069. This includes direction marks, embeddings, overrides, and isolates, providing protection against invisible direction changes in untrusted text.
 
-The same policy applies to formatted cells, column titles, search queries/drafts (including paste), formatted values used for owned search, source error messages, and each cell in `copy_text`. Rendering sanitizes before grapheme segmentation and width measurement. Copying removes controls inside cells and then adds the grid's own tabs/newlines between columns/rows; it returns full text without display truncation. Source records and formatter output are not modified in storage. Applications that copy raw records instead of using `copy_text` must apply their own policy.
+The same policy applies to formatted cells, column titles, search queries/drafts (including paste), formatted values used for owned search, source error messages, and each cell in `copy_text`. Rendering sanitizes before grapheme segmentation and width measurement. Copying removes controls inside cells and then adds the grid's own tabs/newlines between columns/rows; it returns full text without display truncation. CSV headers/values and copied cells that start with `=`, `+`, `-` or `@` after ignoring controls and whitespace receive an apostrophe prefix to prevent spreadsheet formula evaluation. This intentionally also quotes negative numeric display text. Source records and formatter output are not modified in storage. Applications that copy raw records instead of using `copy_text` must apply their own policy.
 
 Normal Arabic/Hebrew letters, combining marks, emoji joiners and variation selectors are preserved. This is plain-text filtering, not an ANSI parser: stripping ESC from an escape sequence may leave its printable suffix (for example `[31m`). It does not normalize text or detect lookalike characters. Database search semantics are chosen by the application's source; use the same sanitization policy there if stored values may contain these controls.
 
@@ -118,6 +118,8 @@ The library exposes these controls for application menus and bindings. The explo
 ## Source lifecycle
 
 `load_state()` returns `Loading`, `Error(message)`, `Empty`, or `Ready`. The grid draws loading and empty messages in its body. Errors draw `[Retry]`, a sanitized source message, and an F5 hint; both mouse Retry and F5 emit a new `PageRequested` or `CursorPageRequested` for the active source mode. `GridStyle::status` and `error` customize these messages.
+
+Source error text is sanitized and retained up to 1,024 Unicode scalar values, bounding redraw allocation independently of the source response size.
 
 Report a failure with `set_page_error(original_request, message)` or `set_cursor_page_error(original_request, message)` in cursor mode. It accepts only a current pending request, ends loading, and disables forward navigation for an unknown-total source. Foreign, outdated, and duplicate failures return `PageError::StaleResponse`. Data arriving after a failed request is also rejected; reload creates a fresh request. Validation errors such as `WrongRowCount` leave a request pending so the application may correct the response or complete it with a source error.
 

@@ -35,7 +35,8 @@ impl<T> Grid<T> {
     ///
     /// Fields are quoted, embedded quotes doubled, and records end with CRLF.
     /// Unicode, tabs and embedded newlines survive; other terminal/bidi controls
-    /// are removed. Search aliases do not replace display values.
+    /// are removed. Formula-like headers and values receive an apostrophe prefix.
+    /// Search aliases do not replace display values.
     ///
     /// External grids export only their resident page, never fetch more data,
     /// and reject loading (`WouldBlock`) or failed (`Other`) states before writing.
@@ -91,6 +92,9 @@ impl<T> Grid<T> {
 
 fn write_field<W: Write>(writer: &mut W, value: &str) -> io::Result<()> {
     writer.write_all(b"\"")?;
+    if text::spreadsheet_formula(value) {
+        writer.write_all(b"'")?;
+    }
     let mut start = 0;
     for (index, ch) in value.char_indices() {
         if ch == '"' || (text::is_unsafe(ch) && !matches!(ch, '\r' | '\n' | '\t')) {

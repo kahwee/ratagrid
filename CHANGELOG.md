@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Separate crate verification/builds from OIDC publishing; keep manual baseline
+  benchmark comparisons artifact-only, outside the automated write job.
+- Neutralize spreadsheet formulas in CSV headers/values and copied cells, bound
+  retained source-error messages, and remove predictable temporary-file test I/O.
+
 - Update development SQLite to rusqlite 0.41.1 and compatible compiler/logging
   dependencies; preserve the public API, Rust minimum and publication hold.
 

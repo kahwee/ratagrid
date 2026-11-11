@@ -60,7 +60,9 @@ jobs:
           retention-days: 90
   publish:
     needs: measure
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # Baseline code runs on the measurement runner and can tamper with artifacts.
+    # Keep those runs artifact-only; never grant a downstream write token.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && inputs.baseline_ref == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
@@ -77,6 +79,8 @@ jobs:
           pattern: benchmark-*
           path: target/benchmark-artifacts
       - name: Publish permanent public data and README table
+        env:
+          BENCHMARK_BASELINE_REF: ${{ inputs.baseline_ref }}
         run: python scripts/benchmark_ci.py publish --input target/benchmark-artifacts
       - name: Commit published measurements
         run: |

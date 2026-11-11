@@ -190,6 +190,7 @@ impl<T> Grid<T> {
     /// Full formatted text, never viewport-clipped. Rows use tabs between visible
     /// columns and newlines between records. Terminal controls and bidirectional
     /// formatting controls within cells are removed, preventing separator injection.
+    /// Formula-like cells receive an apostrophe prefix for spreadsheet safety.
     /// Empty values retain their separators. Returns `None` for invalid targets,
     /// row copies without visible columns, or no marked rows surviving filtering.
     /// Clipboard access remains the application's responsibility.
@@ -202,6 +203,9 @@ impl<T> Grid<T> {
                     output.push('\t');
                 }
                 let text = (self.model.columns[column].format)(row);
+                if crate::text::spreadsheet_formula(&text) {
+                    output.push('\'');
+                }
                 output.extend(text.chars().filter(|c| !crate::text::is_unsafe(*c)));
             }
             Some(())
@@ -214,6 +218,9 @@ impl<T> Grid<T> {
                 let mut text =
                     (self.model.columns.get(column)?.format)(self.model.rows().get(row)?);
                 text.retain(|c| !crate::text::is_unsafe(c));
+                if crate::text::spreadsheet_formula(&text) {
+                    text.insert(0, '\'');
+                }
                 Some(text)
             }
             CopyTarget::Row(row) => {
@@ -284,7 +291,8 @@ impl<T> Grid<T> {
         }
     }
 
-    /// Complete a pending external request with a source error. Stale, duplicate,
+    /// Complete a pending external request with a source error.
+    /// Sanitized messages retain at most 1,024 Unicode scalar values. Stale, duplicate,
     /// or foreign results are rejected. Retry via reload_page (or F5 / Retry button)
     /// creates a new request; late data for the failed request cannot overwrite it.
     pub fn set_page_error(
@@ -317,6 +325,7 @@ impl<T> Grid<T> {
             .into()
             .chars()
             .filter(|c| !crate::text::is_unsafe(*c))
+            .take(1024)
             .collect();
         self.page_error = Some(if message.is_empty() {
             "Unable to load records".into()

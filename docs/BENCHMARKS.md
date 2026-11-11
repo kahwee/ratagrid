@@ -16,8 +16,10 @@ For a performance change, set the optional **baseline_ref** input to a prior
 commit (for example, `gh workflow run benchmarks.yml --ref main -f baseline_ref=6ca93d7`).
 This builds both revisions before timing and alternates three runs of each on
 the same hosted machine. Runtime case sets must match. Before CSVs and source
-SHA are retained with the current results, and the README includes the
-one-million-row draw and update deltas. Build timings still describe only the
+SHA are retained with the current results in artifacts and job summaries.
+Runs with any `baseline_ref` are artifact-only, even on main: baseline code can
+change measurement artifacts, so these runs never start the write-enabled
+publication job. Build timings still describe only the
 current revision. Ordinary runs omit this extra comparison and its compilation
 cost.
 
@@ -61,7 +63,7 @@ per-platform job summaries. PR runs use read-only permissions and never update
 main. Their source SHA is the PR merge commit tested by GitHub; it includes the
 base branch. Manual branch runs also retain artifacts without updating main.
 
-Successful weekly/manual runs on main commit all three platforms' measurements
+Successful weekly/manual runs on main **without a baseline_ref** commit all three platforms' measurements
 to `docs/benchmarks/github/runs/<run-id>-<attempt>/` and update the README table.
 The README links the exact measured commit and workflow attempt. Those CSV/JSON
 files remain public after artifact expiration. Logs stay in artifacts to keep

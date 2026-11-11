@@ -13,3 +13,11 @@ pub(crate) fn sanitize(text: &str) -> Cow<'_, str> {
         Cow::Borrowed(text)
     }
 }
+
+// Check the sanitized cell, including controls/whitespace that spreadsheet
+// importers may discard before interpreting a formula.
+pub(crate) fn spreadsheet_formula(text: &str) -> bool {
+    text.chars()
+        .find(|&c| !is_unsafe(c) && !c.is_whitespace())
+        .is_some_and(|c| matches!(c, '=' | '+' | '-' | '@'))
+}
