@@ -295,7 +295,7 @@ impl<T> Grid<T> {
         if let Some(p) = self.pagination.as_mut()
             && p.mode == PaginationMode::Client
         {
-            let page = position / p.size.get();
+            let page = position / p.size;
             page_changed = p.page != page;
             p.page = page;
         }

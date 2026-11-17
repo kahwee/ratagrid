@@ -9,7 +9,7 @@
 | [Publish crate](workflows/publish-crate.yml) | User-pushed `v*` tags | Validate exact source/package, then obtain short-lived registry authentication |
 
 CI retains all three OS jobs, `fail-fast: false` and a 20-minute timeout. Rust
-1.99.1 and Python 3.15.2 are explicit. Python is installed once per job. Native
+1.100.0 and Python 3.15.2 are explicit. Python is installed once per job. Native
 [parallel steps](https://github.blog/changelog/2026-06-25-actions-steps-can-now-be-run-in-parallel/)
 overlap independent checks; Cargo commands writing a target directory stay ordered.
 Terminal smoke tests run after Linux release examples are built.

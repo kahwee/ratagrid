@@ -139,7 +139,7 @@ impl<T> Grid<T> {
             has_next_page: total.map_or(!p.loading && p.has_next, |total| {
                 p.page < p.count(total) - 1
             }) && (p.mode == PaginationMode::Cursor
-                || p.page < (usize::MAX - 1) / p.size.get()),
+                || p.page < (usize::MAX - 1) / p.size),
             total_rows: total,
             loaded_rows: self.model.rows().len(),
             loading: p.loading,

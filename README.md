@@ -11,7 +11,7 @@ Applications own terminal setup, focus, I/O and persistence.
 
 ## Run it
 
-Use Rust 1.99+; the checkout selects 1.99.1:
+Use Rust 1.99+; the checkout selects 1.100.0:
 
 ```sh
 git clone https://github.com/kahwee/ratagrid.git

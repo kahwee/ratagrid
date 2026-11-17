@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update the development and CI toolchain to Rust 1.100.0; retain Rust 1.99 as the minimum supported version.
+
 ## 0.5.1 — 2026-11-11 (UTC)
 
 Maintenance and security fixes. The public 0.5 APIs and Rust 1.99 minimum

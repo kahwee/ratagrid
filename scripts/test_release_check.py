@@ -129,7 +129,7 @@ class PublishingBoundaryTests(unittest.TestCase):
         self.assertIn('id-token: write', publish)
         self.assertNotIn('actions/checkout', publish)
         self.assertNotIn('scripts/', publish)
-        self.assertIn('cargo +1.99.1 publish --locked --no-verify --registry crates-io', publish)
+        self.assertIn('cargo +1.100.0 publish --locked --no-verify --registry crates-io', publish)
         self.assertIn('CARGO_HOME: ${{ runner.temp }}/publish-cargo-home', publish)
 
     def test_artifact_validation_rejects_links_paths_and_digest_mismatch(self):
